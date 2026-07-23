@@ -25,7 +25,8 @@ export interface GameSettings {
   periodDurationMin: number   // e.g. 5 minutes per quarter
   breakBetweenPeriodsMin: number  // short break between periods
   halfTimeBreakMin: number        // longer halftime break (includes side switch)
-  bufferBetweenGamesMin: number   // changeover time between games on same field
+  bufferBetweenGamesMin: number   // changeover time between rounds/waves of games
+  breakBeforeFinalsMin: number    // extra pause between group stage and playoffs
 }
 
 export interface Venue {
@@ -54,10 +55,15 @@ export interface PeriodScore {
   awayScore: number
 }
 
+export type GameStage = 'group' | 'semifinal' | 'final'
+
 export interface Game {
   id: string
-  homeTeamId: string
-  awayTeamId: string
+  homeTeamId: string | null  // null = playoff slot not yet decided
+  awayTeamId: string | null  // null = playoff slot not yet decided
+  homeLabel?: string  // placeholder text shown when homeTeamId is null, e.g. "1. der Vorrunde"
+  awayLabel?: string  // placeholder text shown when awayTeamId is null, e.g. "Sieger HF 1"
+  stage: GameStage
   field: number          // 1-based
   scheduledStart: string // "HH:MM"
   scheduledEnd: string   // "HH:MM"
@@ -73,4 +79,5 @@ export interface Schedule {
   games: Game[]
   totalDurationMin: number
   estimatedEnd: string   // "HH:MM"
+  awardCeremonyEstimate?: string // "HH:MM", only set when a final exists
 }
