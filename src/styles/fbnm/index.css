@@ -1,0 +1,5 @@
+/* Kopie aus 00-FBNM-design-system/fbnm-design-system/packages/design-system/src/styles/ — bei Aenderungen dort synchron halten. */
+@import "./tokens.css";
+@import "./reset.css";
+@import "./typography.css";
+@import "./accessibility.css";

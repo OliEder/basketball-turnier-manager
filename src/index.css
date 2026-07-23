@@ -1,0 +1,17 @@
+@import "./styles/fbnm/index.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'ALLER', Arial, sans-serif;
+  background: var(--fbnm-color-background);
+  color: var(--fbnm-color-text);
+}
+
+h1, h2, h3 {
+  font-family: 'INSOLENT', 'Arial Black', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}

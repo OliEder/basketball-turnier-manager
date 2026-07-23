@@ -1,0 +1,66 @@
+<h2>Architektur: Turnier-Manager Phase 1 (Planer)</h2>
+<p class="subtitle">Gesamtübersicht — stimmt das so für dich?</p>
+
+<div class="section">
+  <h3>Zwei unabhängige Phasen</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+    <div style="background:#1a2d1a;border:2px solid #22c55e;border-radius:8px;padding:16px">
+      <div class="label" style="color:#22c55e">Phase 1 — Jetzt bauen</div>
+      <h3 style="margin:8px 0">Planer</h3>
+      <ul style="color:#ccc;font-size:13px;line-height:1.8;padding-left:16px">
+        <li>Teams + Logos erfassen</li>
+        <li>Turniermodus konfigurieren</li>
+        <li>Zeitplan automatisch generieren</li>
+        <li>Zeitplan manuell anpassen</li>
+        <li>Export: PDF + Web-URL</li>
+      </ul>
+      <div style="margin-top:12px;font-size:12px;color:#86efac">Läuft: lokal im Browser</div>
+    </div>
+    <div style="background:#1a1a2d;border:2px solid #6366f1;border-radius:8px;padding:16px;opacity:0.6">
+      <div class="label" style="color:#6366f1">Phase 2 — Später</div>
+      <h3 style="margin:8px 0">Spieltag</h3>
+      <ul style="color:#ccc;font-size:13px;line-height:1.8;padding-left:16px">
+        <li>Timer pro Spiel</li>
+        <li>Live-Ergebniseingabe (Tablets)</li>
+        <li>Live-Display (Aufenthaltsraum)</li>
+        <li>Tabelle in Echtzeit</li>
+      </ul>
+      <div style="margin-top:12px;font-size:12px;color:#a5b4fc">Läuft: Go-Server auf Raspberry Pi</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Technologie-Stack Phase 1</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px">
+    <div style="background:#111;border:1px solid #333;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:24px">⚛️</div>
+      <div style="color:#60a5fa;font-weight:bold;margin:6px 0">React + Vite</div>
+      <div style="color:#888;font-size:12px">Frontend / Planer-UI</div>
+    </div>
+    <div style="background:#111;border:1px solid #333;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:24px">📁</div>
+      <div style="color:#f59e0b;font-weight:bold;margin:6px 0">JSON (lokal)</div>
+      <div style="color:#888;font-size:12px">Datenspeicherung im Browser (localStorage)</div>
+    </div>
+    <div style="background:#111;border:1px solid #333;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:24px">🚀</div>
+      <div style="color:#22c55e;font-weight:bold;margin:6px 0">Vercel / Netlify</div>
+      <div style="color:#888;font-size:12px">Hosting für geteilten Zeitplan</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Datenfluss Phase 1</h3>
+  <div style="background:#111;border-radius:8px;padding:16px;font-size:13px;color:#ccc;line-height:2">
+    <span style="color:#60a5fa">Planer-App (Browser)</span>
+    → Teams + Modus eingeben
+    → Zeitplan generieren
+    → Anpassen
+    → <span style="color:#f59e0b">JSON exportieren</span>
+    → <span style="color:#22c55e">PDF (drucken)</span> + <span style="color:#a78bfa">Web-URL (teilen)</span>
+  </div>
+</div>
+
+<p style="margin-top:24px;color:#aaa;font-size:13px">Passt diese Gesamtarchitektur? Sag mir im Terminal was du ändern möchtest.</p>

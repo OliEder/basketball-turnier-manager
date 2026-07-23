@@ -1,0 +1,177 @@
+/* ======================================================
+   FBNM Accessibility – WCAG 2.2 AA (Required) & AAA (Target)
+   ====================================================== */
+
+/* ------------------------------------------------------------------
+   WCAG 2.4.11 Focus Appearance Minimum (AA, new in WCAG 2.2)
+   WCAG 2.4.12 Focus Appearance Enhanced (AAA)
+   Requirements: >= 2px outline, >= 3:1 contrast change
+   ------------------------------------------------------------------ */
+:focus-visible {
+  outline: 3px solid var(--fbnm-cyan-500);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* On dark brand backgrounds: white focus ring for sufficient contrast */
+.fbnm-nav :focus-visible,
+.fbnm-footer :focus-visible,
+.fbnm-hero :focus-visible,
+.fbnm-section--dark :focus-visible {
+  outline-color: var(--fbnm-white);
+  outline-width: 3px;
+}
+
+/* Anchors and cards on dark backgrounds */
+.fbnm-gamecard:focus-visible,
+.fbnm-playercard:focus-visible {
+  outline: 3px solid var(--fbnm-white);
+  outline-offset: 3px;
+}
+
+/* Prevent outline on mouse/touch click (show only for keyboard) */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ------------------------------------------------------------------
+   WCAG 2.3.3 Animation from Interactions (AAA)
+   Respects user's OS-level motion preference.
+   Also supports WCAG 2.1 2.3.1 (Three Flashes) by preventing rapid animation.
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   WCAG 2.5.8 Target Size Minimum (AA, new in WCAG 2.2) – 24x24px
+   WCAG 2.5.5 Target Size (AAA) – 44x44px for interactive elements
+   Applied via .fbnm-btn in Button.astro (min-height: 44px)
+   This rule guards any remaining interactive elements.
+   ------------------------------------------------------------------ */
+button,
+[role="button"],
+input[type="checkbox"],
+input[type="radio"] {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+/* ------------------------------------------------------------------
+   WCAG 1.4.12 Text Spacing (AA)
+   Content must not lose/overlap when user overrides:
+   line-height >= 1.5 * font-size (already in tokens)
+   letter-spacing >= 0.12em
+   word-spacing >= 0.16em
+   paragraph spacing >= 2 * font-size
+   No fixed heights on text containers – handled by not using px heights.
+   ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------
+   WCAG 1.4.11 Non-text Contrast (AA) – UI component boundaries
+   Form control borders, icon boundaries, focus indicators need 3:1
+   against adjacent colors. Enforced via --fbnm-color-border-ui token.
+   ------------------------------------------------------------------ */
+input,
+textarea,
+select {
+  border: 2px solid var(--fbnm-color-border-ui);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--fbnm-cyan-500);
+  outline-offset: 0;
+  border-color: var(--fbnm-cyan-500);
+}
+
+/* ------------------------------------------------------------------
+   WCAG 1.4.4 Resize Text (AA)
+   Ensure no content is lost at 200% zoom (text-only zoom).
+   Avoid fixed heights on containers that hold text – handled elsewhere.
+   ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------
+   Windows High Contrast / Forced Colors
+   Supports users with forced-colors OS setting (WCAG 1.4.11 related)
+   ------------------------------------------------------------------ */
+@media (forced-colors: active) {
+  .fbnm-btn {
+    border: 2px solid ButtonText;
+    forced-color-adjust: none;
+    background-color: ButtonFace;
+    color: ButtonText;
+  }
+
+  .fbnm-btn:hover:not(:disabled) {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  .fbnm-badge {
+    border: 1px solid CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .fbnm-gamecard,
+  .fbnm-playercard {
+    border: 1px solid CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .fbnm-nav,
+  .fbnm-footer {
+    border-bottom: 1px solid CanvasText;
+  }
+
+  .fbnm-nav__link--active {
+    forced-color-adjust: none;
+    border-bottom-color: Highlight;
+  }
+
+  .fbnm-live-ticker {
+    border: 2px solid CanvasText;
+  }
+}
+
+/* ------------------------------------------------------------------
+   WCAG 1.4.10 Reflow (AA)
+   Content must reflow without horizontal scrolling at 320px viewport.
+   Ensured by: no fixed pixel widths on containers wider than viewport,
+   using max-width + padding instead of fixed width.
+   ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------
+   Screen reader utilities
+   ------------------------------------------------------------------ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}

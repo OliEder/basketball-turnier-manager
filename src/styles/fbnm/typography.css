@@ -1,0 +1,110 @@
+/* ======================================================
+   FBNM Typography
+   Fonts: ALLER (body), INSOLENT (display), Montserrat (caption)
+   Place font files in apps/web/public/fonts/
+   ====================================================== */
+
+@font-face {
+  font-family: 'ALLER';
+  src: url('/fonts/Aller_Rg.woff2') format('woff2'),
+       url('/fonts/Aller_Rg.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ALLER';
+  src: url('/fonts/Aller_It.woff2') format('woff2'),
+       url('/fonts/Aller_It.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ALLER';
+  src: url('/fonts/Aller_Bd.woff2') format('woff2'),
+       url('/fonts/Aller_Bd.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'INSOLENT';
+  src: url('/fonts/Insolent.woff2') format('woff2'),
+       url('/fonts/Insolent.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'INSOLENT';
+  src: url('/fonts/Insolent-Italic.woff2') format('woff2'),
+       url('/fonts/Insolent-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* --- Utility Classes --- */
+.fbnm-display {
+  font-family: var(--fbnm-font-display);
+  line-height: var(--fbnm-leading-tight);
+  font-weight: var(--fbnm-weight-regular);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.fbnm-body {
+  font-family: var(--fbnm-font-body);
+  line-height: var(--fbnm-leading-normal);
+}
+
+.fbnm-caption {
+  font-family: var(--fbnm-font-caption);
+  font-size: var(--fbnm-text-xs);
+  line-height: var(--fbnm-leading-caption);
+  font-weight: 300;
+}
+
+h1, .fbnm-h1 {
+  font-family: var(--fbnm-font-display);
+  font-size: var(--fbnm-text-5xl);
+  line-height: var(--fbnm-leading-tight);
+  text-transform: uppercase;
+}
+
+h2, .fbnm-h2 {
+  font-family: var(--fbnm-font-display);
+  font-size: var(--fbnm-text-4xl);
+  line-height: var(--fbnm-leading-tight);
+  text-transform: uppercase;
+}
+
+h3, .fbnm-h3 {
+  font-family: var(--fbnm-font-display);
+  font-size: var(--fbnm-text-3xl);
+  line-height: var(--fbnm-leading-tight);
+  text-transform: uppercase;
+}
+
+h4, .fbnm-h4 {
+  font-family: var(--fbnm-font-display);
+  font-size: var(--fbnm-text-2xl);
+  line-height: var(--fbnm-leading-snug);
+}
+
+h5, .fbnm-h5 {
+  font-family: var(--fbnm-font-body);
+  font-size: var(--fbnm-text-xl);
+  font-weight: var(--fbnm-weight-bold);
+}
+
+h6, .fbnm-h6 {
+  font-family: var(--fbnm-font-body);
+  font-size: var(--fbnm-text-lg);
+  font-weight: var(--fbnm-weight-bold);
+}

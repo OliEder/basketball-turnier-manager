@@ -1,0 +1,5 @@
+{"type":"server-started","port":60918,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:60918","screen_dir":"/Users/oliver-marcuseder/01-vibe-coding/00-Basektball/06-tunier-manager/.superpowers/brainstorm/6523-1782214650/content","state_dir":"/Users/oliver-marcuseder/01-vibe-coding/00-Basektball/06-tunier-manager/.superpowers/brainstorm/6523-1782214650/state"}
+{"type":"screen-added","file":"/Users/oliver-marcuseder/01-vibe-coding/00-Basektball/06-tunier-manager/.superpowers/brainstorm/6523-1782214650/content/app-layout.html"}
+{"type":"screen-added","file":"/Users/oliver-marcuseder/01-vibe-coding/00-Basektball/06-tunier-manager/.superpowers/brainstorm/6523-1782214650/content/waiting.html"}
+{"type":"screen-added","file":"/Users/oliver-marcuseder/01-vibe-coding/00-Basektball/06-tunier-manager/.superpowers/brainstorm/6523-1782214650/content/architecture-overview.html"}
+{"type":"server-stopped","reason":"idle timeout"}
