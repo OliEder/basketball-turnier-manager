@@ -13,6 +13,11 @@ export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
   return pairs
 }
 
+/** Returns the later of two HH:MM time strings. */
+function maxTime(a: string, b: string): string {
+  return timeToMinutes(a) >= timeToMinutes(b) ? a : b
+}
+
 /**
  * Find the earliest available start time for a game on a given field,
  * respecting blackout periods and venue availability.
@@ -54,47 +59,56 @@ export function generateSchedule(config: TournamentConfig): Schedule {
   const venueClose = venue.availabilityWindows[0]?.end ?? '20:00'
   const firstGameStart = addMinutes(venueOpen, venue.setupBufferMin)
   const fieldNextFree: string[] = Array.from({ length: fields }, () => firstGameStart)
+  // Team clocks: track when each team is next free (a team can't play two games at once)
+  const teamNextFree = new Map<string, string>()
+  const availabilityEnd = addMinutes(venueClose, -venue.teardownBufferMin)
 
   const pairs = generateRoundRobinPairs(teams.map(t => t.id))
   const games: Game[] = []
   let gameNumber = 1
 
   for (const [homeTeamId, awayTeamId] of pairs) {
-    // Pick field with earliest availability
-    let bestField = 0
-    for (let f = 1; f < fields; f++) {
-      if (timeToMinutes(fieldNextFree[f]) < timeToMinutes(fieldNextFree[bestField])) {
+    const teamsEarliest = maxTime(
+      teamNextFree.get(homeTeamId) ?? firstGameStart,
+      teamNextFree.get(awayTeamId) ?? firstGameStart,
+    )
+
+    // Pick the field that yields the earliest actual start time for this pair,
+    // once both the field's and both teams' availability are taken into account.
+    let bestField = -1
+    let bestSlotStart = ''
+    for (let f = 0; f < fields; f++) {
+      const earliestForField = maxTime(fieldNextFree[f], teamsEarliest)
+      const slotStart = findNextSlot(earliestForField, gameDuration, venue.blackoutPeriods, availabilityEnd)
+      if (!slotStart) continue
+      if (bestField === -1 || timeToMinutes(slotStart) < timeToMinutes(bestSlotStart)) {
         bestField = f
+        bestSlotStart = slotStart
       }
     }
 
-    const slotStart = findNextSlot(
-      fieldNextFree[bestField],
-      gameDuration,
-      venue.blackoutPeriods,
-      addMinutes(venueClose, -venue.teardownBufferMin),
-    )
-
-    if (!slotStart) {
+    if (bestField === -1) {
       console.warn(`No available slot for game ${gameNumber} — venue too short`)
       continue
     }
 
-    const slotEnd = addMinutes(slotStart, gameDuration)
+    const slotEnd = addMinutes(bestSlotStart, gameDuration)
 
     games.push({
       id: uuidv4(),
       homeTeamId,
       awayTeamId,
       field: bestField + 1,
-      scheduledStart: slotStart,
+      scheduledStart: bestSlotStart,
       scheduledEnd: slotEnd,
       round: 1,
       gameNumber: gameNumber++,
       periodScores: [],
     })
 
-    fieldNextFree[bestField] = addMinutes(slotStart, slotDuration)
+    fieldNextFree[bestField] = addMinutes(bestSlotStart, slotDuration)
+    teamNextFree.set(homeTeamId, addMinutes(bestSlotStart, slotDuration))
+    teamNextFree.set(awayTeamId, addMinutes(bestSlotStart, slotDuration))
   }
 
   const lastEnd = games.reduce(

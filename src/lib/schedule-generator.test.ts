@@ -98,4 +98,23 @@ describe('generateSchedule', () => {
       }
     }
   })
+
+  it('no team plays two games at the same time on different fields', () => {
+    const schedule = generateSchedule(baseConfig)
+    const byTeam = new Map<string, typeof schedule.games>()
+    for (const game of schedule.games) {
+      for (const teamId of [game.homeTeamId, game.awayTeamId]) {
+        if (!byTeam.has(teamId)) byTeam.set(teamId, [])
+        byTeam.get(teamId)!.push(game)
+      }
+    }
+    for (const [, games] of byTeam) {
+      const sorted = [...games].sort((a, b) =>
+        a.scheduledStart.localeCompare(b.scheduledStart)
+      )
+      for (let i = 1; i < sorted.length; i++) {
+        expect(sorted[i].scheduledStart >= sorted[i - 1].scheduledEnd).toBe(true)
+      }
+    }
+  })
 })
