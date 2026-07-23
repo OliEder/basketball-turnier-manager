@@ -31,8 +31,8 @@ function SchedulePdf({ tournament, schedule }: { tournament: TournamentConfig; s
           createElement(Text, { style: { ...styles.cell, ...styles.col4 } }, 'Paarung'),
         ),
         ...schedule.games.map(g => {
-          const home = teamMap.get(g.homeTeamId)?.name ?? '?'
-          const away = teamMap.get(g.awayTeamId)?.name ?? '?'
+          const home = (g.homeTeamId ? teamMap.get(g.homeTeamId)?.name : undefined) ?? '?'
+          const away = (g.awayTeamId ? teamMap.get(g.awayTeamId)?.name : undefined) ?? '?'
           return createElement(View, { key: g.id, style: styles.tableRow },
             createElement(Text, { style: { ...styles.cell, ...styles.col1 } }, String(g.gameNumber)),
             createElement(Text, { style: { ...styles.cell, ...styles.col2 } }, `Feld ${g.field}`),

@@ -98,6 +98,7 @@ export function generateSchedule(config: TournamentConfig): Schedule {
       id: uuidv4(),
       homeTeamId,
       awayTeamId,
+      stage: 'group',
       field: bestField + 1,
       scheduledStart: bestSlotStart,
       scheduledEnd: slotEnd,

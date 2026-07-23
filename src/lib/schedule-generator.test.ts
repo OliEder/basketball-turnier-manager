@@ -17,6 +17,7 @@ const baseConfig: TournamentConfig = {
     breakBetweenPeriodsMin: 1,
     halfTimeBreakMin: 5,
     bufferBetweenGamesMin: 5,
+    breakBeforeFinalsMin: 15,
   },
   venue: {
     name: 'Testhalle',
@@ -104,6 +105,7 @@ describe('generateSchedule', () => {
     const byTeam = new Map<string, typeof schedule.games>()
     for (const game of schedule.games) {
       for (const teamId of [game.homeTeamId, game.awayTeamId]) {
+        if (!teamId) continue
         if (!byTeam.has(teamId)) byTeam.set(teamId, [])
         byTeam.get(teamId)!.push(game)
       }

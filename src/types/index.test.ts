@@ -30,6 +30,7 @@ describe('Type shapes', () => {
       id: 'uuid-3',
       homeTeamId: 'uuid-1',
       awayTeamId: 'uuid-4',
+      stage: 'group',
       field: 1,
       scheduledStart: '09:00',
       scheduledEnd: '09:30',
