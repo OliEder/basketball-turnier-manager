@@ -12,6 +12,7 @@ const DEFAULT_GAME_SETTINGS: GameSettings = {
   halfTimeBreakMin: 5,
   bufferBetweenGamesMin: 5,
   breakBeforeFinalsMin: 15,
+  awardCeremonyMin: 15,
 }
 
 const DEFAULT_VENUE: Venue = {
@@ -26,6 +27,7 @@ const DEFAULT_TOURNAMENT: TournamentConfig = {
   id: uuidv4(),
   name: '',
   mode: 'round-robin',
+  finalsBracketSize: 4,
   fields: 2,
   gameSettings: DEFAULT_GAME_SETTINGS,
   venue: DEFAULT_VENUE,
@@ -38,6 +40,7 @@ interface TournamentStore {
   // Tournament actions
   setTournamentName: (name: string) => void
   setMode: (mode: TournamentConfig['mode']) => void
+  setFinalsBracketSize: (size: 2 | 4) => void
   setFields: (fields: number) => void
   updateGameSettings: (settings: Partial<GameSettings>) => void
   updateVenue: (venue: Partial<Venue>) => void
@@ -62,7 +65,18 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
   },
 
   setMode: (mode) => {
-    set(s => ({ tournament: { ...s.tournament, mode } }))
+    set(s => ({
+      tournament: {
+        ...s.tournament,
+        mode,
+        finalsBracketSize: mode === 'round-robin+finals' ? (s.tournament.finalsBracketSize ?? 4) : s.tournament.finalsBracketSize,
+      },
+    }))
+    saveTournament(get().tournament)
+  },
+
+  setFinalsBracketSize: (size) => {
+    set(s => ({ tournament: { ...s.tournament, finalsBracketSize: size } }))
     saveTournament(get().tournament)
   },
 
