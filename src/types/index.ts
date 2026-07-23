@@ -27,6 +27,7 @@ export interface GameSettings {
   halfTimeBreakMin: number        // longer halftime break (includes side switch)
   bufferBetweenGamesMin: number   // changeover time between rounds/waves of games
   breakBeforeFinalsMin: number    // extra pause between group stage and playoffs
+  awardCeremonyMin: number        // duration of the award ceremony after the final
 }
 
 export interface Venue {
@@ -43,6 +44,7 @@ export interface TournamentConfig {
   id: string
   name: string
   mode: TournamentMode
+  finalsBracketSize?: 2 | 4  // only relevant when mode === 'round-robin+finals'; 4 = semifinals+final, 2 = final only
   fields: number
   gameSettings: GameSettings
   venue: Venue

@@ -18,6 +18,7 @@ const baseConfig: TournamentConfig = {
     halfTimeBreakMin: 5,
     bufferBetweenGamesMin: 5,
     breakBeforeFinalsMin: 15,
+    awardCeremonyMin: 15,
   },
   venue: {
     name: 'Testhalle',
