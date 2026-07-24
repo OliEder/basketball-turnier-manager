@@ -34,8 +34,10 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
   const clocks = [...fieldNextFree]
 
   if (finalsBracketSize === 4) {
-    const sfStart = findNextSlot(maxTime(clocks[0], clocks[1] ?? clocks[0]), gameDuration, blackoutPeriods, availabilityEnd)
-    const sf1Start = sfStart
+    const sf1Start = findNextSlot(maxTime(clocks[0], clocks[1] ?? clocks[0]), gameDuration, blackoutPeriods, availabilityEnd)
+    if (!sf1Start) {
+      throw new Error('Kein Zeitfenster für Halbfinale verfügbar — Hallenzeit reicht nicht aus')
+    }
     const sf1End = addMinutes(sf1Start, gameDuration)
 
     games.push({
@@ -61,6 +63,9 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
     } else {
       sf2Start = findNextSlot(addMinutes(sf1Start, slotDuration), gameDuration, blackoutPeriods, availabilityEnd)
       sf2Field = 1
+    }
+    if (!sf2Start) {
+      throw new Error('Kein Zeitfenster für Halbfinale verfügbar — Hallenzeit reicht nicht aus')
     }
     const sf2End = addMinutes(sf2Start, gameDuration)
 
@@ -89,6 +94,9 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       blackoutPeriods,
       availabilityEnd,
     )
+    if (!finalStart) {
+      throw new Error('Kein Zeitfenster für Finale verfügbar — Hallenzeit reicht nicht aus')
+    }
     games.push({
       id: uuidv4(),
       homeTeamId: null,
@@ -111,6 +119,9 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       blackoutPeriods,
       availabilityEnd,
     )
+    if (!finalStart) {
+      throw new Error('Kein Zeitfenster für Finale verfügbar — Hallenzeit reicht nicht aus')
+    }
     games.push({
       id: uuidv4(),
       homeTeamId: null,

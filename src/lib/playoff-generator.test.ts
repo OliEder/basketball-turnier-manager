@@ -120,4 +120,34 @@ describe('generatePlayoffGames', () => {
     const expectedStr = `${String(expectedStart.getHours()).padStart(2, '0')}:${String(expectedStart.getMinutes()).padStart(2, '0')}`
     expect(final.scheduledStart).toBe(expectedStr)
   })
+
+  it('throws instead of producing an invalid slot when the venue is too short for the semifinals', () => {
+    expect(() =>
+      generatePlayoffGames({
+        finalsBracketSize: 4,
+        fields: 2,
+        gameSettings,
+        blackoutPeriods: [],
+        availabilityEnd: '19:30',
+        fieldNextFree: ['19:25', '19:25'],
+        teamCount: 4,
+        startGameNumber: 7,
+      })
+    ).toThrow('Kein Zeitfenster für Halbfinale verfügbar')
+  })
+
+  it('throws instead of producing an invalid slot when the venue is too short for the final', () => {
+    expect(() =>
+      generatePlayoffGames({
+        finalsBracketSize: 2,
+        fields: 2,
+        gameSettings,
+        blackoutPeriods: [],
+        availabilityEnd: '19:30',
+        fieldNextFree: ['19:25', '19:25'],
+        teamCount: 2,
+        startGameNumber: 2,
+      })
+    ).toThrow('Kein Zeitfenster für Finale verfügbar')
+  })
 })
