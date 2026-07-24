@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { TournamentConfig, Game, Schedule } from '@/types'
 import { calcGameDurationMin, addMinutes, timeToMinutes, maxTime, findNextSlot } from './game-duration'
+import { generatePlayoffGames } from './playoff-generator'
 
 /** Generate all unique pairs for round-robin. Returns [homeId, awayId][] */
 export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
@@ -76,6 +77,20 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     teamNextFree.set(awayTeamId, addMinutes(bestSlotStart, slotDuration))
   }
 
+  if (config.mode === 'round-robin+finals') {
+    const playoffGames = generatePlayoffGames({
+      finalsBracketSize: config.finalsBracketSize ?? 4,
+      fields,
+      gameSettings,
+      blackoutPeriods: venue.blackoutPeriods,
+      availabilityEnd,
+      fieldNextFree,
+      teamCount: teams.length,
+      startGameNumber: gameNumber,
+    })
+    games.push(...playoffGames)
+  }
+
   const lastEnd = games.reduce(
     (max, g) => (g.scheduledEnd > max ? g.scheduledEnd : max),
     '00:00',
@@ -84,6 +99,8 @@ export function generateSchedule(config: TournamentConfig): Schedule {
   const totalDurationMin =
     timeToMinutes(lastEnd) - timeToMinutes(firstStart)
 
+  const finalGame = games.find(g => g.stage === 'final')
+
   return {
     id: uuidv4(),
     tournamentId: config.id,
@@ -91,5 +108,6 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     games,
     totalDurationMin,
     estimatedEnd: lastEnd,
+    ...(finalGame ? { awardCeremonyEstimate: addMinutes(finalGame.scheduledEnd, gameSettings.awardCeremonyMin) } : {}),
   }
 }

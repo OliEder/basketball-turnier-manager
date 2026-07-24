@@ -121,3 +121,39 @@ describe('generateSchedule', () => {
     }
   })
 })
+
+describe('generateSchedule with round-robin+finals mode', () => {
+  it('appends semifinal and final games after the group stage', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+    }
+    const schedule = generateSchedule(config)
+    // 6 group games + 2 semis + 1 final = 9
+    expect(schedule.games).toHaveLength(9)
+    const stages = schedule.games.map(g => g.stage)
+    expect(stages.filter(s => s === 'group')).toHaveLength(6)
+    expect(stages.filter(s => s === 'semifinal')).toHaveLength(2)
+    expect(stages.filter(s => s === 'final')).toHaveLength(1)
+  })
+
+  it('sets awardCeremonyEstimate after the final ends', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+    }
+    const schedule = generateSchedule(config)
+    const final = schedule.games.find(g => g.stage === 'final')!
+    expect(schedule.awardCeremonyEstimate).toBeDefined()
+    expect(timeToMinutesForTest(schedule.awardCeremonyEstimate!)).toBe(
+      timeToMinutesForTest(final.scheduledEnd) + 15,
+    )
+  })
+})
+
+function timeToMinutesForTest(t: string): number {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
