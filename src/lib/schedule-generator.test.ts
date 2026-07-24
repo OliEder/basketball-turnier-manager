@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateRoundRobinPairs, generateSchedule } from './schedule-generator'
+import { timeToMinutes } from './game-duration'
 import type { TournamentConfig, Team } from '@/types'
 
 const makeTeam = (id: string, name: string): Team => ({
@@ -147,13 +148,8 @@ describe('generateSchedule with round-robin+finals mode', () => {
     const schedule = generateSchedule(config)
     const final = schedule.games.find(g => g.stage === 'final')!
     expect(schedule.awardCeremonyEstimate).toBeDefined()
-    expect(timeToMinutesForTest(schedule.awardCeremonyEstimate!)).toBe(
-      timeToMinutesForTest(final.scheduledEnd) + 15,
+    expect(timeToMinutes(schedule.awardCeremonyEstimate!)).toBe(
+      timeToMinutes(final.scheduledEnd) + 15,
     )
   })
 })
-
-function timeToMinutesForTest(t: string): number {
-  const [h, m] = t.split(':').map(Number)
-  return h * 60 + m
-}
