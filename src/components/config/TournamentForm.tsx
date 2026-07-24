@@ -5,7 +5,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import type { TournamentMode } from '@/types'
 
 export default function TournamentForm() {
-  const { tournament, setTournamentName, setMode, setFields } = useTournamentStore()
+  const { tournament, setTournamentName, setMode, setFields, setFinalsBracketSize } = useTournamentStore()
 
   return (
     <div className="space-y-4 max-w-md">
@@ -30,6 +30,23 @@ export default function TournamentForm() {
           </SelectContent>
         </Select>
       </div>
+      {tournament.mode === 'round-robin+finals' && (
+        <div className="space-y-1">
+          <Label htmlFor="tourney-bracket-size">Finalrunde</Label>
+          <Select
+            value={String(tournament.finalsBracketSize ?? 4)}
+            onValueChange={v => setFinalsBracketSize(Number(v) as 2 | 4)}
+          >
+            <SelectTrigger id="tourney-bracket-size">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="4">Halbfinale + Finale</SelectItem>
+              <SelectItem value="2">Nur Finale</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div className="space-y-1">
         <Label htmlFor="tourney-fields">Anzahl Felder</Label>
         <Select value={String(tournament.fields)} onValueChange={v => setFields(Number(v))}>
