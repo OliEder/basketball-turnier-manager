@@ -51,3 +51,34 @@ export function overlapsBlackout(start: string, end: string, blackout: TimeWindo
   const bEnd = timeToMinutes(blackout.end)
   return gameStart < bEnd && gameEnd > bStart
 }
+
+/** Returns the later of two HH:MM time strings. */
+export function maxTime(a: string, b: string): string {
+  return timeToMinutes(a) >= timeToMinutes(b) ? a : b
+}
+
+/**
+ * Find the earliest available start time for a game of `durationMin`,
+ * starting no earlier than `currentTime`, respecting blackout periods
+ * and the venue's availability end time.
+ */
+export function findNextSlot(
+  currentTime: string,
+  durationMin: number,
+  blackoutPeriods: TimeWindow[],
+  availabilityEnd: string,
+): string {
+  let candidate = currentTime
+  const maxIterations = 1440 // safety: never loop more than 24h worth of minutes
+
+  for (let i = 0; i < maxIterations; i++) {
+    const end = addMinutes(candidate, durationMin)
+    if (timeToMinutes(end) > timeToMinutes(availabilityEnd)) {
+      return '' // no slot found within venue hours
+    }
+    const conflict = blackoutPeriods.find(b => overlapsBlackout(candidate, end, b))
+    if (!conflict) return candidate
+    candidate = conflict.end
+  }
+  return ''
+}

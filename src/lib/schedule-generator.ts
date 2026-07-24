@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
-import type { TournamentConfig, Game, Schedule, TimeWindow } from '@/types'
-import { calcGameDurationMin, addMinutes, timeToMinutes, overlapsBlackout } from './game-duration'
+import type { TournamentConfig, Game, Schedule } from '@/types'
+import { calcGameDurationMin, addMinutes, timeToMinutes, maxTime, findNextSlot } from './game-duration'
 
 /** Generate all unique pairs for round-robin. Returns [homeId, awayId][] */
 export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
@@ -11,42 +11,6 @@ export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
     }
   }
   return pairs
-}
-
-/** Returns the later of two HH:MM time strings. */
-function maxTime(a: string, b: string): string {
-  return timeToMinutes(a) >= timeToMinutes(b) ? a : b
-}
-
-/**
- * Find the earliest available start time for a game on a given field,
- * respecting blackout periods and venue availability.
- */
-function findNextSlot(
-  currentTime: string,
-  durationMin: number,
-  blackoutPeriods: TimeWindow[],
-  availabilityEnd: string,
-): string {
-  let candidate = currentTime
-  const maxIterations = 1440 // safety: never loop more than 24h worth of minutes
-
-  for (let i = 0; i < maxIterations; i++) {
-    const end = addMinutes(candidate, durationMin)
-
-    // Check if game ends before venue closes
-    if (timeToMinutes(end) > timeToMinutes(availabilityEnd)) {
-      return '' // no slot found within venue hours
-    }
-
-    // Check if game overlaps any blackout
-    const conflict = blackoutPeriods.find(b => overlapsBlackout(candidate, end, b))
-    if (!conflict) return candidate
-
-    // Move start to end of conflicting blackout
-    candidate = conflict.end
-  }
-  return ''
 }
 
 export function generateSchedule(config: TournamentConfig): Schedule {
