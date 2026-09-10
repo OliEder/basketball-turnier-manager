@@ -12,6 +12,8 @@ export interface Team {
   color: string   // hex, e.g. "#004174"
   contact: string
   players: Player[]
+  withdrawnAfterRound?: number  // set when the team withdrew mid-tournament (injury, etc.);
+                                 // value = last round the team played normally
 }
 
 export interface TimeWindow {
@@ -38,13 +40,14 @@ export interface Venue {
   teardownBufferMin: number  // one-time teardown at tournament end
 }
 
-export type TournamentMode = 'round-robin' | 'round-robin+finals'
+export type TournamentMode = 'round-robin' | 'round-robin+finals' | 'swiss'
 
 export interface TournamentConfig {
   id: string
   name: string
   mode: TournamentMode
   finalsBracketSize?: 2 | 4  // only relevant when mode === 'round-robin+finals'; 4 = semifinals+final, 2 = final only
+  swissRounds?: number       // only relevant when mode === 'swiss'; number of swiss rounds to play
   fields: number
   gameSettings: GameSettings
   venue: Venue
@@ -57,7 +60,7 @@ export interface PeriodScore {
   awayScore: number
 }
 
-export type GameStage = 'group' | 'semifinal' | 'final'
+export type GameStage = 'group' | 'semifinal' | 'final' | 'swiss'
 
 export interface Game {
   id: string
@@ -66,12 +69,14 @@ export interface Game {
   homeLabel?: string  // placeholder text shown when homeTeamId is null, e.g. "1. der Vorrunde"
   awayLabel?: string  // placeholder text shown when awayTeamId is null, e.g. "Sieger HF 1"
   stage: GameStage
-  field: number          // 1-based
+  field: number          // 1-based; 0 = no real slot (bye)
   scheduledStart: string // "HH:MM"
   scheduledEnd: string   // "HH:MM"
   round: number
   gameNumber: number
   periodScores: PeriodScore[]
+  byeTeamId?: string      // set instead of home/awayTeamId when this "game" is a bye
+  cancelledReason?: 'withdrawal'  // set when the game was cancelled due to a team withdrawing
 }
 
 export interface Schedule {
