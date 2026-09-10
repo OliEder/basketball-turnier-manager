@@ -65,8 +65,8 @@ describe('pairNextSwissRound', () => {
       makeStanding('t1', 8),
       makeStanding('t2', 6),
       makeStanding('t3', 4),
-      makeStanding('t4', 2, { hadBye: true }),
-      makeStanding('t5', 0),
+      makeStanding('t4', 0, { hadBye: true }),
+      makeStanding('t5', 2),
     ]
     const result = pairNextSwissRound({ standings, playedPairs: new Set() })
     expect(result.byeTeamId).toBe('t5')
