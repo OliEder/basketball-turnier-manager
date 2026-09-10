@@ -12,8 +12,7 @@ export interface Team {
   color: string   // hex, e.g. "#004174"
   contact: string
   players: Player[]
-  withdrawnAfterRound?: number  // set when the team withdrew mid-tournament (injury, etc.);
-                                 // value = last round the team played normally
+  withdrawnAfterRound?: number  // set when the team withdrew mid-tournament; value = last round played normally
 }
 
 export interface TimeWindow {

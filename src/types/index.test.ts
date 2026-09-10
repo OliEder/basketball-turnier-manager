@@ -41,7 +41,7 @@ describe('Type shapes', () => {
     expect(game.periodScores).toEqual([])
   })
 
-  it('Game supports bye and cancelled-due-to-withdrawal shape', () => {
+  it('Game supports bye shape', () => {
     const bye: Game = {
       id: 'uuid-5',
       homeTeamId: null,
@@ -56,7 +56,9 @@ describe('Type shapes', () => {
       periodScores: [],
     }
     expect(bye.byeTeamId).toBe('uuid-1')
+  })
 
+  it('Game supports cancelled-due-to-withdrawal shape', () => {
     const cancelled: Game = {
       id: 'uuid-6',
       homeTeamId: 'uuid-1',
