@@ -181,3 +181,33 @@ describe('computeStandings buchholz', () => {
     expect(standings.find(s => s.teamId === 't3')!.buchholz).toBe(2)
   })
 })
+
+describe('computeStandings withdrawn teams', () => {
+  it('keeps a withdrawn team in the table with its past results and withdrawn: true', () => {
+    const teams = [makeTeam('t1'), makeTeam('t2', { withdrawnAfterRound: 1 })]
+    const games = [
+      makeGame({
+        homeTeamId: 't1', awayTeamId: 't2', round: 1,
+        periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }],
+      }),
+    ]
+    const standings = computeStandings(teams, games, 1)
+    const t2 = standings.find(s => s.teamId === 't2')!
+    expect(t2.withdrawn).toBe(true)
+    expect(t2.points).toBe(0)
+    expect(t2.pointsFor).toBe(10)
+  })
+
+  it('credits the surviving opponent when a game was cancelled due to withdrawal', () => {
+    const teams = [makeTeam('t1'), makeTeam('t2', { withdrawnAfterRound: 1 })]
+    const games = [
+      makeGame({
+        homeTeamId: 't1', awayTeamId: 't2', round: 2,
+        periodScores: [], cancelledReason: 'withdrawal',
+      }),
+    ]
+    const standings = computeStandings(teams, games, 2)
+    expect(standings.find(s => s.teamId === 't1')!.points).toBe(2)
+    expect(standings.find(s => s.teamId === 't2')!.points).toBe(0)
+  })
+})
