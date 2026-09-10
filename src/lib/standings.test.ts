@@ -132,3 +132,52 @@ describe('computeStandings', () => {
     expect(standings[0].teamId).toBe('t1') // 4 points, clear leader
   })
 })
+
+describe('computeStandings buchholz', () => {
+  it('buchholz is the sum of points of all opponents played so far', () => {
+    // t1 beats t2 (round 1), t1 beats t3 (round 2)
+    // t2's final points: 0 (round1 loss) + 2 (t2 beats t4 round 2) = 2
+    // t4's final points: 2 (round1 win vs t3) + 0 (round2 loss vs t2) = 2
+    const teams = [makeTeam('t1'), makeTeam('t2'), makeTeam('t3'), makeTeam('t4')]
+    const games = [
+      makeGame({
+        id: 'g1', homeTeamId: 't1', awayTeamId: 't2', round: 1,
+        periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }],
+      }),
+      makeGame({
+        id: 'g2', homeTeamId: 't3', awayTeamId: 't4', round: 1,
+        periodScores: [{ period: 1, homeScore: 5, awayScore: 15 }],
+      }),
+      makeGame({
+        id: 'g3', homeTeamId: 't1', awayTeamId: 't3', round: 2,
+        periodScores: [{ period: 1, homeScore: 18, awayScore: 12 }],
+      }),
+      makeGame({
+        id: 'g4', homeTeamId: 't2', awayTeamId: 't4', round: 2,
+        periodScores: [{ period: 1, homeScore: 22, awayScore: 20 }],
+      }),
+    ]
+    const standings = computeStandings(teams, games, 2)
+    // t1's opponents: t2 (final points 2) + t3 (final points 0) = buchholz 2
+    expect(standings.find(s => s.teamId === 't1')!.buchholz).toBe(2)
+    // t3's opponents: t4 (final points 2) + t1 (final points 4) = buchholz 6
+    expect(standings.find(s => s.teamId === 't3')!.buchholz).toBe(6)
+  })
+
+  it('a bye counts as an opponent worth the bye team\'s own points for buchholz', () => {
+    const teams = [makeTeam('t1'), makeTeam('t2'), makeTeam('t3')]
+    const games = [
+      makeGame({
+        id: 'g1', homeTeamId: 't1', awayTeamId: 't2', round: 1,
+        periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }],
+      }),
+      makeGame({
+        id: 'g2', homeTeamId: null, awayTeamId: null, byeTeamId: 't3', round: 1,
+        field: 0, scheduledStart: '10:00', scheduledEnd: '10:00', periodScores: [],
+      }),
+    ]
+    const standings = computeStandings(teams, games, 1)
+    // t3 had a bye worth 2 points, so t3's own buchholz includes its own points from the bye
+    expect(standings.find(s => s.teamId === 't3')!.buchholz).toBe(2)
+  })
+})
