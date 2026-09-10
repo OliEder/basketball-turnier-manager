@@ -11,7 +11,7 @@ const DEFAULT_GAME_SETTINGS: GameSettings = {
   breakBetweenPeriodsMin: 1,
   halfTimeBreakMin: 5,
   bufferBetweenGamesMin: 5,
-  breakBeforeFinalsMin: 15,
+  breakBetweenRoundsMin: 15,
   awardCeremonyMin: 15,
 }
 

@@ -34,6 +34,10 @@ export default function GameSettingsForm() {
           <Label htmlFor="buffer">Wechselzeit zwischen Spielen (Min)</Label>
           <Input id="buffer" type="number" min={0} max={30} value={gs.bufferBetweenGamesMin} onChange={numField('bufferBetweenGamesMin')} />
         </div>
+        <div className="space-y-1">
+          <Label htmlFor="round-break">Pause zwischen Runden (Min)</Label>
+          <Input id="round-break" type="number" min={0} max={60} value={gs.breakBetweenRoundsMin} onChange={numField('breakBetweenRoundsMin')} />
+        </div>
       </div>
       <p className="text-sm text-muted-foreground">
         Spielzeit gesamt: <strong>{totalMin} Minuten</strong> (ohne Wechselzeit)

@@ -18,7 +18,7 @@ const baseConfig: TournamentConfig = {
     breakBetweenPeriodsMin: 1,
     halfTimeBreakMin: 5,
     bufferBetweenGamesMin: 5,
-    breakBeforeFinalsMin: 15,
+    breakBetweenRoundsMin: 15,
     awardCeremonyMin: 15,
   },
   venue: {

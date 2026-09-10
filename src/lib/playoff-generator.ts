@@ -89,7 +89,7 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       addMinutes(sf2Start, slotDuration),
     )
     const finalStart = findNextSlot(
-      addMinutes(latestAfterSemis, gameSettings.breakBeforeFinalsMin),
+      addMinutes(latestAfterSemis, gameSettings.breakBetweenRoundsMin),
       gameDuration,
       blackoutPeriods,
       availabilityEnd,
@@ -114,7 +114,7 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
   } else {
     const latest = clocks.reduce((max, t) => maxTime(max, t), clocks[0])
     const finalStart = findNextSlot(
-      addMinutes(latest, gameSettings.breakBeforeFinalsMin),
+      addMinutes(latest, gameSettings.breakBetweenRoundsMin),
       gameDuration,
       blackoutPeriods,
       availabilityEnd,

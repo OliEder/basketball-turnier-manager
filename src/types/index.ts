@@ -26,7 +26,7 @@ export interface GameSettings {
   breakBetweenPeriodsMin: number  // short break between periods
   halfTimeBreakMin: number        // longer halftime break (includes side switch)
   bufferBetweenGamesMin: number   // changeover time between rounds/waves of games
-  breakBeforeFinalsMin: number    // extra pause between group stage and playoffs
+  breakBetweenRoundsMin: number   // pause between group stage and playoffs, and between swiss rounds
   awardCeremonyMin: number        // duration of the award ceremony after the final
 }
 

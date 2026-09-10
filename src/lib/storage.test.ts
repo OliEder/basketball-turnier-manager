@@ -10,7 +10,7 @@ const mockTournament: TournamentConfig = {
   gameSettings: {
     periodsCount: 4, periodDurationMin: 5,
     breakBetweenPeriodsMin: 1, halfTimeBreakMin: 5,
-    bufferBetweenGamesMin: 5, breakBeforeFinalsMin: 15,
+    bufferBetweenGamesMin: 5, breakBetweenRoundsMin: 15,
     awardCeremonyMin: 15,
   },
   venue: {
