@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
+import { getTeamAbbreviation } from '@/lib/utils'
 import SwissResultsPage from './SwissResultsPage'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
@@ -42,14 +43,26 @@ describe('SwissResultsPage', () => {
     expect(screen.getByText(/bitte zuerst einen zeitplan generieren/i)).toBeInTheDocument()
   })
 
-  it('renders round 1 with both team names for a game', () => {
+  it('renders round 1 with both team abbreviations for a game', () => {
     setupSwissTournament(4, 2)
     render(<SwissResultsPage />)
     expect(screen.getByText(/runde 1 von 2/i)).toBeInTheDocument()
     const teams = useTournamentStore.getState().tournament.teams
     for (const team of teams) {
-      expect(screen.getAllByText(new RegExp(team.name)).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(new RegExp(getTeamAbbreviation(team))).length).toBeGreaterThan(0)
     }
+  })
+
+  it('shows an explicitly set team abbreviation instead of the derived one', () => {
+    setupSwissTournament(4, 2)
+    const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
+    const homeTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
+    useTournamentStore.getState().updateTeam(homeTeam.id, { abbreviation: 'TMA' })
+
+    render(<SwissResultsPage />)
+
+    expect(screen.getByText('TMA')).toBeInTheDocument()
+    expect(screen.queryByText(homeTeam.name)).not.toBeInTheDocument()
   })
 
   it('shows a checkmark once both score fields of a row are filled, without writing to the store yet', () => {
@@ -254,12 +267,13 @@ describe('SwissResultsPage', () => {
     setupSwissTournament(4, 2)
     render(<SwissResultsPage />)
     const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
-    const teamName = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!.name
-
-    fireEvent.click(screen.getByRole('button', { name: `${teamName} ausgeschieden` }))
-
     const team = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
-    expect(team.withdrawnAfterRound).toBe(1)
+    const teamAbbreviation = getTeamAbbreviation(team)
+
+    fireEvent.click(screen.getByRole('button', { name: `${teamAbbreviation} ausgeschieden` }))
+
+    const updatedTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
+    expect(updatedTeam.withdrawnAfterRound).toBe(1)
     const updatedGame = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
     expect(updatedGame.cancelledReason).toBe('withdrawal')
   })

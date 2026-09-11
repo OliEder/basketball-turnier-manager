@@ -4,6 +4,7 @@ import { PairingConflictError } from '@/lib/swiss-pairing'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { getTeamAbbreviation } from '@/lib/utils'
 
 export default function SwissResultsPage() {
   const { tournament, schedule, submitGameResult, advanceSwissRound, advanceSwissRoundManually, withdrawTeam, correctGameResult } = useTournamentStore()
@@ -125,8 +126,10 @@ export default function SwissResultsPage() {
               </div>
             )
           }
-          const home = game.homeTeamId ? teamMap.get(game.homeTeamId)?.name ?? '?' : game.homeLabel ?? '?'
-          const away = game.awayTeamId ? teamMap.get(game.awayTeamId)?.name ?? '?' : game.awayLabel ?? '?'
+          const homeTeam = game.homeTeamId ? teamMap.get(game.homeTeamId) : undefined
+          const awayTeam = game.awayTeamId ? teamMap.get(game.awayTeamId) : undefined
+          const home = homeTeam ? getTeamAbbreviation(homeTeam) : game.homeLabel ?? '?'
+          const away = awayTeam ? getTeamAbbreviation(awayTeam) : game.awayLabel ?? '?'
           const hasResult = game.periodScores.length > 0
           const canWithdraw = game.homeTeamId && game.awayTeamId
           return (
@@ -150,7 +153,7 @@ export default function SwissResultsPage() {
                   </Button>
                 ) : <span />}
 
-                <span className="font-medium text-right truncate" title={home}>{home}</span>
+                <span className="font-medium text-right truncate" title={homeTeam?.name}>{home}</span>
 
                 {hasResult && correctingGameId !== game.id ? (
                   <span className="text-sm text-muted-foreground text-right">{game.periodScores[0].homeScore}</span>
@@ -192,7 +195,7 @@ export default function SwissResultsPage() {
                   />
                 )}
 
-                <span className="font-medium text-left truncate" title={away}>{away}</span>
+                <span className="font-medium text-left truncate" title={awayTeam?.name}>{away}</span>
 
                 {canWithdraw ? (
                   <Button
