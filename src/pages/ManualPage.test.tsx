@@ -28,6 +28,11 @@ describe('ManualPage', () => {
     expect(screen.getByRole('button', { name: 'Als PDF herunterladen' })).toBeInTheDocument()
   })
 
+  it('renders a floating back-to-top button', () => {
+    render(<ManualPage />)
+    expect(screen.getByRole('button', { name: 'Nach oben' })).toBeInTheDocument()
+  })
+
   it('renders a screenshot image for each referenced screenshot', () => {
     render(<ManualPage />)
     const images = screen.getAllByRole('img')

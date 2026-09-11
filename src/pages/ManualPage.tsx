@@ -88,7 +88,7 @@ function TableOfContents() {
 
 export default function ManualPage() {
   return (
-    <div className="space-y-10 max-w-3xl">
+    <div id="top" className="space-y-10 max-w-3xl">
       <div className="flex items-start justify-between gap-4">
         <h1 className="font-display text-2xl uppercase text-brand-primary">
           Nutzeranleitung: Basketball Turnier-Manager
@@ -97,6 +97,15 @@ export default function ManualPage() {
           Als PDF herunterladen
         </Button>
       </div>
+
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-6 right-6 z-40 rounded-full bg-brand-primary text-white shadow-lg px-4 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-brand-primary-light transition-colors"
+        aria-label="Nach oben"
+      >
+        ↑ Nach oben
+      </button>
 
       <TableOfContents />
 

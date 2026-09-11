@@ -8,6 +8,11 @@ function buildContainer(): HTMLElement {
   button.textContent = 'Als PDF herunterladen'
   container.appendChild(button)
 
+  const backToTopButton = document.createElement('button')
+  backToTopButton.setAttribute('aria-label', 'Nach oben')
+  backToTopButton.textContent = '↑ Nach oben'
+  container.appendChild(backToTopButton)
+
   const heading = document.createElement('h1')
   heading.textContent = 'Nutzeranleitung: Basketball Turnier-Manager'
   container.appendChild(heading)
@@ -38,6 +43,7 @@ describe('renderManualPrintHtml', () => {
     expect(html).toContain('data:image/png;base64,AAAA')
     expect(html).not.toContain('/anleitung/01-teams-leer.png')
     expect(html).not.toContain('<button>')
+    expect(html).not.toContain('Nach oben')
     expect(html).toContain('Nutzeranleitung: Basketball Turnier-Manager')
   })
 
