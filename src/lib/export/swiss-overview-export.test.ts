@@ -99,6 +99,18 @@ describe('renderSwissOverviewHtml schedule time vs score', () => {
   })
 })
 
+describe('renderSwissOverviewHtml withdrawn team label', () => {
+  it('shows "(zurückgezogen)" instead of the old "(ausgeschieden)" label for a withdrawn team', () => {
+    const standingsWithWithdrawal: TeamStanding[] = [
+      { ...standings[0] },
+      { ...standings[1], withdrawn: true },
+    ]
+    const html = renderSwissOverviewHtml(tournament, schedule, standingsWithWithdrawal)
+    expect(html).toContain('(zurückgezogen)')
+    expect(html).not.toContain('(ausgeschieden)')
+  })
+})
+
 describe('renderSwissOverviewHtml standings explanation', () => {
   it('includes an explanation of the sort order and buchholz calculation near the standings table', () => {
     const html = renderSwissOverviewHtml(tournament, schedule, standings)

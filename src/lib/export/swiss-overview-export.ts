@@ -20,7 +20,7 @@ export function renderSwissOverviewHtml(
     const fullName = team?.name ?? '?'
     return `<tr>
     <td>${i + 1}</td>
-    <td title="${escapeHtml(fullName)}">${escapeHtml(displayName)}${s.withdrawn ? ' (ausgeschieden)' : ''}</td>
+    <td title="${escapeHtml(fullName)}">${escapeHtml(displayName)}${s.withdrawn ? ' (zurückgezogen)' : ''}</td>
     <td>${s.points}</td>
     <td>${s.buchholz}</td>
     <td>${s.pointsDiff > 0 ? '+' : ''}${s.pointsDiff}</td>
