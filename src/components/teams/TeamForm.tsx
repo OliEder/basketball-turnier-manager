@@ -5,13 +5,14 @@ import { Label } from '@/components/ui/label'
 
 interface TeamFormData {
   name: string
+  abbreviation: string
   logoUrl: string
   color: string
   contact: string
 }
 
 interface Props {
-  initial?: TeamFormData
+  initial?: Omit<TeamFormData, 'abbreviation'> & { abbreviation?: string }
   onSubmit: (data: TeamFormData) => void
   onCancel?: () => void
 }
@@ -19,6 +20,7 @@ interface Props {
 export default function TeamForm({ initial, onSubmit, onCancel }: Props) {
   const [form, setForm] = useState<TeamFormData>({
     name: initial?.name ?? '',
+    abbreviation: initial?.abbreviation ?? '',
     logoUrl: initial?.logoUrl ?? '',
     color: initial?.color ?? '#004174',
     contact: initial?.contact ?? '',
@@ -37,6 +39,16 @@ export default function TeamForm({ initial, onSubmit, onCancel }: Props) {
       <div className="space-y-1">
         <Label htmlFor="team-name">Name</Label>
         <Input id="team-name" value={form.name} onChange={set('name')} required />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="team-abbreviation">Kürzel (optional)</Label>
+        <Input
+          id="team-abbreviation"
+          value={form.abbreviation}
+          onChange={set('abbreviation')}
+          maxLength={4}
+          placeholder="z.B. TSM"
+        />
       </div>
       <div className="space-y-1">
         <Label htmlFor="team-logo">Logo-URL</Label>

@@ -37,7 +37,10 @@ export default function TeamList() {
         <DialogContent>
           <DialogHeader><DialogTitle>Team hinzufügen</DialogTitle></DialogHeader>
           <TeamForm
-            onSubmit={(data) => { addTeam(data); setShowAdd(false) }}
+            onSubmit={(data) => {
+              addTeam({ ...data, abbreviation: data.abbreviation.trim() || undefined })
+              setShowAdd(false)
+            }}
             onCancel={() => setShowAdd(false)}
           />
         </DialogContent>
@@ -49,7 +52,10 @@ export default function TeamList() {
           {editTeam && (
             <TeamForm
               initial={editTeam}
-              onSubmit={(data) => { updateTeam(editTeam.id, data); setEditTeam(null) }}
+              onSubmit={(data) => {
+                updateTeam(editTeam.id, { ...data, abbreviation: data.abbreviation.trim() || undefined })
+                setEditTeam(null)
+              }}
               onCancel={() => setEditTeam(null)}
             />
           )}
