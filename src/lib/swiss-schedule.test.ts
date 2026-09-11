@@ -51,8 +51,10 @@ describe('generateSwissSchedule future rounds', () => {
     for (const g of round2Games) {
       expect(g.homeTeamId).toBeNull()
       expect(g.awayTeamId).toBeNull()
-      expect(g.homeLabel).toBe(`Runde 2 – Spiel ${round2Games.indexOf(g) + 1}`)
-      expect(g.awayLabel).toBe(g.homeLabel)
+      const slot = round2Games.indexOf(g) + 1
+      expect(g.homeLabel).toBe(`Runde 2 – Spiel ${slot} (Heim)`)
+      expect(g.awayLabel).toBe(`Runde 2 – Spiel ${slot} (Auswärts)`)
+      expect(g.awayLabel).not.toBe(g.homeLabel)
     }
   })
 

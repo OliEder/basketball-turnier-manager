@@ -125,8 +125,8 @@ function reshapeFutureSwissRounds(games: Game[], afterRound: number, activeTeamC
     const keptTeamSlots = teamSlots.slice(0, gamesPerFutureRound)
     reshaped.push(...keptTeamSlots.map((g, i) => ({
       ...g,
-      homeLabel: `Runde ${round} – Spiel ${i + 1}`,
-      awayLabel: `Runde ${round} – Spiel ${i + 1}`,
+      homeLabel: `Runde ${round} – Spiel ${i + 1} (Heim)`,
+      awayLabel: `Runde ${round} – Spiel ${i + 1} (Auswärts)`,
     })))
 
     if (needsBye) {

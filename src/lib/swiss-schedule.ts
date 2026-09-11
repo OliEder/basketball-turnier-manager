@@ -113,13 +113,13 @@ export function generateSwissSchedule(input: SwissScheduleInput): SwissScheduleR
     })
 
     for (let i = 0; i < gamesPerFutureRound; i++) {
-      const label = `Runde ${round} – Spiel ${i + 1}`
+      const slotLabel = `Runde ${round} – Spiel ${i + 1}`
       games.push({
         id: uuidv4(),
         homeTeamId: null,
         awayTeamId: null,
-        homeLabel: label,
-        awayLabel: label,
+        homeLabel: `${slotLabel} (Heim)`,
+        awayLabel: `${slotLabel} (Auswärts)`,
         stage: 'swiss',
         field: (i % fields) + 1,
         scheduledStart: roundStarts[i],
