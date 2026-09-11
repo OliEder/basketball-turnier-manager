@@ -81,3 +81,26 @@ describe('advanceSwissRound', () => {
     expect(() => advanceSwissRound()).toThrow('Runde ist noch nicht vollständig ausgewertet')
   })
 })
+
+describe('advanceSwissRoundManually', () => {
+  it('applies manually specified pairs instead of running the algorithm', () => {
+    setupSwissTournament(4, 2)
+    const { schedule, submitGameResult, advanceSwissRoundManually } = useTournamentStore.getState()
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      submitGameResult(g.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    const teamIds = useTournamentStore.getState().tournament.teams.map(t => t.id)
+    const manualPairs: [string, string][] = [[teamIds[0], teamIds[3]], [teamIds[1], teamIds[2]]]
+    advanceSwissRoundManually(manualPairs)
+    const round2Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field > 0)
+    const assignedPairs = round2Games.map(g => [g.homeTeamId, g.awayTeamId])
+    expect(assignedPairs).toEqual(manualPairs)
+  })
+
+  it('still requires the current round to be fully evaluated', () => {
+    setupSwissTournament(4, 2)
+    const { advanceSwissRoundManually } = useTournamentStore.getState()
+    expect(() => advanceSwissRoundManually([['t1', 't2']])).toThrow('Runde ist noch nicht vollständig ausgewertet')
+  })
+})
