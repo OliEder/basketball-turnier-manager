@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import { useTournamentStore, getCurrentSwissRound } from '@/store/tournament-store'
+import { PairingConflictError } from '@/lib/swiss-pairing'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function SwissResultsPage() {
-  const { tournament, schedule, submitGameResult, advanceSwissRound } = useTournamentStore()
+  const { tournament, schedule, submitGameResult, advanceSwissRound, advanceSwissRoundManually } = useTournamentStore()
   const [scores, setScores] = useState<Record<string, { home: string; away: string }>>({})
   const [error, setError] = useState<string | null>(null)
+  const [manualPairingNeeded, setManualPairingNeeded] = useState(false)
+  const [manualAssignments, setManualAssignments] = useState<Record<string, string>>({})
 
   if (!schedule) {
     return (
@@ -39,8 +42,32 @@ export default function SwissResultsPage() {
     try {
       advanceSwissRound()
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      if (err instanceof PairingConflictError) {
+        setManualPairingNeeded(true)
+      } else {
+        setError(err instanceof Error ? err.message : String(err))
+      }
     }
+  }
+
+  const activeTeams = tournament.teams.filter(t => !t.withdrawnAfterRound)
+
+  const handleManualPair = (teamId: string, opponentId: string) => {
+    setManualAssignments(a => ({ ...a, [teamId]: opponentId, [opponentId]: teamId }))
+  }
+
+  const handleManualSubmit = () => {
+    const seen = new Set<string>()
+    const pairs: [string, string][] = []
+    for (const [a, b] of Object.entries(manualAssignments)) {
+      if (seen.has(a) || seen.has(b)) continue
+      pairs.push([a, b])
+      seen.add(a)
+      seen.add(b)
+    }
+    advanceSwissRoundManually(pairs)
+    setManualPairingNeeded(false)
+    setManualAssignments({})
   }
 
   return (
@@ -106,6 +133,30 @@ export default function SwissResultsPage() {
         <Button onClick={handleAdvance} disabled={!allEvaluated}>
           Nächste Runde auslosen
         </Button>
+      )}
+
+      {manualPairingNeeded && (
+        <div className="border border-border rounded-md p-4 bg-card space-y-3">
+          <p className="text-sm font-medium">
+            Automatische Paarung nicht möglich — bitte Paarungen für die nächste Runde manuell zuweisen.
+          </p>
+          {activeTeams.map(team => (
+            <div key={team.id} className="flex items-center gap-3">
+              <span className="w-32 text-sm">{team.name}</span>
+              <select
+                className="border border-border rounded-sm px-2 py-1 text-sm"
+                value={manualAssignments[team.id] ?? ''}
+                onChange={e => handleManualPair(team.id, e.target.value)}
+              >
+                <option value="">– Gegner wählen –</option>
+                {activeTeams.filter(t => t.id !== team.id).map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+          <Button onClick={handleManualSubmit}>Paarungen übernehmen</Button>
+        </div>
       )}
     </div>
   )

@@ -66,4 +66,43 @@ describe('SwissResultsPage', () => {
     expect(screen.getByText('20 : 15')).toBeInTheDocument()
     expect(screen.queryByLabelText(`Ergebnis Heim, Spiel ${game.gameNumber}`)).not.toBeInTheDocument()
   })
+
+  it('shows a manual pairing dialog when no valid automatic pairing remains, and applies the chosen pairs', () => {
+    setupSwissTournament(4, 5)
+    const teamIds = useTournamentStore.getState().tournament.teams.map(t => t.id)
+    const [a, b, c, d] = teamIds
+
+    const { schedule } = useTournamentStore.getState()
+    const template = schedule!.games.find(g => g.round === 1 && g.field > 0)!
+    const allPairs: [string, string][] = [[a, b], [a, c], [a, d], [b, c], [b, d], [c, d]]
+    const playedGames = allPairs.map((pair, i) => ({
+      ...template,
+      id: `played-${i}`,
+      round: 1,
+      gameNumber: 1000 + i,
+      homeTeamId: pair[0],
+      awayTeamId: pair[1],
+      periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }],
+    }))
+    const round1Placeholders = schedule!.games.filter(g => g.round === 1)
+    const otherGames = schedule!.games.filter(g => g.round !== 1)
+    useTournamentStore.setState(s => ({
+      schedule: { ...s.schedule!, games: [...playedGames, ...round1Placeholders.map(g => ({ ...g, homeTeamId: a, awayTeamId: b, periodScores: [{ period: 1, homeScore: 1, awayScore: 0 }] })), ...otherGames] },
+    }))
+
+    render(<SwissResultsPage />)
+    fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
+
+    expect(screen.getByText(/automatische paarung nicht möglich/i)).toBeInTheDocument()
+
+    const selects = screen.getAllByRole('combobox')
+    fireEvent.change(selects[0], { target: { value: teamIds[1] } })
+    fireEvent.change(selects[2], { target: { value: teamIds[3] } })
+    fireEvent.click(screen.getByRole('button', { name: /paarungen übernehmen/i }))
+
+    expect(screen.queryByText(/automatische paarung nicht möglich/i)).not.toBeInTheDocument()
+    const round2Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field > 0)
+    const assignedPairs = round2Games.map(g => [g.homeTeamId, g.awayTeamId])
+    expect(assignedPairs).toEqual([[teamIds[0], teamIds[1]], [teamIds[2], teamIds[3]]])
+  })
 })
