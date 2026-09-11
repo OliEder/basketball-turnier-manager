@@ -35,7 +35,12 @@ export default function SwissResultsPage() {
     if (!entry) return
     const home = Number(entry.home)
     const away = Number(entry.away)
-    submitGameResult(gameId, [{ period: 1, homeScore: home, awayScore: away }])
+    setError(null)
+    try {
+      submitGameResult(gameId, [{ period: 1, homeScore: home, awayScore: away }])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    }
   }
 
   const handleAdvance = () => {
@@ -204,6 +209,7 @@ export default function SwissResultsPage() {
             <div key={team.id} className="flex items-center gap-3">
               <span className="w-32 text-sm">{team.name}</span>
               <select
+                aria-label={`Gegner für ${team.name}`}
                 className="border border-border rounded-sm px-2 py-1 text-sm"
                 value={manualAssignments[team.id] ?? ''}
                 onChange={e => handleManualPair(team.id, e.target.value)}
