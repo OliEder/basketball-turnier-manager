@@ -71,6 +71,7 @@ interface TournamentStore {
   submitGameResult: (gameId: string, periodScores: PeriodScore[]) => void
   advanceSwissRound: () => void
   advanceSwissRoundManually: (pairs: [string, string][], byeTeamId?: string) => void
+  withdrawTeam: (teamId: string) => void
   // Persistence
   loadFromStorage: () => void
 }
@@ -102,6 +103,48 @@ function applySwissPairing(
   const updated = { ...schedule, games: updatedGames }
   set({ schedule: updated })
   saveSchedule(updated)
+}
+
+function reshapeFutureSwissRounds(games: Game[], afterRound: number, activeTeamCount: number): Game[] {
+  const gamesPerFutureRound = Math.floor(activeTeamCount / 2)
+  const needsBye = activeTeamCount % 2 === 1
+
+  const untouched = games.filter(g => g.stage !== 'swiss' || g.round <= afterRound)
+  const futureRounds = new Set(
+    games.filter(g => g.stage === 'swiss' && g.round > afterRound).map(g => g.round)
+  )
+
+  const reshaped: Game[] = []
+  for (const round of futureRounds) {
+    const roundGames = games.filter(g => g.stage === 'swiss' && g.round === round)
+    const teamSlots = roundGames.filter(g => g.field > 0)
+    const byeSlots = roundGames.filter(g => g.field === 0)
+
+    const keptTeamSlots = teamSlots.slice(0, gamesPerFutureRound)
+    reshaped.push(...keptTeamSlots.map((g, i) => ({
+      ...g,
+      homeLabel: `Runde ${round} – Spiel ${i + 1}`,
+      awayLabel: `Runde ${round} – Spiel ${i + 1}`,
+    })))
+
+    if (needsBye) {
+      const existingBye = byeSlots[0]
+      const surplusTeamSlot = teamSlots[gamesPerFutureRound]
+      const byeSource = existingBye ?? surplusTeamSlot
+      if (byeSource) {
+        reshaped.push({
+          ...byeSource,
+          homeTeamId: null,
+          awayTeamId: null,
+          homeLabel: undefined,
+          awayLabel: undefined,
+          field: 0,
+        })
+      }
+    }
+  }
+
+  return [...untouched, ...reshaped]
 }
 
 export const useTournamentStore = create<TournamentStore>((set, get) => ({
@@ -243,6 +286,34 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
       throw new Error('Runde ist noch nicht vollständig ausgewertet')
     }
     applySwissPairing(set, get, currentRound + 1, pairs, byeTeamId)
+  },
+
+  withdrawTeam: (teamId) => {
+    const { schedule, tournament } = get()
+    if (!schedule) return
+    const currentRound = getCurrentSwissRound(schedule.games)
+
+    const gamesAfterCancellation = schedule.games.map(g => {
+      if (g.round !== currentRound || g.stage !== 'swiss') return g
+      const involvesWithdrawing = g.homeTeamId === teamId || g.awayTeamId === teamId
+      if (involvesWithdrawing && g.periodScores.length === 0) {
+        return { ...g, cancelledReason: 'withdrawal' as const }
+      }
+      return g
+    })
+
+    const activeTeamCount = tournament.teams.filter(t => t.id !== teamId && !t.withdrawnAfterRound).length
+    const updatedGames = reshapeFutureSwissRounds(gamesAfterCancellation, currentRound, activeTeamCount)
+
+    const updatedTeams = tournament.teams.map(t =>
+      t.id === teamId ? { ...t, withdrawnAfterRound: currentRound } : t
+    )
+
+    const updatedSchedule = { ...schedule, games: updatedGames }
+    const updatedTournament = { ...tournament, teams: updatedTeams }
+    set({ schedule: updatedSchedule, tournament: updatedTournament })
+    saveSchedule(updatedSchedule)
+    saveTournament(updatedTournament)
   },
 
   loadFromStorage: () => {

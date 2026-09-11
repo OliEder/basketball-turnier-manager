@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useTournamentStore, getCurrentSwissRound } from './tournament-store'
 import { clearAll } from '@/lib/storage'
+import { computeStandings } from '@/lib/standings'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
   const store = useTournamentStore.getState()
@@ -102,5 +103,59 @@ describe('advanceSwissRoundManually', () => {
     setupSwissTournament(4, 2)
     const { advanceSwissRoundManually } = useTournamentStore.getState()
     expect(() => advanceSwissRoundManually([['t1', 't2']])).toThrow('Runde ist noch nicht vollständig ausgewertet')
+  })
+})
+
+describe('withdrawTeam', () => {
+  it('marks the team as withdrawn but keeps past results', () => {
+    setupSwissTournament(4, 2)
+    const { schedule, submitGameResult, withdrawTeam } = useTournamentStore.getState()
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      submitGameResult(g.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    const teamIdToWithdraw = round1Games[0].homeTeamId!
+    withdrawTeam(teamIdToWithdraw)
+    const team = useTournamentStore.getState().tournament.teams.find(t => t.id === teamIdToWithdraw)!
+    expect(team.withdrawnAfterRound).toBe(1)
+    const playedGame = useTournamentStore.getState().schedule!.games.find(g => g.id === round1Games[0].id)!
+    expect(playedGame.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 10 }])
+  })
+
+  it('cancels an open game in the current round and credits the opponent', () => {
+    setupSwissTournament(4, 2)
+    const { schedule, submitGameResult, withdrawTeam } = useTournamentStore.getState()
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    // Only submit results for one game, leave the other open
+    submitGameResult(round1Games[0].id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    const openGame = round1Games[1]
+    const teamToWithdraw = openGame.homeTeamId!
+    const opponent = openGame.awayTeamId!
+    withdrawTeam(teamToWithdraw)
+    const updatedGame = useTournamentStore.getState().schedule!.games.find(g => g.id === openGame.id)!
+    expect(updatedGame.cancelledReason).toBe('withdrawal')
+    const standings = computeStandings(
+      useTournamentStore.getState().tournament.teams,
+      useTournamentStore.getState().schedule!.games,
+      1,
+    )
+    expect(standings.find(s => s.teamId === opponent)!.points).toBe(2)
+  })
+
+  it('removes surplus placeholder slots in not-yet-drawn future rounds', () => {
+    // 4 teams, 2 games per future round. After one team withdraws, only 3 active
+    // teams remain, so future rounds only need 1 game (+ 1 bye) instead of 2 games.
+    setupSwissTournament(4, 3)
+    const { schedule, submitGameResult, withdrawTeam } = useTournamentStore.getState()
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      submitGameResult(g.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    const teamToWithdraw = round1Games[0].homeTeamId!
+    withdrawTeam(teamToWithdraw)
+    const round2Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field > 0)
+    const round2Byes = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field === 0)
+    expect(round2Games).toHaveLength(1)
+    expect(round2Byes).toHaveLength(1)
   })
 })
