@@ -89,7 +89,7 @@ export default function SwissOverviewPage() {
             <div className="border border-border rounded-md p-4 bg-card">
               {schedule.games
                 .filter(g => g.round === round && g.field > 0)
-                .map(game => <GameRow key={game.id} game={game} />)}
+                .map(game => <GameRow key={game.id} game={game} showResult />)}
             </div>
           </div>
         ))}
