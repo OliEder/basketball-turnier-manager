@@ -32,6 +32,7 @@ export function generateSchedule(config: TournamentConfig): Schedule {
   if (config.mode === 'swiss') {
     const { games } = generateSwissSchedule({
       teamIds: teams.map(t => t.id),
+      // log2(teams) rounds are enough to separate all teams by a unique win/loss record in a swiss system
       swissRounds: config.swissRounds ?? Math.max(1, Math.ceil(Math.log2(teams.length || 1))),
       fields,
       gameSettings,

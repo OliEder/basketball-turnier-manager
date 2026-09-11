@@ -18,15 +18,18 @@ export interface SwissScheduleResult {
   games: Game[]
 }
 
-function scheduleRoundSlots(
-  slotCount: number,
-  fields: number,
-  gameDuration: number,
-  bufferMin: number,
-  blackoutPeriods: TimeWindow[],
-  availabilityEnd: string,
-  roundStart: string,
-): { starts: string[]; roundEnd: string } {
+interface ScheduleRoundSlotsInput {
+  slotCount: number
+  fields: number
+  gameDuration: number
+  bufferMin: number
+  blackoutPeriods: TimeWindow[]
+  availabilityEnd: string
+  roundStart: string
+}
+
+function scheduleRoundSlots(input: ScheduleRoundSlotsInput): { starts: string[]; roundEnd: string } {
+  const { slotCount, fields, gameDuration, bufferMin, blackoutPeriods, availabilityEnd, roundStart } = input
   const fieldClocks = Array.from({ length: fields }, () => roundStart)
   const starts: string[] = []
   let roundEnd = roundStart
@@ -53,10 +56,15 @@ export function generateSwissSchedule(input: SwissScheduleInput): SwissScheduleR
   let gameNumber = startGameNumber
 
   const { pairs: round1Pairs, byeTeamId: round1Bye } = pairFirstSwissRound(teamIds)
-  const { starts, roundEnd } = scheduleRoundSlots(
-    round1Pairs.length, fields, gameDuration, gameSettings.bufferBetweenGamesMin,
-    blackoutPeriods, availabilityEnd, firstGameStart,
-  )
+  const { starts, roundEnd } = scheduleRoundSlots({
+    slotCount: round1Pairs.length,
+    fields,
+    gameDuration,
+    bufferMin: gameSettings.bufferBetweenGamesMin,
+    blackoutPeriods,
+    availabilityEnd,
+    roundStart: firstGameStart,
+  })
 
   for (let i = 0; i < round1Pairs.length; i++) {
     games.push({
@@ -79,7 +87,7 @@ export function generateSwissSchedule(input: SwissScheduleInput): SwissScheduleR
       awayTeamId: null,
       byeTeamId: round1Bye,
       stage: 'swiss',
-      field: 0,
+      field: 0, // field: 0 marks a bye — no real venue slot is used
       scheduledStart: firstGameStart,
       scheduledEnd: firstGameStart,
       round: 1,
@@ -90,14 +98,19 @@ export function generateSwissSchedule(input: SwissScheduleInput): SwissScheduleR
 
   let previousRoundEnd = roundEnd
   const gamesPerFutureRound = Math.floor(teamIds.length / 2)
-  const hasByeEachRound = teamIds.length % 2 === 1
+  const hasByeEachRound = !!round1Bye
 
   for (let round = 2; round <= swissRounds; round++) {
     const roundStart = addMinutes(previousRoundEnd, gameSettings.bufferBetweenGamesMin + gameSettings.breakBetweenRoundsMin)
-    const { starts: roundStarts, roundEnd: thisRoundEnd } = scheduleRoundSlots(
-      gamesPerFutureRound, fields, gameDuration, gameSettings.bufferBetweenGamesMin,
-      blackoutPeriods, availabilityEnd, roundStart,
-    )
+    const { starts: roundStarts, roundEnd: thisRoundEnd } = scheduleRoundSlots({
+      slotCount: gamesPerFutureRound,
+      fields,
+      gameDuration,
+      bufferMin: gameSettings.bufferBetweenGamesMin,
+      blackoutPeriods,
+      availabilityEnd,
+      roundStart,
+    })
 
     for (let i = 0; i < gamesPerFutureRound; i++) {
       const label = `Runde ${round} – Spiel ${i + 1}`
