@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { TournamentConfig, Game, Schedule } from '@/types'
 import { calcGameDurationMin, addMinutes, timeToMinutes, maxTime, findNextSlot } from './game-duration'
 import { generatePlayoffGames } from './playoff-generator'
+import { generateSwissSchedule } from './swiss-schedule'
 
 /** Generate all unique pairs for round-robin. Returns [homeId, awayId][] */
 export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
@@ -27,6 +28,29 @@ export function generateSchedule(config: TournamentConfig): Schedule {
   // Team clocks: track when each team is next free (a team can't play two games at once)
   const teamNextFree = new Map<string, string>()
   const availabilityEnd = addMinutes(venueClose, -venue.teardownBufferMin)
+
+  if (config.mode === 'swiss') {
+    const { games } = generateSwissSchedule({
+      teamIds: teams.map(t => t.id),
+      swissRounds: config.swissRounds ?? Math.max(1, Math.ceil(Math.log2(teams.length || 1))),
+      fields,
+      gameSettings,
+      blackoutPeriods: venue.blackoutPeriods,
+      firstGameStart,
+      availabilityEnd,
+      startGameNumber: 1,
+    })
+    const lastEnd = games.reduce((max, g) => (g.scheduledEnd > max ? g.scheduledEnd : max), '00:00')
+    const firstStart = games[0]?.scheduledStart ?? firstGameStart
+    return {
+      id: uuidv4(),
+      tournamentId: config.id,
+      generatedAt: new Date().toISOString(),
+      games,
+      totalDurationMin: timeToMinutes(lastEnd) - timeToMinutes(firstStart),
+      estimatedEnd: lastEnd,
+    }
+  }
 
   const pairs = generateRoundRobinPairs(teams.map(t => t.id))
   const games: Game[] = []

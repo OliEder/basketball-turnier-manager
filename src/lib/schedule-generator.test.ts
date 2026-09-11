@@ -153,3 +153,27 @@ describe('generateSchedule with round-robin+finals mode', () => {
     )
   })
 })
+
+describe('generateSchedule with swiss mode', () => {
+  it('generates a swiss schedule when mode is swiss', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'swiss',
+      swissRounds: 2,
+    }
+    const schedule = generateSchedule(config)
+    const rounds = new Set(schedule.games.map(g => g.round))
+    expect(rounds).toEqual(new Set([1, 2]))
+    expect(schedule.games.every(g => g.stage === 'swiss')).toBe(true)
+  })
+
+  it('does not set awardCeremonyEstimate for swiss mode', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'swiss',
+      swissRounds: 2,
+    }
+    const schedule = generateSchedule(config)
+    expect(schedule.awardCeremonyEstimate).toBeUndefined()
+  })
+})
