@@ -117,14 +117,14 @@ export default function SwissResultsPage() {
                 <>
                   <Input
                     type="number"
-                    className="w-16"
+                    className="w-12"
                     aria-label={`Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? '' } }))}
                   />
                   <span>:</span>
                   <Input
                     type="number"
-                    className="w-16"
+                    className="w-12"
                     aria-label={`Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? '', away: e.target.value } }))}
                   />
@@ -134,7 +134,7 @@ export default function SwissResultsPage() {
                 <>
                   <Input
                     type="number"
-                    className="w-16"
+                    className="w-12"
                     defaultValue={game.periodScores[0].homeScore}
                     aria-label={`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? String(game.periodScores[0].awayScore) } }))}
@@ -142,7 +142,7 @@ export default function SwissResultsPage() {
                   <span>:</span>
                   <Input
                     type="number"
-                    className="w-16"
+                    className="w-12"
                     defaultValue={game.periodScores[0].awayScore}
                     aria-label={`Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? String(game.periodScores[0].homeScore), away: e.target.value } }))}
