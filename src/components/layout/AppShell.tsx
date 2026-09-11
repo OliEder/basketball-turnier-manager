@@ -17,6 +17,7 @@ export default function AppShell() {
         ]
       : [{ to: '/schedule', label: 'Zeitplan', gated: true }]),
     { to: '/export', label: 'Export', gated: false },
+    { to: '/anleitung', label: 'Anleitung', gated: false },
   ]
 
   return (

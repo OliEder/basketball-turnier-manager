@@ -6,6 +6,7 @@ import SchedulePage from '@/pages/SchedulePage'
 import ExportPage from '@/pages/ExportPage'
 import SwissResultsPage from '@/pages/SwissResultsPage'
 import SwissOverviewPage from '@/pages/SwissOverviewPage'
+import ManualPage from '@/pages/ManualPage'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="swiss-results" element={<SwissResultsPage />} />
           <Route path="swiss-overview" element={<SwissOverviewPage />} />
           <Route path="export" element={<ExportPage />} />
+          <Route path="anleitung" element={<ManualPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

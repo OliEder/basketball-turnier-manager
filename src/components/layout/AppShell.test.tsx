@@ -82,4 +82,9 @@ describe('AppShell', () => {
     expect(screen.getByRole('link', { name: 'Konfiguration' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Export' })).toBeInTheDocument()
   })
+
+  it('renders Anleitung as a clickable link even when no schedule exists', () => {
+    renderShell()
+    expect(screen.getByRole('link', { name: 'Anleitung' })).toBeInTheDocument()
+  })
 })
