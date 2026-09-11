@@ -1,14 +1,23 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-
-const navItems = [
-  { to: '/teams', label: 'Teams' },
-  { to: '/config', label: 'Konfiguration' },
-  { to: '/schedule', label: 'Zeitplan' },
-  { to: '/export', label: 'Export' },
-]
+import { useTournamentStore } from '@/store/tournament-store'
 
 export default function AppShell() {
+  const { tournament } = useTournamentStore()
+  const isSwiss = tournament.mode === 'swiss'
+
+  const navItems = [
+    { to: '/teams', label: 'Teams' },
+    { to: '/config', label: 'Konfiguration' },
+    ...(isSwiss
+      ? [
+          { to: '/swiss-results', label: 'Ergebnisse erfassen' },
+          { to: '/swiss-overview', label: 'Turnierübersicht' },
+        ]
+      : [{ to: '/schedule', label: 'Zeitplan' }]),
+    { to: '/export', label: 'Export' },
+  ]
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-brand-primary-dark text-white">
