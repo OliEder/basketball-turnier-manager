@@ -43,7 +43,8 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
     }
 
     await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).not.toBeVisible()
-    await page.getByRole('button', { name: 'Nächste Runde auslosen' }).click()
+    const advanceButtonName = round < totalRounds ? 'Nächste Runde auslosen' : 'Turnier abschließen'
+    await page.getByRole('button', { name: advanceButtonName }).click()
   }
 
   await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).toBeVisible()
@@ -125,12 +126,12 @@ test('lets the organizer navigate back to a completed round and correct a result
 
   await expect(page.getByText(/Runde 2 von 2/)).toBeVisible()
   await expect(page.getByText(/bereits abgeschlossene Runde/)).not.toBeVisible()
-  await expect(page.getByRole('button', { name: 'Nächste Runde auslosen' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Turnier abschließen' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
 
   await expect(page.getByText(/bereits abgeschlossene Runde/)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Nächste Runde auslosen' })).not.toBeVisible()
+  await expect(page.getByRole('button', { name: 'Turnier abschließen' })).not.toBeVisible()
 
   const correctButtons = page.getByRole('button', { name: 'Korrigieren' })
   await correctButtons.first().click()

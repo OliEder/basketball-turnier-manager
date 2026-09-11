@@ -262,7 +262,7 @@ export default function SwissResultsPage() {
         </Alert>
       ) : !isViewingPastRound ? (
         <Button onClick={handleAdvance} disabled={!allEvaluated}>
-          Nächste Runde auslosen
+          {displayRound >= totalRounds ? 'Turnier abschließen' : 'Nächste Runde auslosen'}
         </Button>
       ) : null}
 

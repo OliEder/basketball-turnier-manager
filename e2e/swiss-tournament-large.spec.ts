@@ -34,7 +34,8 @@ test('plays through a full 13-team swiss tournament with a bye every round', asy
     }
 
     await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).not.toBeVisible()
-    await page.getByRole('button', { name: 'Nächste Runde auslosen' }).click()
+    const advanceButtonName = round < totalRounds ? 'Nächste Runde auslosen' : 'Turnier abschließen'
+    await page.getByRole('button', { name: advanceButtonName }).click()
   }
 
   await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).toBeVisible()

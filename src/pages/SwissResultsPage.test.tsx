@@ -239,7 +239,7 @@ describe('SwissResultsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /zur aktuellen runde/i }))
 
     expect(screen.queryByText(/bereits abgeschlossene runde/i)).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /nächste runde auslosen/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Turnier abschließen' })).toBeInTheDocument()
   })
 
   it('lets the organizer correct a result of a past round after navigating back to it', () => {
@@ -307,7 +307,7 @@ describe('SwissResultsPage', () => {
     expect(badge).toHaveClass('bg-destructive')
   })
 
-  it('keeps the "Nächste Runde auslosen" button visible and clickable after typing the last score of the final round, and only shows "Turnier abgeschlossen" once those scores are actually saved', () => {
+  it('keeps the "Turnier abschließen" button visible and clickable after typing the last score of the final round, and only shows "Turnier abgeschlossen" once those scores are actually saved', () => {
     setupSwissTournament(4, 1)
     render(<SwissResultsPage />)
     const games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
@@ -318,7 +318,7 @@ describe('SwissResultsPage', () => {
     }
 
     expect(screen.queryByText(/turnier abgeschlossen/i)).not.toBeInTheDocument()
-    const advanceButton = screen.getByRole('button', { name: /nächste runde auslosen/i })
+    const advanceButton = screen.getByRole('button', { name: 'Turnier abschließen' })
     expect(advanceButton).toBeEnabled()
 
     for (const g of games) {
@@ -333,7 +333,14 @@ describe('SwissResultsPage', () => {
       expect(stored.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 10 }])
     }
     expect(screen.getByText(/turnier abgeschlossen/i)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /nächste runde auslosen/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Turnier abschließen' })).not.toBeInTheDocument()
+  })
+
+  it('labels the advance button "Nächste Runde auslosen" on a non-final round', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    expect(screen.getByRole('button', { name: 'Nächste Runde auslosen' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Turnier abschließen' })).not.toBeInTheDocument()
   })
 
   it('does not show the withdrawn badge on a past round where the team actually played a real game', () => {
