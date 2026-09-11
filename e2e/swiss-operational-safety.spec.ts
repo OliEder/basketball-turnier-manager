@@ -42,8 +42,7 @@ test('withdrawing a team mid-tournament does not permanently block round progres
 
   // 4 Teams -> Runde 1 hat 2 Spiele (kein Freilos). Nur das erste Spiel auswerten,
   // damit "Nächste Runde auslosen" zunächst noch deaktiviert bleibt.
-  const gameRows = page.locator('div.border.border-border.rounded-md.bg-card > div.flex.items-center.gap-3')
-  await expect(gameRows).toHaveCount(2)
+  await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(2)
 
   const firstHome = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
   const firstAway = page.getByLabel(/^Ergebnis Auswärts, Spiel/).first()
@@ -55,15 +54,21 @@ test('withdrawing a team mid-tournament does not permanently block round progres
   await expect(advanceButton).toBeDisabled()
 
   // Das zweite (noch offene) Spiel ist jetzt die einzige verbleibende Zeile mit Eingabefeldern.
-  // Eines der beiden daran beteiligten Teams als ausgeschieden markieren.
-  const remainingRow = page.locator('div.flex.items-center.gap-3.py-2').filter({ has: page.getByLabel(/^Ergebnis Heim, Spiel/) })
+  // Zeile über das (accessible) Eingabefeld statt über CSS-Klassen ermitteln, dann den exakten
+  // Teamnamen aus dem Accessible Name eines der "ausgeschieden"-Buttons in dieser Zeile lesen,
+  // um gezielt eines der beiden beteiligten Teams als ausgeschieden zu markieren.
+  const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/)
+  const remainingRow = page.locator('div').filter({ has: openInput }).last()
   const withdrawButtons = remainingRow.getByRole('button', { name: /ausgeschieden$/ })
   await expect(withdrawButtons).toHaveCount(2)
-  const teamToWithdrawLabel = await withdrawButtons.first().textContent()
-  expect(teamToWithdrawLabel).toBeTruthy()
+  const buttonLabel = await withdrawButtons.first().textContent()
+  expect(buttonLabel).toBeTruthy()
+  const teamToWithdraw = buttonLabel!.replace(/ ausgeschieden$/, '')
+
+  const withdrawButton = remainingRow.getByRole('button', { name: `${teamToWithdraw} ausgeschieden`, exact: true })
 
   page.once('dialog', dialog => dialog.accept())
-  await withdrawButtons.first().click()
+  await withdrawButton.click()
 
   // Die Runde gilt jetzt als vollständig ausgewertet (das zweite Spiel wurde durch den
   // Rückzug annulliert), daher darf die nächste Runde ausgelost werden. Hinweis: Die UI
