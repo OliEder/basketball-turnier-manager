@@ -81,3 +81,20 @@ describe('renderSwissOverviewHtml team abbreviation', () => {
     expect(html).toContain('&lt;script&gt;')
   })
 })
+
+describe('renderSwissOverviewHtml schedule time vs score', () => {
+  it('shows the final score instead of the scheduled time for a played game', () => {
+    const html = renderSwissOverviewHtml(tournament, schedule, standings)
+    expect(html).toContain('20 : 15')
+    expect(html).not.toContain('09:30 – 10:00')
+  })
+
+  it('shows the scheduled time for a game that has not been played yet', () => {
+    const unplayedSchedule = {
+      ...schedule,
+      games: schedule.games.map(g => g.id === schedule.games[0].id ? { ...g, periodScores: [] } : g),
+    }
+    const html = renderSwissOverviewHtml(tournament, unplayedSchedule, standings)
+    expect(html).toContain('09:30 – 10:00')
+  })
+})

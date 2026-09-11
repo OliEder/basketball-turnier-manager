@@ -1,5 +1,6 @@
 import type { TournamentConfig, Schedule } from '@/types'
 import type { TeamStanding } from '@/lib/standings'
+import { computeFinalScore } from '@/lib/standings'
 import { getTeamAbbreviation } from '@/lib/utils'
 
 function escapeHtml(s: string): string {
@@ -37,10 +38,13 @@ export function renderSwissOverviewHtml(
         const home = escapeHtml(homeTeam ? getTeamAbbreviation(homeTeam) : (g.homeLabel ?? '?'))
         const away = escapeHtml(awayTeam ? getTeamAbbreviation(awayTeam) : (g.awayLabel ?? '?'))
         const pairingTitle = escapeHtml([homeTeam?.name, awayTeam?.name].filter(Boolean).join(' vs '))
+        const timeOrScore = g.periodScores.length > 0
+          ? (() => { const { home, away } = computeFinalScore(g); return `${home} : ${away}` })()
+          : `${g.scheduledStart} – ${g.scheduledEnd}`
         return `<tr>
           <td>${g.gameNumber}</td>
           <td>Feld ${g.field}</td>
-          <td>${g.scheduledStart} – ${g.scheduledEnd}</td>
+          <td>${timeOrScore}</td>
           <td title="${pairingTitle}">${home} vs ${away}</td>
         </tr>`
       }).join('\n')
