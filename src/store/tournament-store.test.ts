@@ -186,3 +186,11 @@ describe('correctGameResult', () => {
     ).toThrow('Ergebnis kann nicht mehr korrigiert werden')
   })
 })
+
+describe('setSwissRounds', () => {
+  it('updates swissRounds on the tournament', () => {
+    const { setSwissRounds } = useTournamentStore.getState()
+    setSwissRounds(4)
+    expect(useTournamentStore.getState().tournament.swissRounds).toBe(4)
+  })
+})

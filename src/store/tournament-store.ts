@@ -58,6 +58,7 @@ interface TournamentStore {
   setTournamentName: (name: string) => void
   setMode: (mode: TournamentConfig['mode']) => void
   setFinalsBracketSize: (size: 2 | 4) => void
+  setSwissRounds: (rounds: number) => void
   setFields: (fields: number) => void
   updateGameSettings: (settings: Partial<GameSettings>) => void
   updateVenue: (venue: Partial<Venue>) => void
@@ -163,6 +164,9 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
         ...s.tournament,
         mode,
         finalsBracketSize: mode === 'round-robin+finals' ? (s.tournament.finalsBracketSize ?? 4) : s.tournament.finalsBracketSize,
+        swissRounds: mode === 'swiss'
+          ? (s.tournament.swissRounds ?? Math.max(1, Math.ceil(Math.log2(s.tournament.teams.length || 1))))
+          : s.tournament.swissRounds,
       },
     }))
     saveTournament(get().tournament)
@@ -170,6 +174,11 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
 
   setFinalsBracketSize: (size) => {
     set(s => ({ tournament: { ...s.tournament, finalsBracketSize: size } }))
+    saveTournament(get().tournament)
+  },
+
+  setSwissRounds: (rounds) => {
+    set(s => ({ tournament: { ...s.tournament, swissRounds: rounds } }))
     saveTournament(get().tournament)
   },
 
