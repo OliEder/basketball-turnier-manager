@@ -72,6 +72,7 @@ interface TournamentStore {
   advanceSwissRound: () => void
   advanceSwissRoundManually: (pairs: [string, string][], byeTeamId?: string) => void
   withdrawTeam: (teamId: string) => void
+  correctGameResult: (gameId: string, periodScores: PeriodScore[]) => void
   // Persistence
   loadFromStorage: () => void
 }
@@ -314,6 +315,25 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
     set({ schedule: updatedSchedule, tournament: updatedTournament })
     saveSchedule(updatedSchedule)
     saveTournament(updatedTournament)
+  },
+
+  correctGameResult: (gameId, periodScores) => {
+    const { schedule } = get()
+    if (!schedule) return
+    const game = schedule.games.find(g => g.id === gameId)
+    if (!game) return
+    const nextRoundHasResult = schedule.games.some(
+      g => g.stage === 'swiss' && g.round === game.round + 1 && g.periodScores.length > 0
+    )
+    if (nextRoundHasResult) {
+      throw new Error('Ergebnis kann nicht mehr korrigiert werden — die nächste Runde wurde bereits ausgewertet')
+    }
+    const updatedGames = schedule.games.map(g =>
+      g.id === gameId ? { ...g, periodScores } : g
+    )
+    const updated = { ...schedule, games: updatedGames }
+    set({ schedule: updated })
+    saveSchedule(updated)
   },
 
   loadFromStorage: () => {

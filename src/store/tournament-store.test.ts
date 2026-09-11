@@ -159,3 +159,30 @@ describe('withdrawTeam', () => {
     expect(round2Byes).toHaveLength(1)
   })
 })
+
+describe('correctGameResult', () => {
+  it('allows correcting a result before the next round has any result', () => {
+    setupSwissTournament(4, 2)
+    const { schedule, submitGameResult, correctGameResult } = useTournamentStore.getState()
+    const game = schedule!.games.filter(g => g.round === 1 && g.field > 0)[0]
+    submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    correctGameResult(game.id, [{ period: 1, homeScore: 18, awayScore: 22 }])
+    const updated = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
+    expect(updated.periodScores).toEqual([{ period: 1, homeScore: 18, awayScore: 22 }])
+  })
+
+  it('throws once the next round already has a result', () => {
+    setupSwissTournament(4, 2)
+    const { schedule, submitGameResult, advanceSwissRound, correctGameResult } = useTournamentStore.getState()
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      submitGameResult(g.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    advanceSwissRound()
+    const round2Game = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field > 0)[0]
+    useTournamentStore.getState().submitGameResult(round2Game.id, [{ period: 1, homeScore: 15, awayScore: 12 }])
+    expect(() =>
+      correctGameResult(round1Games[0].id, [{ period: 1, homeScore: 5, awayScore: 30 }])
+    ).toThrow('Ergebnis kann nicht mehr korrigiert werden')
+  })
+})
