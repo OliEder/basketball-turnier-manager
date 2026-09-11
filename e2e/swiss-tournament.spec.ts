@@ -42,9 +42,8 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
       await page.getByLabel(/^Ergebnis Auswärts, Spiel/).nth(i).fill('10')
     }
 
-    if (round < totalRounds) {
-      await page.getByRole('button', { name: 'Nächste Runde auslosen' }).click()
-    }
+    await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).not.toBeVisible()
+    await page.getByRole('button', { name: 'Nächste Runde auslosen' }).click()
   }
 
   await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).toBeVisible()
@@ -56,6 +55,20 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
   for (const name of ['Team A', 'Team B', 'Team C', 'Team D', 'Team E']) {
     await expect(page.getByRole('cell', { name, exact: true })).toBeVisible()
   }
+
+  // Jedes gespielte Spiel (20:10, kein Unentschieden) verteilt genau 2 Punkte auf Heim+Auswärts,
+  // jedes Freilos gibt dem Freilos-Team ebenfalls 2 Punkte. Pro Runde mit 5 Teams sind das
+  // 2 Spiele (2 Punkte) + 1 Freilos (2 Punkte) = 6 Punkte, macht über totalRounds Runden
+  // 6*totalRounds Punkte in Summe. Stimmt diese Summe, wurden ALLE Runden inkl. der letzten
+  // tatsächlich gespeichert — würde die letzte Runde verloren gehen, fehlten hier 6 Punkte.
+  const rows = page.getByRole('table').getByRole('row')
+  const rowCount = await rows.count()
+  let totalPoints = 0
+  for (let i = 1; i < rowCount; i++) {
+    const pointsCell = rows.nth(i).locator('td').nth(2)
+    totalPoints += Number(await pointsCell.textContent())
+  }
+  expect(totalPoints).toBe(6 * totalRounds)
 })
 
 test('shows the team abbreviation instead of the full name once the viewport is below the md breakpoint', async ({ page }) => {

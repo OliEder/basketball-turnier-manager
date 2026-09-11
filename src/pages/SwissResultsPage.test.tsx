@@ -307,6 +307,35 @@ describe('SwissResultsPage', () => {
     expect(badge).toHaveClass('bg-destructive')
   })
 
+  it('keeps the "Nächste Runde auslosen" button visible and clickable after typing the last score of the final round, and only shows "Turnier abgeschlossen" once those scores are actually saved', () => {
+    setupSwissTournament(4, 1)
+    render(<SwissResultsPage />)
+    const games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+
+    for (const g of games) {
+      fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${g.gameNumber}`), { target: { value: '20' } })
+      fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
+    }
+
+    expect(screen.queryByText(/turnier abgeschlossen/i)).not.toBeInTheDocument()
+    const advanceButton = screen.getByRole('button', { name: /nächste runde auslosen/i })
+    expect(advanceButton).toBeEnabled()
+
+    for (const g of games) {
+      const stored = useTournamentStore.getState().schedule!.games.find(x => x.id === g.id)!
+      expect(stored.periodScores).toEqual([])
+    }
+
+    fireEvent.click(advanceButton)
+
+    for (const g of games) {
+      const stored = useTournamentStore.getState().schedule!.games.find(x => x.id === g.id)!
+      expect(stored.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    expect(screen.getByText(/turnier abgeschlossen/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /nächste runde auslosen/i })).not.toBeInTheDocument()
+  })
+
   it('does not show the withdrawn badge on a past round where the team actually played a real game', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     setupSwissTournament(4, 2)

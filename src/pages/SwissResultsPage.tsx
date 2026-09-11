@@ -41,7 +41,7 @@ export default function SwissResultsPage() {
   )
   const activeRoundGames = schedule.games.filter(g => g.stage === 'swiss' && g.round === displayRound)
   const activeRoundEvaluated = activeRoundGames.every(
-    g => g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0 || isScoreEntered(g.id)
+    g => g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0
   )
   const tournamentFinished = displayRound >= totalRounds && activeRoundEvaluated
 
@@ -54,7 +54,9 @@ export default function SwissResultsPage() {
           submitGameResult(game.id, [{ period: 1, homeScore: Number(entry.home), awayScore: Number(entry.away) }])
         }
       }
-      advanceSwissRound()
+      if (displayRound < totalRounds) {
+        advanceSwissRound()
+      }
     } catch (err) {
       if (err instanceof PairingConflictError) {
         setManualPairingNeeded(true)
