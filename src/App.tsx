@@ -4,6 +4,8 @@ import TeamsPage from '@/pages/TeamsPage'
 import ConfigPage from '@/pages/ConfigPage'
 import SchedulePage from '@/pages/SchedulePage'
 import ExportPage from '@/pages/ExportPage'
+import SwissResultsPage from '@/pages/SwissResultsPage'
+import SwissOverviewPage from '@/pages/SwissOverviewPage'
 
 export default function App() {
   return (
@@ -14,6 +16,8 @@ export default function App() {
           <Route path="teams" element={<TeamsPage />} />
           <Route path="config" element={<ConfigPage />} />
           <Route path="schedule" element={<SchedulePage />} />
+          <Route path="swiss-results" element={<SwissResultsPage />} />
+          <Route path="swiss-overview" element={<SwissOverviewPage />} />
           <Route path="export" element={<ExportPage />} />
         </Route>
       </Routes>

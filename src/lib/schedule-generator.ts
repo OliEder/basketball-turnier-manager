@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
-import type { TournamentConfig, Game, Schedule, TimeWindow } from '@/types'
-import { calcGameDurationMin, addMinutes, timeToMinutes, overlapsBlackout } from './game-duration'
+import type { TournamentConfig, Game, Schedule } from '@/types'
+import { calcGameDurationMin, addMinutes, timeToMinutes, maxTime, findNextSlot } from './game-duration'
+import { generatePlayoffGames } from './playoff-generator'
+import { generateSwissSchedule } from './swiss-schedule'
 
 /** Generate all unique pairs for round-robin. Returns [homeId, awayId][] */
 export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
@@ -11,42 +13,6 @@ export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
     }
   }
   return pairs
-}
-
-/** Returns the later of two HH:MM time strings. */
-function maxTime(a: string, b: string): string {
-  return timeToMinutes(a) >= timeToMinutes(b) ? a : b
-}
-
-/**
- * Find the earliest available start time for a game on a given field,
- * respecting blackout periods and venue availability.
- */
-function findNextSlot(
-  currentTime: string,
-  durationMin: number,
-  blackoutPeriods: TimeWindow[],
-  availabilityEnd: string,
-): string {
-  let candidate = currentTime
-  const maxIterations = 1440 // safety: never loop more than 24h worth of minutes
-
-  for (let i = 0; i < maxIterations; i++) {
-    const end = addMinutes(candidate, durationMin)
-
-    // Check if game ends before venue closes
-    if (timeToMinutes(end) > timeToMinutes(availabilityEnd)) {
-      return '' // no slot found within venue hours
-    }
-
-    // Check if game overlaps any blackout
-    const conflict = blackoutPeriods.find(b => overlapsBlackout(candidate, end, b))
-    if (!conflict) return candidate
-
-    // Move start to end of conflicting blackout
-    candidate = conflict.end
-  }
-  return ''
 }
 
 export function generateSchedule(config: TournamentConfig): Schedule {
@@ -62,6 +28,30 @@ export function generateSchedule(config: TournamentConfig): Schedule {
   // Team clocks: track when each team is next free (a team can't play two games at once)
   const teamNextFree = new Map<string, string>()
   const availabilityEnd = addMinutes(venueClose, -venue.teardownBufferMin)
+
+  if (config.mode === 'swiss') {
+    const { games } = generateSwissSchedule({
+      teamIds: teams.map(t => t.id),
+      // log2(teams) rounds are enough to separate all teams by a unique win/loss record in a swiss system
+      swissRounds: config.swissRounds ?? Math.max(1, Math.ceil(Math.log2(teams.length || 1))),
+      fields,
+      gameSettings,
+      blackoutPeriods: venue.blackoutPeriods,
+      firstGameStart,
+      availabilityEnd,
+      startGameNumber: 1,
+    })
+    const lastEnd = games.reduce((max, g) => (g.scheduledEnd > max ? g.scheduledEnd : max), '00:00')
+    const firstStart = games[0]?.scheduledStart ?? firstGameStart
+    return {
+      id: uuidv4(),
+      tournamentId: config.id,
+      generatedAt: new Date().toISOString(),
+      games,
+      totalDurationMin: timeToMinutes(lastEnd) - timeToMinutes(firstStart),
+      estimatedEnd: lastEnd,
+    }
+  }
 
   const pairs = generateRoundRobinPairs(teams.map(t => t.id))
   const games: Game[] = []
@@ -98,6 +88,7 @@ export function generateSchedule(config: TournamentConfig): Schedule {
       id: uuidv4(),
       homeTeamId,
       awayTeamId,
+      stage: 'group',
       field: bestField + 1,
       scheduledStart: bestSlotStart,
       scheduledEnd: slotEnd,
@@ -111,6 +102,20 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     teamNextFree.set(awayTeamId, addMinutes(bestSlotStart, slotDuration))
   }
 
+  if (config.mode === 'round-robin+finals') {
+    const playoffGames = generatePlayoffGames({
+      finalsBracketSize: config.finalsBracketSize ?? 4,
+      fields,
+      gameSettings,
+      blackoutPeriods: venue.blackoutPeriods,
+      availabilityEnd,
+      fieldNextFree,
+      teamCount: teams.length,
+      startGameNumber: gameNumber,
+    })
+    games.push(...playoffGames)
+  }
+
   const lastEnd = games.reduce(
     (max, g) => (g.scheduledEnd > max ? g.scheduledEnd : max),
     '00:00',
@@ -119,6 +124,8 @@ export function generateSchedule(config: TournamentConfig): Schedule {
   const totalDurationMin =
     timeToMinutes(lastEnd) - timeToMinutes(firstStart)
 
+  const finalGame = games.find(g => g.stage === 'final')
+
   return {
     id: uuidv4(),
     tournamentId: config.id,
@@ -126,5 +133,6 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     games,
     totalDurationMin,
     estimatedEnd: lastEnd,
+    ...(finalGame ? { awardCeremonyEstimate: addMinutes(finalGame.scheduledEnd, gameSettings.awardCeremonyMin) } : {}),
   }
 }

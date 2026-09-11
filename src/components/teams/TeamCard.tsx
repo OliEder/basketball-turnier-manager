@@ -19,7 +19,10 @@ export default function TeamCard({ team, onEdit, onDelete }: Props) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold truncate">{team.name}</p>
+        <p className="font-semibold truncate">
+          {team.name}
+          {team.abbreviation && <span className="text-xs text-muted-foreground ml-2">({team.abbreviation})</span>}
+        </p>
         {team.contact && <p className="text-sm text-muted-foreground truncate">{team.contact}</p>}
       </div>
       <div className="flex gap-2">

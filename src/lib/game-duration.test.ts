@@ -8,6 +8,8 @@ const settings: GameSettings = {
   breakBetweenPeriodsMin: 1,
   halfTimeBreakMin: 5,
   bufferBetweenGamesMin: 5,
+  breakBetweenRoundsMin: 15,
+  awardCeremonyMin: 15,
 }
 
 describe('calcGameDurationMin', () => {

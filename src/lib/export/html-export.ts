@@ -9,8 +9,8 @@ function buildHtml(tournament: TournamentConfig, schedule: Schedule): string {
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
 
   const rows = schedule.games.map(g => {
-    const home = escapeHtml(teamMap.get(g.homeTeamId)?.name ?? '?')
-    const away = escapeHtml(teamMap.get(g.awayTeamId)?.name ?? '?')
+    const home = escapeHtml(g.homeTeamId ? (teamMap.get(g.homeTeamId)?.name ?? '?') : (g.homeLabel ?? '?'))
+    const away = escapeHtml(g.awayTeamId ? (teamMap.get(g.awayTeamId)?.name ?? '?') : (g.awayLabel ?? '?'))
     return `<tr>
       <td>${g.gameNumber}</td>
       <td>Feld ${g.field}</td>

@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.21",
@@ -19,10 +20,13 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.18.1",
+    "tailwind-merge": "^3.6.0",
     "uuid": "^14.0.1",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^26.1.1",

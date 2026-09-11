@@ -4,12 +4,33 @@ import TeamCard from './TeamCard'
 import TeamForm from './TeamForm'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DestructiveConfirmDialog } from '@/components/ui/destructive-confirm-dialog'
 import type { Team } from '@/types'
 
 export default function TeamList() {
-  const { tournament, addTeam, updateTeam, removeTeam } = useTournamentStore()
+  const { tournament, addTeam, updateTeam, removeTeam, isTournamentLocked } = useTournamentStore()
+  const locked = isTournamentLocked()
   const [showAdd, setShowAdd] = useState(false)
   const [editTeam, setEditTeam] = useState<Team | null>(null)
+  const [pendingAdd, setPendingAdd] = useState<Omit<Team, 'id' | 'players'> | null>(null)
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null)
+
+  const handleAddSubmit = (data: Omit<Team, 'id' | 'players'>) => {
+    setShowAdd(false)
+    if (locked) {
+      setPendingAdd(data)
+    } else {
+      addTeam(data)
+    }
+  }
+
+  const handleRemove = (id: string) => {
+    if (locked) {
+      setPendingRemoveId(id)
+    } else {
+      removeTeam(id)
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -28,7 +49,7 @@ export default function TeamList() {
             key={team.id}
             team={team}
             onEdit={() => setEditTeam(team)}
-            onDelete={() => removeTeam(team.id)}
+            onDelete={() => handleRemove(team.id)}
           />
         ))}
       </div>
@@ -37,7 +58,7 @@ export default function TeamList() {
         <DialogContent>
           <DialogHeader><DialogTitle>Team hinzufügen</DialogTitle></DialogHeader>
           <TeamForm
-            onSubmit={(data) => { addTeam(data); setShowAdd(false) }}
+            onSubmit={(data) => handleAddSubmit({ ...data, abbreviation: data.abbreviation.trim() || undefined })}
             onCancel={() => setShowAdd(false)}
           />
         </DialogContent>
@@ -49,12 +70,29 @@ export default function TeamList() {
           {editTeam && (
             <TeamForm
               initial={editTeam}
-              onSubmit={(data) => { updateTeam(editTeam.id, data); setEditTeam(null) }}
+              onSubmit={(data) => {
+                updateTeam(editTeam.id, { ...data, abbreviation: data.abbreviation.trim() || undefined })
+                setEditTeam(null)
+              }}
               onCancel={() => setEditTeam(null)}
             />
           )}
         </DialogContent>
       </Dialog>
+
+      <DestructiveConfirmDialog
+        open={pendingAdd !== null || pendingRemoveId !== null}
+        onOpenChange={(open) => { if (!open) { setPendingAdd(null); setPendingRemoveId(null) } }}
+        title="Änderung am laufenden Turnier"
+        description="Das Turnier läuft bereits (mindestens ein Ergebnis wurde erfasst). Teams hinzuzufügen oder zu entfernen kann den weiteren Turnierverlauf beeinträchtigen."
+        confirmWord="ÄNDERN"
+        onConfirm={() => {
+          if (pendingAdd) addTeam(pendingAdd)
+          if (pendingRemoveId) removeTeam(pendingRemoveId)
+          setPendingAdd(null)
+          setPendingRemoveId(null)
+        }}
+      />
     </div>
   )
 }

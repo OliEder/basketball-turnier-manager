@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateRoundRobinPairs, generateSchedule } from './schedule-generator'
+import { timeToMinutes } from './game-duration'
 import type { TournamentConfig, Team } from '@/types'
 
 const makeTeam = (id: string, name: string): Team => ({
@@ -17,6 +18,8 @@ const baseConfig: TournamentConfig = {
     breakBetweenPeriodsMin: 1,
     halfTimeBreakMin: 5,
     bufferBetweenGamesMin: 5,
+    breakBetweenRoundsMin: 15,
+    awardCeremonyMin: 15,
   },
   venue: {
     name: 'Testhalle',
@@ -104,6 +107,7 @@ describe('generateSchedule', () => {
     const byTeam = new Map<string, typeof schedule.games>()
     for (const game of schedule.games) {
       for (const teamId of [game.homeTeamId, game.awayTeamId]) {
+        if (!teamId) continue
         if (!byTeam.has(teamId)) byTeam.set(teamId, [])
         byTeam.get(teamId)!.push(game)
       }
@@ -116,5 +120,60 @@ describe('generateSchedule', () => {
         expect(sorted[i].scheduledStart >= sorted[i - 1].scheduledEnd).toBe(true)
       }
     }
+  })
+})
+
+describe('generateSchedule with round-robin+finals mode', () => {
+  it('appends semifinal and final games after the group stage', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+    }
+    const schedule = generateSchedule(config)
+    // 6 group games + 2 semis + 1 final = 9
+    expect(schedule.games).toHaveLength(9)
+    const stages = schedule.games.map(g => g.stage)
+    expect(stages.filter(s => s === 'group')).toHaveLength(6)
+    expect(stages.filter(s => s === 'semifinal')).toHaveLength(2)
+    expect(stages.filter(s => s === 'final')).toHaveLength(1)
+  })
+
+  it('sets awardCeremonyEstimate after the final ends', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+    }
+    const schedule = generateSchedule(config)
+    const final = schedule.games.find(g => g.stage === 'final')!
+    expect(schedule.awardCeremonyEstimate).toBeDefined()
+    expect(timeToMinutes(schedule.awardCeremonyEstimate!)).toBe(
+      timeToMinutes(final.scheduledEnd) + 15,
+    )
+  })
+})
+
+describe('generateSchedule with swiss mode', () => {
+  it('generates a swiss schedule when mode is swiss', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'swiss',
+      swissRounds: 2,
+    }
+    const schedule = generateSchedule(config)
+    const rounds = new Set(schedule.games.map(g => g.round))
+    expect(rounds).toEqual(new Set([1, 2]))
+    expect(schedule.games.every(g => g.stage === 'swiss')).toBe(true)
+  })
+
+  it('does not set awardCeremonyEstimate for swiss mode', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'swiss',
+      swissRounds: 2,
+    }
+    const schedule = generateSchedule(config)
+    expect(schedule.awardCeremonyEstimate).toBeUndefined()
   })
 })

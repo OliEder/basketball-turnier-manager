@@ -19,6 +19,7 @@ export function DialogContent({
           'rounded-md border border-border bg-white p-6 shadow-lg',
           className,
         )}
+        onInteractOutside={(e) => e.preventDefault()}
         {...props}
       >
         {children}

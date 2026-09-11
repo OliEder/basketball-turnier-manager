@@ -1,3 +1,6 @@
 node_modules
 dist
 .DS_Store
+.worktrees
+playwright-report
+test-results
