@@ -157,6 +157,11 @@ describe('withdrawTeam', () => {
     const round2Byes = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field === 0)
     expect(round2Games).toHaveLength(1)
     expect(round2Byes).toHaveLength(1)
+    for (const g of round2Games) {
+      expect(g.homeLabel).toMatch(/\(Heim\)$/)
+      expect(g.awayLabel).toMatch(/\(Auswärts\)$/)
+      expect(g.awayLabel).not.toBe(g.homeLabel)
+    }
   })
 })
 
