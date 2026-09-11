@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
 import SwissOverviewPage from './SwissOverviewPage'
@@ -51,6 +51,19 @@ describe('SwissOverviewPage', () => {
     }
     expect(screen.getByText('Runde 1')).toBeInTheDocument()
     expect(screen.getByText('Runde 2')).toBeInTheDocument()
+  })
+
+  it('opens a printable blob URL when clicking "Drucken"', () => {
+    setupSwissTournament(4, 2)
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+    URL.revokeObjectURL = vi.fn()
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+
+    render(<SwissOverviewPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Drucken' }))
+
+    expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
+    expect(openSpy).toHaveBeenCalledWith('blob:mock-url', '_blank')
   })
 
   it('updates points in the standings after a result is submitted', () => {

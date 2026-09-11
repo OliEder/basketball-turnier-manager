@@ -1,6 +1,8 @@
 import { useTournamentStore } from '@/store/tournament-store'
 import { computeStandings } from '@/lib/standings'
+import { renderSwissOverviewHtml } from '@/lib/export/swiss-overview-export'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import GameRow from '@/components/schedule/GameRow'
 
 export default function SwissOverviewPage() {
@@ -19,8 +21,26 @@ export default function SwissOverviewPage() {
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
   const rounds = [...new Set(schedule.games.map(g => g.round))].sort((a, b) => a - b)
 
+  const handlePrint = () => {
+    const html = renderSwissOverviewHtml(tournament, schedule, standings)
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const printWindow = window.open(url, '_blank')
+    if (printWindow) {
+      printWindow.addEventListener('load', () => {
+        printWindow.print()
+        URL.revokeObjectURL(url)
+      })
+    } else {
+      URL.revokeObjectURL(url)
+    }
+  }
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button onClick={handlePrint}>Drucken</Button>
+      </div>
       <div>
         <h2 className="font-display text-lg uppercase mb-2">Tabelle</h2>
         <table className="w-full border-collapse">
