@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import ConflictBadge from './ConflictBadge'
 import { overlapsBlackout } from '@/lib/game-duration'
 import { getTeamAbbreviation } from '@/lib/utils'
+import { computeFinalScore } from '@/lib/standings'
 import type { Game } from '@/types'
 
 interface Props {
@@ -16,6 +17,7 @@ export default function GameRow({ game, showResult = false }: Props) {
   const home = teams.find(t => t.id === game.homeTeamId)
   const away = teams.find(t => t.id === game.awayTeamId)
   const hasResult = game.periodScores.length > 0
+  const finalScore = hasResult ? computeFinalScore(game) : null
 
   const hasBlackoutConflict = tournament.venue.blackoutPeriods.some(b =>
     overlapsBlackout(game.scheduledStart, game.scheduledEnd, b)
@@ -25,11 +27,14 @@ export default function GameRow({ game, showResult = false }: Props) {
     <div className="flex items-center gap-4 py-3 border-b border-border last:border-0">
       <span className="text-sm text-muted-foreground w-6">#{game.gameNumber}</span>
       <span className="text-sm font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
-      {showResult && hasResult ? (
-        <span className="text-sm font-mono w-28 text-center">
-          <span>{game.periodScores.reduce((s, p) => s + p.homeScore, 0)}</span>
+      {showResult && finalScore ? (
+        <span
+          className="text-sm font-mono w-28 text-center"
+          aria-label={`Endstand Spiel ${game.gameNumber}: ${finalScore.home}:${finalScore.away}`}
+        >
+          <span>{finalScore.home}</span>
           {' : '}
-          <span>{game.periodScores.reduce((s, p) => s + p.awayScore, 0)}</span>
+          <span>{finalScore.away}</span>
         </span>
       ) : (
         <>

@@ -51,5 +51,6 @@ describe('GameRow', () => {
     expect(screen.queryByLabelText('Startzeit Spiel 1')).not.toBeInTheDocument()
     expect(screen.getByText('45')).toBeInTheDocument()
     expect(screen.getByText('37')).toBeInTheDocument()
+    expect(screen.getByLabelText('Endstand Spiel 1: 45:37')).toBeInTheDocument()
   })
 })
