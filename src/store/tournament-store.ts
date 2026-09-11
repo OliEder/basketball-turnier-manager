@@ -1,7 +1,7 @@
 import { create, type StoreApi } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import type { TournamentConfig, Team, Schedule, GameSettings, Venue, PeriodScore, Game } from '@/types'
-import { saveTournament, loadTournament, saveSchedule, loadSchedule, clearSchedule } from '@/lib/storage'
+import { saveTournament, loadTournament, saveSchedule, loadSchedule, clearSchedule, clearAll } from '@/lib/storage'
 import { generateSchedule } from '@/lib/schedule-generator'
 import { calcGameDurationMin, addMinutes } from '@/lib/game-duration'
 import { computeStandings } from '@/lib/standings'
@@ -78,6 +78,7 @@ interface TournamentStore {
   // Persistence
   importTournament: (tournament: TournamentConfig, schedule: Schedule | null) => void
   loadFromStorage: () => void
+  resetTournament: () => void
 }
 
 function applySwissPairing(
@@ -370,5 +371,10 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
       tournament: loadTournament() ?? DEFAULT_TOURNAMENT,
       schedule: loadSchedule(),
     })
+  },
+
+  resetTournament: () => {
+    clearAll()
+    set({ tournament: { ...DEFAULT_TOURNAMENT, id: uuidv4() }, schedule: null })
   },
 }))

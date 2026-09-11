@@ -296,3 +296,26 @@ describe('isTournamentLocked', () => {
     expect(useTournamentStore.getState().isTournamentLocked()).toBe(true)
   })
 })
+
+describe('resetTournament', () => {
+  it('clears the tournament, schedule and localStorage, and issues a fresh tournament id', () => {
+    const { addTeam, setFields, generateAndSaveSchedule, resetTournament } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    generateAndSaveSchedule()
+    const game = useTournamentStore.getState().schedule!.games[0]
+    useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
+    const previousId = useTournamentStore.getState().tournament.id
+
+    resetTournament()
+
+    const state = useTournamentStore.getState()
+    expect(state.tournament.teams).toHaveLength(0)
+    expect(state.tournament.name).toBe('')
+    expect(state.tournament.id).not.toBe(previousId)
+    expect(state.schedule).toBeNull()
+    expect(localStorage.getItem('tm_tournament')).toBeNull()
+    expect(localStorage.getItem('tm_schedule')).toBeNull()
+  })
+})

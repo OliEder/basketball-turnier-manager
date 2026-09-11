@@ -1,8 +1,17 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
 import ConfigPage from './ConfigPage'
+
+function renderConfigPage() {
+  return render(
+    <MemoryRouter>
+      <ConfigPage />
+    </MemoryRouter>
+  )
+}
 
 beforeEach(() => {
   clearAll()
@@ -26,7 +35,7 @@ beforeEach(() => {
 
 describe('ConfigPage', () => {
   it('disables "Zeitplan generieren" with fewer than 2 teams', () => {
-    render(<ConfigPage />)
+    renderConfigPage()
     expect(screen.getByRole('button', { name: /zeitplan generieren/i })).toBeDisabled()
     expect(screen.getByText(/mindestens 2 teams erforderlich/i)).toBeInTheDocument()
   })
@@ -34,7 +43,7 @@ describe('ConfigPage', () => {
   it('generates and saves a schedule when clicked with at least 2 teams', () => {
     useTournamentStore.getState().addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
     useTournamentStore.getState().addTeam({ name: 'Team B', logoUrl: '', color: '#000', contact: '' })
-    render(<ConfigPage />)
+    renderConfigPage()
 
     const button = screen.getByRole('button', { name: /zeitplan generieren/i })
     expect(button).toBeEnabled()
@@ -49,7 +58,7 @@ describe('ConfigPage', () => {
     for (let i = 1; i <= 4; i++) {
       useTournamentStore.getState().addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })
     }
-    render(<ConfigPage />)
+    renderConfigPage()
 
     expect(screen.getByText(/vorschlag nach standard-schweizer-formel: 2 runden/i)).toBeInTheDocument()
   })
@@ -63,7 +72,7 @@ describe('ConfigPage', () => {
     const game = useTournamentStore.getState().schedule!.games[0]
     useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
 
-    render(<ConfigPage />)
+    renderConfigPage()
 
     expect(screen.getByLabelText('Turniername')).toBeDisabled()
     expect(screen.getAllByText(/Turnier läuft bereits/).length).toBeGreaterThan(0)
@@ -84,7 +93,7 @@ describe('ConfigPage', () => {
     const game = useTournamentStore.getState().schedule!.games[0]
     useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
 
-    render(<ConfigPage />)
+    renderConfigPage()
 
     fireEvent.click(screen.getByRole('button', { name: 'Zeitplan generieren' }))
     expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeInTheDocument()
@@ -104,7 +113,7 @@ describe('ConfigPage', () => {
     const game = useTournamentStore.getState().schedule!.games[0]
     useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
 
-    render(<ConfigPage />)
+    renderConfigPage()
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Bearbeitung freischalten' })[0])
     fireEvent.change(screen.getByLabelText(/Bestätigungswort/i), { target: { value: 'ÄNDERN' } })
@@ -118,7 +127,7 @@ describe('ConfigPage', () => {
     const { addTeam } = useTournamentStore.getState()
     addTeam({ name: 'Altes Team', logoUrl: '', color: '#000', contact: '' })
 
-    render(<ConfigPage />)
+    renderConfigPage()
 
     const file = new File(
       [JSON.stringify({
@@ -153,7 +162,7 @@ describe('ConfigPage', () => {
     const { addTeam } = useTournamentStore.getState()
     addTeam({ name: 'Bestehendes Team', logoUrl: '', color: '#000', contact: '' })
 
-    render(<ConfigPage />)
+    renderConfigPage()
 
     const file = new File(['not valid json'], 'kaputt.json', { type: 'application/json' })
     const input = screen.getByLabelText(/JSON importieren/i) as HTMLInputElement
@@ -173,7 +182,7 @@ describe('ConfigPage', () => {
     const game = useTournamentStore.getState().schedule!.games[0]
     submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
 
-    render(<ConfigPage />)
+    renderConfigPage()
 
     const file = new File(
       [JSON.stringify({
@@ -205,5 +214,61 @@ describe('ConfigPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
 
     expect(useTournamentStore.getState().tournament.name).toBe('Importiertes Turnier')
+  })
+
+  it('requires typing "LÖSCHEN" (not "ÄNDERN") to confirm a tournament reset', () => {
+    useTournamentStore.getState().addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    renderConfigPage()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Turnier zurücksetzen' }))
+    expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText(/Bestätigungswort/i), { target: { value: 'ÄNDERN' } })
+    expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText(/Bestätigungswort/i), { target: { value: 'LÖSCHEN' } })
+    expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeEnabled()
+  })
+
+  it('opens the reset confirmation dialog even when the tournament is not locked', () => {
+    renderConfigPage()
+
+    expect(useTournamentStore.getState().isTournamentLocked()).toBe(false)
+    fireEvent.click(screen.getByRole('button', { name: 'Turnier zurücksetzen' }))
+
+    expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeInTheDocument()
+  })
+
+  it('downloads a JSON backup, resets the tournament and navigates to /teams on confirmed reset', () => {
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+    URL.revokeObjectURL = vi.fn()
+
+    const { addTeam, setFields, generateAndSaveSchedule, submitGameResult } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    generateAndSaveSchedule()
+    const game = useTournamentStore.getState().schedule!.games[0]
+    submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
+
+    render(
+      <MemoryRouter initialEntries={['/config']}>
+        <Routes>
+          <Route path="/config" element={<ConfigPage />} />
+          <Route path="/teams" element={<div>Teams-Seite</div>} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Turnier zurücksetzen' }))
+    fireEvent.change(screen.getByLabelText(/Bestätigungswort/i), { target: { value: 'LÖSCHEN' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
+
+    expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
+    expect(useTournamentStore.getState().tournament.teams).toHaveLength(0)
+    expect(useTournamentStore.getState().schedule).toBeNull()
+    expect(localStorage.getItem('tm_tournament')).toBeNull()
+    expect(localStorage.getItem('tm_schedule')).toBeNull()
+    expect(screen.getByText('Teams-Seite')).toBeInTheDocument()
   })
 })

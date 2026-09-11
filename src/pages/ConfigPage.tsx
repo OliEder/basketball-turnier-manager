@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import TournamentForm from '@/components/config/TournamentForm'
 import GameSettingsForm from '@/components/config/GameSettingsForm'
 import VenueForm from '@/components/venue/VenueForm'
@@ -9,12 +10,14 @@ import { useTournamentStore } from '@/store/tournament-store'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { parseTournamentImport } from '@/lib/import/json-import'
+import { downloadJson } from '@/lib/export/json-export'
 import type { TournamentConfig, Schedule } from '@/types'
 
-type ConfirmTarget = 'tournament' | 'venue' | 'regenerate' | 'import' | null
+type ConfirmTarget = 'tournament' | 'venue' | 'regenerate' | 'import' | 'reset' | null
 
 export default function ConfigPage() {
-  const { tournament, schedule, generateAndSaveSchedule, isTournamentLocked, importTournament } = useTournamentStore()
+  const navigate = useNavigate()
+  const { tournament, schedule, generateAndSaveSchedule, isTournamentLocked, importTournament, resetTournament } = useTournamentStore()
   const locked = isTournamentLocked()
 
   const [tournamentUnlocked, setTournamentUnlocked] = useState(false)
@@ -132,6 +135,13 @@ export default function ConfigPage() {
         )}
       </section>
 
+      <section className="space-y-4">
+        <h2 className="text-lg text-brand-primary-light">Turnier zurücksetzen</h2>
+        <Button type="button" variant="destructive" onClick={() => setConfirmTarget('reset')}>
+          Turnier zurücksetzen
+        </Button>
+      </section>
+
       <DestructiveConfirmDialog
         open={confirmTarget !== null}
         onOpenChange={(open) => { if (!open) setConfirmTarget(null) }}
@@ -141,9 +151,11 @@ export default function ConfigPage() {
             ? 'Der Zeitplan wurde bereits gespielt. Neu generieren verwirft die aktuelle Rundenstruktur — bereits erfasste Ergebnisse können dadurch inkonsistent werden.'
             : confirmTarget === 'import'
             ? 'Das aktuelle Turnier läuft bereits (mindestens ein Ergebnis wurde erfasst). Ein Import ersetzt es vollständig durch den Inhalt der ausgewählten Datei.'
+            : confirmTarget === 'reset'
+            ? 'Das aktuelle Turnier wird vollständig gelöscht. Vorher wird automatisch eine JSON-Sicherungsdatei heruntergeladen.'
             : 'Das Turnier läuft bereits (mindestens ein Ergebnis wurde erfasst). Diese Änderung kann den weiteren Turnierverlauf beeinträchtigen.'
         }
-        confirmWord="ÄNDERN"
+        confirmWord={confirmTarget === 'reset' ? 'LÖSCHEN' : 'ÄNDERN'}
         onConfirm={() => {
           if (confirmTarget === 'tournament') setTournamentUnlocked(true)
           if (confirmTarget === 'venue') setVenueUnlocked(true)
@@ -151,6 +163,11 @@ export default function ConfigPage() {
           if (confirmTarget === 'import' && pendingImport) {
             importTournament(pendingImport.tournament, pendingImport.schedule)
             setPendingImport(null)
+          }
+          if (confirmTarget === 'reset') {
+            downloadJson(tournament, schedule)
+            resetTournament()
+            navigate('/teams')
           }
           setConfirmTarget(null)
         }}
