@@ -12,6 +12,7 @@ export interface Team {
   color: string   // hex, e.g. "#004174"
   contact: string
   players: Player[]
+  abbreviation?: string  // optional, max. 4 Zeichen; wird in platzbeschränkten Ansichten anstelle des vollen Namens angezeigt
   withdrawnAfterRound?: number  // set when the team withdrew mid-tournament; value = last round played normally
 }
 
