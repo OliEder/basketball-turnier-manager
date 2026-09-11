@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Weiterleitung …</title>
+    <script>
+      // GitHub Pages serves this file for any unknown path. Since this is a client-side
+      // routed SPA, redirect to index.html while preserving the originally requested
+      // path/query/hash so the router can pick it up after load.
+      var basePath = '/basketball-turnier-manager/';
+      var path = window.location.pathname.slice(basePath.length);
+      sessionStorage.setItem('spa-redirect', path + window.location.search + window.location.hash);
+      window.location.replace(basePath);
+    </script>
+  </head>
+  <body></body>
+</html>
