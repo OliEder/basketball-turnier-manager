@@ -52,19 +52,57 @@ describe('SwissResultsPage', () => {
     }
   })
 
-  it('submits a score and shows the saved result instead of inputs', () => {
+  it('shows a checkmark once both score fields of a row are filled, without writing to the store yet', () => {
     setupSwissTournament(4, 2)
     render(<SwissResultsPage />)
     const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
 
+    expect(screen.queryByLabelText(`Ergebnis erfasst, Spiel ${game.gameNumber}`)).not.toBeInTheDocument()
+
     fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${game.gameNumber}`), { target: { value: '20' } })
+    expect(screen.queryByLabelText(`Ergebnis erfasst, Spiel ${game.gameNumber}`)).not.toBeInTheDocument()
+
     fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${game.gameNumber}`), { target: { value: '15' } })
-    fireEvent.click(screen.getAllByRole('button', { name: /speichern/i })[0])
+    expect(screen.getByLabelText(`Ergebnis erfasst, Spiel ${game.gameNumber}`)).toBeInTheDocument()
 
     const updated = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
-    expect(updated.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 15 }])
-    expect(screen.getByText('20 : 15')).toBeInTheDocument()
-    expect(screen.queryByLabelText(`Ergebnis Heim, Spiel ${game.gameNumber}`)).not.toBeInTheDocument()
+    expect(updated.periodScores).toEqual([])
+  })
+
+  it('disables "Nächste Runde auslosen" until every game of the round has both scores entered', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    expect(games.length).toBeGreaterThan(1)
+
+    const advanceButton = screen.getByRole('button', { name: /nächste runde auslosen/i })
+    expect(advanceButton).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${games[0].gameNumber}`), { target: { value: '20' } })
+    fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${games[0].gameNumber}`), { target: { value: '15' } })
+    expect(advanceButton).toBeDisabled()
+  })
+
+  it('commits all pending scores and advances the round in a single click', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+
+    for (const g of games) {
+      fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${g.gameNumber}`), { target: { value: '20' } })
+      fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
+    }
+
+    const advanceButton = screen.getByRole('button', { name: /nächste runde auslosen/i })
+    expect(advanceButton).toBeEnabled()
+    fireEvent.click(advanceButton)
+
+    for (const g of games) {
+      const updated = useTournamentStore.getState().schedule!.games.find(x => x.id === g.id)!
+      expect(updated.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    const round2Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field > 0)
+    expect(round2Games.every(g => g.homeTeamId !== null)).toBe(true)
   })
 
   it('shows a manual pairing dialog when no valid automatic pairing remains, and applies the chosen pairs', () => {
@@ -112,7 +150,8 @@ describe('SwissResultsPage', () => {
     useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 15 }])
 
     render(<SwissResultsPage />)
-    expect(screen.getByText('20 : 15')).toBeInTheDocument()
+    expect(screen.getByText('20')).toBeInTheDocument()
+    expect(screen.getByText('15')).toBeInTheDocument()
 
     fireEvent.click(screen.getAllByRole('button', { name: /korrigieren/i })[0])
     const homeInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`)
@@ -121,7 +160,8 @@ describe('SwissResultsPage', () => {
 
     const updated = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
     expect(updated.periodScores).toEqual([{ period: 1, homeScore: 30, awayScore: 15 }])
-    expect(screen.getByText('30 : 15')).toBeInTheDocument()
+    expect(screen.getByText('30')).toBeInTheDocument()
+    expect(screen.getByText('15')).toBeInTheDocument()
   })
 
   it('surfaces an error when correction is no longer allowed because the next round already has a result', () => {

@@ -63,17 +63,14 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     await expectNoSeriousViolations(page)
   })
 
-  test('score correction UI state', async ({ page }) => {
+  test('score entry UI state', async ({ page }) => {
     await setupSwissTournament(page, ['Team A', 'Team B', 'Team C', 'Team D'])
 
     const home = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
     const away = page.getByLabel(/^Ergebnis Auswärts, Spiel/).first()
     await home.fill('20')
     await away.fill('10')
-    await page.getByRole('button', { name: 'Speichern' }).first().click()
-
-    await page.getByRole('button', { name: 'Korrigieren' }).first().click()
-    await expect(page.getByLabel(/^Korrigiertes Ergebnis Heim/).first()).toBeVisible()
+    await expect(page.getByLabel(/^Ergebnis erfasst, Spiel/)).toBeVisible()
 
     await expectNoSeriousViolations(page)
   })
@@ -96,13 +93,9 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
       if (gameCount === 0) break
 
       for (let i = 0; i < gameCount; i++) {
-        const home = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
-        const away = page.getByLabel(/^Ergebnis Auswärts, Spiel/).first()
-        await home.fill('20')
-        await away.fill('10')
-        await page.getByRole('button', { name: 'Speichern' }).first().click()
+        await page.getByLabel(/^Ergebnis Heim, Spiel/).nth(i).fill('20')
+        await page.getByLabel(/^Ergebnis Auswärts, Spiel/).nth(i).fill('10')
       }
-      await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(0)
 
       if (await page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.').isVisible().catch(() => false)) {
         break

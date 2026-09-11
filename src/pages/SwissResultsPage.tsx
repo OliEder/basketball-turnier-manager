@@ -25,27 +25,26 @@ export default function SwissResultsPage() {
   const roundGames = schedule.games.filter(g => g.stage === 'swiss' && g.round === displayRound)
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
   const totalRounds = tournament.swissRounds ?? 1
+
+  const isScoreEntered = (gameId: string) => {
+    const entry = scores[gameId]
+    return !!entry && entry.home.trim() !== '' && entry.away.trim() !== '' && !Number.isNaN(Number(entry.home)) && !Number.isNaN(Number(entry.away))
+  }
+
   const allEvaluated = roundGames.every(
-    g => g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0
+    g => g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0 || isScoreEntered(g.id)
   )
   const tournamentFinished = displayRound >= totalRounds && allEvaluated
-
-  const handleSubmit = (gameId: string) => {
-    const entry = scores[gameId]
-    if (!entry) return
-    const home = Number(entry.home)
-    const away = Number(entry.away)
-    setError(null)
-    try {
-      submitGameResult(gameId, [{ period: 1, homeScore: home, awayScore: away }])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
-    }
-  }
 
   const handleAdvance = () => {
     setError(null)
     try {
+      for (const game of roundGames) {
+        if (game.periodScores.length === 0 && isScoreEntered(game.id)) {
+          const entry = scores[game.id]
+          submitGameResult(game.id, [{ period: 1, homeScore: Number(entry.home), awayScore: Number(entry.away) }])
+        }
+      }
       advanceSwissRound()
     } catch (err) {
       if (err instanceof PairingConflictError) {
@@ -100,53 +99,97 @@ export default function SwissResultsPage() {
           const home = game.homeTeamId ? teamMap.get(game.homeTeamId)?.name ?? '?' : game.homeLabel ?? '?'
           const away = game.awayTeamId ? teamMap.get(game.awayTeamId)?.name ?? '?' : game.awayLabel ?? '?'
           const hasResult = game.periodScores.length > 0
+          const canWithdraw = game.homeTeamId && game.awayTeamId
           return (
-            <div key={game.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
-              <span className="text-sm font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
-              <span className="flex-1 font-medium">{home} vs {away}</span>
-              {hasResult && correctingGameId !== game.id ? (
-                <>
-                  <span className="text-sm text-muted-foreground">
-                    {game.periodScores[0].homeScore} : {game.periodScores[0].awayScore}
-                  </span>
-                  <Button variant="outline" size="sm" className="text-muted-foreground" onClick={() => setCorrectingGameId(game.id)}>
-                    Korrigieren
+            <div key={game.id} className="py-2 border-b border-border last:border-0">
+              <span className="text-xs font-mono text-muted-foreground">F{game.field}</span>
+              <div
+                className="grid items-center gap-2"
+                style={{ gridTemplateColumns: '140px 1fr 42px 16px 42px 1fr 140px auto auto' }}
+              >
+                {canWithdraw ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
+                    title={`${home} ausgeschieden`}
+                    onClick={() => {
+                      if (confirm(`${home} als ausgeschieden markieren?`)) withdrawTeam(game.homeTeamId!)
+                    }}
+                  >
+                    {home} ausgeschieden
                   </Button>
-                </>
-              ) : !hasResult ? (
-                <>
+                ) : <span />}
+
+                <span className="font-medium text-right truncate" title={home}>{home}</span>
+
+                {hasResult && correctingGameId !== game.id ? (
+                  <span className="text-sm text-muted-foreground text-right">{game.periodScores[0].homeScore}</span>
+                ) : !hasResult ? (
                   <Input
                     type="number"
-                    className="w-12"
+                    className="w-full no-spinner px-1 text-center"
                     aria-label={`Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? '' } }))}
                   />
-                  <span>:</span>
+                ) : (
                   <Input
                     type="number"
-                    className="w-12"
-                    aria-label={`Ergebnis Auswärts, Spiel ${game.gameNumber}`}
-                    onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? '', away: e.target.value } }))}
-                  />
-                  <Button onClick={() => handleSubmit(game.id)}>Speichern</Button>
-                </>
-              ) : (
-                <>
-                  <Input
-                    type="number"
-                    className="w-12"
+                    className="w-full no-spinner px-1 text-center"
                     defaultValue={game.periodScores[0].homeScore}
                     aria-label={`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? String(game.periodScores[0].awayScore) } }))}
                   />
-                  <span>:</span>
+                )}
+
+                <span className="text-center">:</span>
+
+                {hasResult && correctingGameId !== game.id ? (
+                  <span className="text-sm text-muted-foreground text-left">{game.periodScores[0].awayScore}</span>
+                ) : !hasResult ? (
                   <Input
                     type="number"
-                    className="w-12"
+                    className="w-full no-spinner px-1 text-center"
+                    aria-label={`Ergebnis Auswärts, Spiel ${game.gameNumber}`}
+                    onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? '', away: e.target.value } }))}
+                  />
+                ) : (
+                  <Input
+                    type="number"
+                    className="w-full no-spinner px-1 text-center"
                     defaultValue={game.periodScores[0].awayScore}
                     aria-label={`Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? String(game.periodScores[0].homeScore), away: e.target.value } }))}
                   />
+                )}
+
+                <span className="font-medium text-left truncate" title={away}>{away}</span>
+
+                {canWithdraw ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
+                    title={`${away} ausgeschieden`}
+                    onClick={() => {
+                      if (confirm(`${away} als ausgeschieden markieren?`)) withdrawTeam(game.awayTeamId!)
+                    }}
+                  >
+                    {away} ausgeschieden
+                  </Button>
+                ) : <span />}
+
+                {!hasResult && isScoreEntered(game.id) ? (
+                  <span aria-label={`Ergebnis erfasst, Spiel ${game.gameNumber}`} className="text-green-600" title="Ergebnis erfasst">
+                    ✓
+                  </span>
+                ) : <span />}
+
+                {hasResult && correctingGameId !== game.id ? (
+                  <Button variant="outline" size="sm" className="text-muted-foreground" onClick={() => setCorrectingGameId(game.id)}>
+                    Korrigieren
+                  </Button>
+                ) : hasResult ? (
                   <Button onClick={() => {
                     const entry = scores[game.id]
                     if (!entry) { setCorrectingGameId(null); return }
@@ -159,32 +202,8 @@ export default function SwissResultsPage() {
                   }}>
                     Speichern
                   </Button>
-                </>
-              )}
-              {game.homeTeamId && game.awayTeamId && (
-                <div className="flex gap-1 ml-2 pl-2 border-l border-border">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs text-muted-foreground border-dashed border-destructive"
-                    onClick={() => {
-                      if (confirm(`${home} als ausgeschieden markieren?`)) withdrawTeam(game.homeTeamId!)
-                    }}
-                  >
-                    {home} ausgeschieden
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs text-muted-foreground border-dashed border-destructive"
-                    onClick={() => {
-                      if (confirm(`${away} als ausgeschieden markieren?`)) withdrawTeam(game.awayTeamId!)
-                    }}
-                  >
-                    {away} ausgeschieden
-                  </Button>
-                </div>
-              )}
+                ) : <span />}
+              </div>
             </div>
           )
         })}

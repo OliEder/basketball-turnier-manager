@@ -12,16 +12,16 @@ test('withdrawing a team mid-tournament does not permanently block round progres
   const firstAway = page.getByLabel(/^Ergebnis Auswärts, Spiel/).first()
   await firstHome.fill('20')
   await firstAway.fill('10')
-  await page.getByRole('button', { name: 'Speichern' }).first().click()
 
   const advanceButton = page.getByRole('button', { name: 'Nächste Runde auslosen' })
   await expect(advanceButton).toBeDisabled()
 
-  // Das zweite (noch offene) Spiel ist jetzt die einzige verbleibende Zeile mit Eingabefeldern.
-  // Zeile über das (accessible) Eingabefeld statt über CSS-Klassen ermitteln, dann den exakten
-  // Teamnamen aus dem Accessible Name eines der "ausgeschieden"-Buttons in dieser Zeile lesen,
-  // um gezielt eines der beiden beteiligten Teams als ausgeschieden zu markieren.
-  const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/)
+  // Das zweite (noch nicht befüllte) Spiel ist jetzt die letzte Zeile mit einem leeren
+  // Eingabefeld. Zeile über das (accessible) Eingabefeld statt über CSS-Klassen ermitteln,
+  // dann den exakten Teamnamen aus dem Accessible Name eines der "ausgeschieden"-Buttons in
+  // dieser Zeile lesen, um gezielt eines der beiden beteiligten Teams als ausgeschieden zu
+  // markieren.
+  const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/).last()
   const remainingRow = page.locator('div').filter({ has: openInput }).last()
   const withdrawButtons = remainingRow.getByRole('button', { name: /ausgeschieden$/ })
   await expect(withdrawButtons).toHaveCount(2)
@@ -35,11 +35,8 @@ test('withdrawing a team mid-tournament does not permanently block round progres
   await withdrawButton.click()
 
   // Die Runde gilt jetzt als vollständig ausgewertet (das zweite Spiel wurde durch den
-  // Rückzug annulliert), daher darf die nächste Runde ausgelost werden. Hinweis: Die UI
-  // rendert für annullierte Spiele weiterhin die (nun funktionslosen) Eingabefelder, da
-  // sie nur zwischen "Ergebnis vorhanden" und "kein Ergebnis" unterscheidet, nicht nach
-  // cancelledReason — daher wird hier direkt der Freigabe-Status des Buttons geprüft statt
-  // der Eingabefelder-Anzahl.
+  // Rückzug annulliert, das erste hat ein lokal befülltes, gültiges Ergebnis), daher darf
+  // die nächste Runde ausgelost werden.
   await expect(advanceButton).toBeEnabled()
   await advanceButton.click()
 
@@ -67,13 +64,9 @@ test('manual pairing dialog appears when automatic pairing is exhausted', async 
     if (gameCount === 0) break
 
     for (let i = 0; i < gameCount; i++) {
-      const home = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
-      const away = page.getByLabel(/^Ergebnis Auswärts, Spiel/).first()
-      await home.fill('20')
-      await away.fill('10')
-      await page.getByRole('button', { name: 'Speichern' }).first().click()
+      await page.getByLabel(/^Ergebnis Heim, Spiel/).nth(i).fill('20')
+      await page.getByLabel(/^Ergebnis Auswärts, Spiel/).nth(i).fill('10')
     }
-    await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(0)
 
     if (await page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.').isVisible().catch(() => false)) {
       tournamentFinished = true

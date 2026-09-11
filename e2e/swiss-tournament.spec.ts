@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload()
 })
 
-test('plays through a full 5-team swiss tournament including a bye and a correction', async ({ page }) => {
+test('plays through a full 5-team swiss tournament including a bye', async ({ page }) => {
   // Teams anlegen
   await page.getByRole('link', { name: 'Teams' }).click()
   for (const name of ['Team A', 'Team B', 'Team C', 'Team D', 'Team E']) {
@@ -32,8 +32,6 @@ test('plays through a full 5-team swiss tournament including a bye and a correct
   await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
   await expect(page.getByText(new RegExp(`Runde 1 von ${totalRounds}`))).toBeVisible()
 
-  let correctionDone = false
-
   for (let round = 1; round <= totalRounds; round++) {
     await expect(page.getByText(new RegExp(`Runde ${round} von ${totalRounds}`))).toBeVisible()
 
@@ -41,28 +39,8 @@ test('plays through a full 5-team swiss tournament including a bye and a correct
     const gameCount = await homeInputs.count()
 
     for (let i = 0; i < gameCount; i++) {
-      // Re-query each time: after Speichern, the row switches from inputs to a result+Korrigieren display,
-      // which shifts indices of the remaining "not yet entered" inputs.
-      const home = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
-      const away = page.getByLabel(/^Ergebnis Auswärts, Spiel/).first()
-      await home.fill('20')
-      await away.fill('10')
-      await page.getByRole('button', { name: 'Speichern' }).first().click()
-    }
-
-    // Alle Spiele der Runde sollten jetzt ausgewertet sein (Ergebnis + "Korrigieren"-Button sichtbar)
-    await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(0)
-
-    if (round === 1 && !correctionDone) {
-      // Ergebnis-Korrektur vor Rundenauslosung testen
-      await page.getByRole('button', { name: 'Korrigieren' }).first().click()
-      const correctedHome = page.getByLabel(/^Korrigiertes Ergebnis Heim/).first()
-      const correctedAway = page.getByLabel(/^Korrigiertes Ergebnis Auswärts/).first()
-      await correctedHome.fill('18')
-      await correctedAway.fill('22')
-      await page.getByRole('button', { name: 'Speichern' }).first().click()
-      await expect(page.getByRole('button', { name: 'Korrigieren' })).toHaveCount(gameCount)
-      correctionDone = true
+      await page.getByLabel(/^Ergebnis Heim, Spiel/).nth(i).fill('20')
+      await page.getByLabel(/^Ergebnis Auswärts, Spiel/).nth(i).fill('10')
     }
 
     if (round < totalRounds) {
