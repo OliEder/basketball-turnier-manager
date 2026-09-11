@@ -2,7 +2,7 @@ import { useTournamentStore } from '@/store/tournament-store'
 import { Input } from '@/components/ui/input'
 import ConflictBadge from './ConflictBadge'
 import { overlapsBlackout } from '@/lib/game-duration'
-import { getTeamAbbreviation } from '@/lib/utils'
+import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalScore } from '@/lib/standings'
 import type { Game } from '@/types'
 
@@ -48,14 +48,10 @@ export default function GameRow({ game, showResult = false }: Props) {
           <span className="text-sm text-muted-foreground">–{game.scheduledEnd}</span>
         </>
       )}
-      <div className="flex items-center gap-2 flex-1">
-        <span className="font-medium" title={home?.name}>
-          {game.homeTeamId ? (home ? getTeamAbbreviation(home) : '?') : game.homeLabel ?? '?'}
-        </span>
-        <span className="text-muted-foreground text-sm">vs</span>
-        <span className="font-medium" title={away?.name}>
-          {game.awayTeamId ? (away ? getTeamAbbreviation(away) : '?') : game.awayLabel ?? '?'}
-        </span>
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        {game.homeTeamId ? (home ? <TeamNameDisplay team={home} /> : <span className="font-medium">?</span>) : <span className="font-medium">{game.homeLabel ?? '?'}</span>}
+        <span className="text-muted-foreground text-sm shrink-0">vs</span>
+        {game.awayTeamId ? (away ? <TeamNameDisplay team={away} /> : <span className="font-medium">?</span>) : <span className="font-medium">{game.awayLabel ?? '?'}</span>}
       </div>
       {hasBlackoutConflict && <ConflictBadge message="Sperrzeit!" />}
     </div>

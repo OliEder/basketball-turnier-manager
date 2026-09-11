@@ -55,13 +55,12 @@ test('plays through a full 13-team swiss tournament with a bye every round', asy
 
   await page.getByRole('link', { name: 'Turnierübersicht' }).click()
   await expect(page.getByRole('table')).toBeVisible()
-  // "Team 1".."Team 13" zeigen als Kürzel "TEA" + Endziffer (siehe getTeamAbbreviation).
-  // Bei zweistelligen Nummern kollidiert das bewusst nicht eindeutig (z.B. "Team 1" und
-  // "Team 11" beide "TEA1") — hier reicht die Sichtbarkeitsprüfung pro distinktem Kürzel.
+  // "Team 1".."Team 13" passen ohne Overflow in die Tabellenspalte, daher zeigt die Tabelle
+  // die vollen Namen statt der Kürzel.
   const table = page.getByRole('table')
-  await expect(table).toContainText('TEA1')
-  await expect(table).toContainText('TEA9')
-  await expect(table).toContainText('TEA0')
+  await expect(table).toContainText('Team 1')
+  await expect(table).toContainText('Team 9')
+  await expect(table).toContainText('Team 10')
 
   for (let round = 1; round <= totalRounds; round++) {
     await expect(page.getByRole('heading', { name: `Runde ${round}`, exact: true })).toBeVisible()

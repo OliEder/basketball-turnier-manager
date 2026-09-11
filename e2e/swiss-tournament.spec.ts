@@ -51,9 +51,38 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
 
   await page.getByRole('link', { name: 'Turnierübersicht' }).click()
   await expect(page.getByRole('table')).toBeVisible()
-  // "Team A".."Team E" leiten alle das identische Kürzel "TEA" ab (gleiches 3-Buchstaben-
-  // Präfix, kein Endziffer-Fall) — daher 5 Zellen statt einer eindeutigen erwarten.
-  await expect(page.getByRole('cell', { name: 'TEA' })).toHaveCount(5)
+  // Kurze Teamnamen wie "Team A".."Team E" passen ohne Overflow in die Tabellenspalte, daher
+  // zeigt die Tabelle den vollen Namen, nicht mehr das Kürzel.
+  for (const name of ['Team A', 'Team B', 'Team C', 'Team D', 'Team E']) {
+    await expect(page.getByRole('cell', { name, exact: true })).toBeVisible()
+  }
+})
+
+test('shows the team abbreviation instead of the full name once the viewport is below the md breakpoint', async ({ page }) => {
+  await page.getByRole('link', { name: 'Teams' }).click()
+  for (const name of ['Team A', 'Team B']) {
+    await addTeam(page, name)
+  }
+  await expect(page.getByText('2 Teams')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await selectMode(page, 'Einstufungsturnier (Schweizer System)')
+  await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
+  await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
+
+  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await expect(page.getByRole('table')).toBeVisible()
+
+  // Bei der Standard-Desktop-Breite (>= md, 768px) ist der volle Name sichtbar, das Kürzel
+  // per CSS ausgeblendet (display:none), daher nicht "sichtbar" im Playwright-Sinne.
+  await expect(page.getByRole('cell', { name: 'Team A', exact: true })).toBeVisible()
+  await expect(page.getByText('TEA', { exact: true }).first()).not.toBeVisible()
+
+  // Unterhalb von md schaltet reines CSS (keine JS-Messung) um: das Kürzel wird sichtbar,
+  // der volle Name per CSS ausgeblendet.
+  await page.setViewportSize({ width: 500, height: 800 })
+  await expect(page.getByText('TEA', { exact: true }).first()).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'Team A', exact: true })).not.toBeVisible()
 })
 
 test('lets the organizer navigate back to a completed round and correct a result through the UI', async ({ page }) => {

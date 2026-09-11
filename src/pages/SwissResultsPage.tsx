@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getTeamAbbreviation } from '@/lib/utils'
+import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 
 export default function SwissResultsPage() {
   const { tournament, schedule, submitGameResult, advanceSwissRound, advanceSwissRoundManually, withdrawTeam, correctGameResult } = useTournamentStore()
@@ -153,7 +154,9 @@ export default function SwissResultsPage() {
                   </Button>
                 ) : <span />}
 
-                <span className="font-medium text-right truncate" title={homeTeam?.name}>{home}</span>
+                <div className="text-right min-w-0">
+                  {homeTeam ? <TeamNameDisplay team={homeTeam} className="text-right" /> : <span className="font-medium truncate">{home}</span>}
+                </div>
 
                 {hasResult && correctingGameId !== game.id ? (
                   <span className="text-sm text-muted-foreground text-right">{game.periodScores[0].homeScore}</span>
@@ -195,7 +198,9 @@ export default function SwissResultsPage() {
                   />
                 )}
 
-                <span className="font-medium text-left truncate" title={awayTeam?.name}>{away}</span>
+                <div className="text-left min-w-0">
+                  {awayTeam ? <TeamNameDisplay team={awayTeam} className="text-left" /> : <span className="font-medium truncate">{away}</span>}
+                </div>
 
                 {canWithdraw ? (
                   <Button

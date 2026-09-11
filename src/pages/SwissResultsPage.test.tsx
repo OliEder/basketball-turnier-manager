@@ -43,17 +43,17 @@ describe('SwissResultsPage', () => {
     expect(screen.getByText(/bitte zuerst einen zeitplan generieren/i)).toBeInTheDocument()
   })
 
-  it('renders round 1 with both team abbreviations for a game', () => {
+  it('renders round 1 with both full team names visible by default for a game', () => {
     setupSwissTournament(4, 2)
     render(<SwissResultsPage />)
     expect(screen.getByText(/runde 1 von 2/i)).toBeInTheDocument()
     const teams = useTournamentStore.getState().tournament.teams
     for (const team of teams) {
-      expect(screen.getAllByText(new RegExp(getTeamAbbreviation(team))).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(team.name).length).toBeGreaterThan(0)
     }
   })
 
-  it('shows an explicitly set team abbreviation instead of the derived one', () => {
+  it('renders the full team name (visible by default) in the score row even when an explicit abbreviation is set', () => {
     setupSwissTournament(4, 2)
     const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
     const homeTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
@@ -61,8 +61,8 @@ describe('SwissResultsPage', () => {
 
     render(<SwissResultsPage />)
 
-    expect(screen.getByText('TMA')).toBeInTheDocument()
-    expect(screen.queryByText(homeTeam.name)).not.toBeInTheDocument()
+    expect(screen.getByText(homeTeam.name)).toHaveClass('md:inline')
+    expect(screen.getByText('TMA', { selector: '[data-team-name="abbreviation"]' })).toHaveClass('md:hidden')
   })
 
   it('shows a checkmark once both score fields of a row are filled, without writing to the store yet', () => {

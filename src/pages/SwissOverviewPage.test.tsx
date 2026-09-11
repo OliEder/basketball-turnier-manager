@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
-import { getTeamAbbreviation } from '@/lib/utils'
 import SwissOverviewPage from './SwissOverviewPage'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
@@ -48,8 +47,7 @@ describe('SwissOverviewPage', () => {
     render(<SwissOverviewPage />)
     const teams = useTournamentStore.getState().tournament.teams
     for (const team of teams) {
-      const abbrev = getTeamAbbreviation(team)
-      expect(screen.getAllByText(new RegExp(`^${abbrev}$`)).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(team.name).length).toBeGreaterThan(0)
     }
     expect(screen.getByText('Runde 1')).toBeInTheDocument()
     expect(screen.getByText('Runde 2')).toBeInTheDocument()
@@ -80,7 +78,7 @@ describe('SwissOverviewPage', () => {
 
     render(<SwissOverviewPage />)
     const table = screen.getByRole('table')
-    const winnerRow = within(table).getByText(getTeamAbbreviation(winner)).closest('tr')!
+    const winnerRow = within(table).getByText(winner.name).closest('tr')!
     expect(winnerRow).toHaveTextContent('2')
   })
 
@@ -101,12 +99,12 @@ describe('SwissOverviewPage', () => {
 
     render(<SwissOverviewPage />)
     const table = screen.getByRole('table')
-    const byeTeamRow = within(table).getByText(getTeamAbbreviation(byeTeam)).closest('tr')!
+    const byeTeamRow = within(table).getByText(byeTeam.name).closest('tr')!
     const pointsCell = within(byeTeamRow).getAllByRole('cell')[2]
     expect(pointsCell).toHaveTextContent('0')
   })
 
-  it('shows an explicitly set team abbreviation instead of the derived one', () => {
+  it('renders both the full team name (visible by default) and the explicit abbreviation (visible only below the md breakpoint)', () => {
     setupSwissTournament(4, 2)
     const team = useTournamentStore.getState().tournament.teams[0]
     useTournamentStore.getState().updateTeam(team.id, { abbreviation: 'XYZ' })
@@ -114,7 +112,9 @@ describe('SwissOverviewPage', () => {
     render(<SwissOverviewPage />)
 
     const table = screen.getByRole('table')
-    expect(within(table).getByText('XYZ')).toBeInTheDocument()
-    expect(within(table).queryByText(team.name)).not.toBeInTheDocument()
+    const fullNameEl = within(table).getByText(team.name)
+    expect(fullNameEl).toHaveClass('md:inline')
+    const abbreviationEl = within(table).getByText('XYZ')
+    expect(abbreviationEl).toHaveClass('md:hidden')
   })
 })

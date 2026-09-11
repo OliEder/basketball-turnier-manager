@@ -4,7 +4,7 @@ import { renderSwissOverviewHtml } from '@/lib/export/swiss-overview-export'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import GameRow from '@/components/schedule/GameRow'
-import { getTeamAbbreviation } from '@/lib/utils'
+import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 
 export default function SwissOverviewPage() {
   const { tournament, schedule } = useTournamentStore()
@@ -24,11 +24,6 @@ export default function SwissOverviewPage() {
   const standings = computeStandings(tournament.teams, schedule.games, lastCompletedRound)
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
   const rounds = [...new Set(schedule.games.map(g => g.round))].sort((a, b) => a - b)
-
-  const teamAbbrev = (teamId: string) => {
-    const team = teamMap.get(teamId)
-    return team ? getTeamAbbreviation(team) : '?'
-  }
 
   const handlePrint = () => {
     const html = renderSwissOverviewHtml(tournament, schedule, standings)
@@ -67,9 +62,11 @@ export default function SwissOverviewPage() {
             {standings.map((s, i) => (
               <tr key={s.teamId} className="border-b border-border last:border-0">
                 <td className="py-1 pr-2">{i + 1}</td>
-                <td className="py-1 pr-2 font-medium" title={teamMap.get(s.teamId)?.name}>
-                  {teamAbbrev(s.teamId)}
-                  {s.withdrawn && <span className="text-muted-foreground text-xs ml-1">(ausgeschieden)</span>}
+                <td className="py-1 pr-2 font-medium max-w-0 w-full">
+                  <div className="flex items-center gap-1">
+                    <TeamNameDisplay team={teamMap.get(s.teamId)!} />
+                    {s.withdrawn && <span className="text-muted-foreground text-xs shrink-0">(ausgeschieden)</span>}
+                  </div>
                 </td>
                 <td className="py-1 pr-2">{s.points}</td>
                 <td className="py-1 pr-2">{s.buchholz}</td>
