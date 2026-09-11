@@ -92,7 +92,7 @@ function applySwissPairing(
   const byeSlot = placeholders.find(g => g.field === 0)
 
   const updatedGames = schedule.games.map(g => {
-    const slotIndex = teamSlots.indexOf(g)
+    const slotIndex = teamSlots.findIndex(slot => slot.id === g.id)
     if (slotIndex !== -1 && pairs[slotIndex]) {
       return { ...g, homeTeamId: pairs[slotIndex][0], awayTeamId: pairs[slotIndex][1], homeLabel: undefined, awayLabel: undefined }
     }
@@ -130,6 +130,8 @@ function reshapeFutureSwissRounds(games: Game[], afterRound: number, activeTeamC
     })))
 
     if (needsBye) {
+      // Even team counts never get a pre-provisioned bye slot for future rounds (see swiss-schedule.ts);
+      // if a withdrawal makes the active count odd, repurpose a surplus team-slot into a bye instead.
       const existingBye = byeSlots[0]
       const surplusTeamSlot = teamSlots[gamesPerFutureRound]
       const byeSource = existingBye ?? surplusTeamSlot
