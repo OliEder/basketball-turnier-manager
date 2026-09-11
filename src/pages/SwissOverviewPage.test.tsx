@@ -71,14 +71,39 @@ describe('SwissOverviewPage', () => {
   it('updates points in the standings after a result is submitted', () => {
     setupSwissTournament(4, 2)
     const { schedule, submitGameResult, tournament } = useTournamentStore.getState()
-    const game = schedule!.games.find(g => g.round === 1 && g.field > 0)!
-    submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      submitGameResult(g.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    const game = round1Games[0]
     const winner = tournament.teams.find(t => t.id === game.homeTeamId)!
 
     render(<SwissOverviewPage />)
     const table = screen.getByRole('table')
     const winnerRow = within(table).getByText(getTeamAbbreviation(winner)).closest('tr')!
     expect(winnerRow).toHaveTextContent('2')
+  })
+
+  it('does not count a bye from an already-drawn future round that has not been played yet', () => {
+    setupSwissTournament(5, 3)
+    const store = useTournamentStore.getState()
+    let { schedule } = store
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      store.submitGameResult(g.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    store.advanceSwissRound()
+
+    ;({ schedule } = useTournamentStore.getState())
+    const round2Bye = schedule!.games.find(g => g.round === 2 && g.byeTeamId)
+    expect(round2Bye).toBeDefined()
+    const byeTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === round2Bye!.byeTeamId)!
+
+    render(<SwissOverviewPage />)
+    const table = screen.getByRole('table')
+    const byeTeamRow = within(table).getByText(getTeamAbbreviation(byeTeam)).closest('tr')!
+    const pointsCell = within(byeTeamRow).getAllByRole('cell')[2]
+    expect(pointsCell).toHaveTextContent('0')
   })
 
   it('shows an explicitly set team abbreviation instead of the derived one', () => {

@@ -1,4 +1,4 @@
-import { useTournamentStore } from '@/store/tournament-store'
+import { getCurrentSwissRound, isRoundFullyEvaluated, useTournamentStore } from '@/store/tournament-store'
 import { computeStandings } from '@/lib/standings'
 import { renderSwissOverviewHtml } from '@/lib/export/swiss-overview-export'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -17,8 +17,11 @@ export default function SwissOverviewPage() {
     )
   }
 
-  const totalRounds = tournament.swissRounds ?? 1
-  const standings = computeStandings(tournament.teams, schedule.games, totalRounds)
+  const currentRound = getCurrentSwissRound(schedule.games)
+  const lastCompletedRound = currentRound > 0 && isRoundFullyEvaluated(schedule.games, currentRound)
+    ? currentRound
+    : Math.max(0, currentRound - 1)
+  const standings = computeStandings(tournament.teams, schedule.games, lastCompletedRound)
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
   const rounds = [...new Set(schedule.games.map(g => g.round))].sort((a, b) => a - b)
 

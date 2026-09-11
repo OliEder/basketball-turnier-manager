@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useTournamentStore, getCurrentSwissRound } from './tournament-store'
+import { useTournamentStore, getCurrentSwissRound, isRoundFullyEvaluated } from './tournament-store'
 import { clearAll } from '@/lib/storage'
 import { computeStandings } from '@/lib/standings'
 
@@ -197,5 +197,20 @@ describe('setSwissRounds', () => {
     const { setSwissRounds } = useTournamentStore.getState()
     setSwissRounds(4)
     expect(useTournamentStore.getState().tournament.swissRounds).toBe(4)
+  })
+})
+
+describe('isRoundFullyEvaluated', () => {
+  it('is exported and reports whether a round has every game decided', () => {
+    const { setMode, addTeam, setFields, generateAndSaveSchedule, submitGameResult } = useTournamentStore.getState()
+    setMode('swiss')
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    generateAndSaveSchedule()
+    const game = useTournamentStore.getState().schedule!.games[0]
+    expect(isRoundFullyEvaluated(useTournamentStore.getState().schedule!.games, 1)).toBe(false)
+    submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
+    expect(isRoundFullyEvaluated(useTournamentStore.getState().schedule!.games, 1)).toBe(true)
   })
 })

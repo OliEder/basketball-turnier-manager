@@ -15,7 +15,7 @@ export function getCurrentSwissRound(games: Game[]): number {
   return Math.max(...decided.map(g => g.round))
 }
 
-function isRoundFullyEvaluated(games: Game[], round: number): boolean {
+export function isRoundFullyEvaluated(games: Game[], round: number): boolean {
   const roundGames = games.filter(g => g.stage === 'swiss' && g.round === round)
   return roundGames.every(g =>
     g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0
