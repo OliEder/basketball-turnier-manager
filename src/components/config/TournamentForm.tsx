@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { calcGameDurationMin, timeToMinutes, addMinutes } from '@/lib/game-duration'
 import type { TournamentMode } from '@/types'
 
-export default function TournamentForm() {
+export default function TournamentForm({ disabled = false }: { disabled?: boolean }) {
   const { tournament, setTournamentName, setMode, setFields, setFinalsBracketSize, setSwissRounds } = useTournamentStore()
 
   const suggestedRounds = Math.max(1, Math.ceil(Math.log2(tournament.teams.length || 1)))
@@ -21,11 +21,12 @@ export default function TournamentForm() {
           value={tournament.name}
           onChange={e => setTournamentName(e.target.value)}
           placeholder="z.B. Fibalon Sommer-Cup 2026"
+          disabled={disabled}
         />
       </div>
       <div className="space-y-1">
         <Label htmlFor="tourney-mode">Turniermodus</Label>
-        <Select value={tournament.mode} onValueChange={v => setMode(v as TournamentMode)}>
+        <Select value={tournament.mode} onValueChange={v => setMode(v as TournamentMode)} disabled={disabled}>
           <SelectTrigger id="tourney-mode">
             <SelectValue />
           </SelectTrigger>
@@ -42,6 +43,7 @@ export default function TournamentForm() {
           <Select
             value={String(tournament.finalsBracketSize ?? 4)}
             onValueChange={v => setFinalsBracketSize(Number(v) as 2 | 4)}
+            disabled={disabled}
           >
             <SelectTrigger id="tourney-bracket-size">
               <SelectValue />
@@ -62,6 +64,7 @@ export default function TournamentForm() {
             min={1}
             value={rounds}
             onChange={e => setSwissRounds(Number(e.target.value))}
+            disabled={disabled}
           />
           <p className="text-xs text-muted-foreground">
             Vorschlag nach Standard-Schweizer-Formel: {suggestedRounds} Runden — bei Bedarf anpassbar.
@@ -90,7 +93,7 @@ export default function TournamentForm() {
       )}
       <div className="space-y-1">
         <Label htmlFor="tourney-fields">Anzahl Felder</Label>
-        <Select value={String(tournament.fields)} onValueChange={v => setFields(Number(v))}>
+        <Select value={String(tournament.fields)} onValueChange={v => setFields(Number(v))} disabled={disabled}>
           <SelectTrigger id="tourney-fields">
             <SelectValue />
           </SelectTrigger>

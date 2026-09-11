@@ -53,4 +53,64 @@ describe('ConfigPage', () => {
 
     expect(screen.getByText(/vorschlag nach standard-schweizer-formel: 2 runden/i)).toBeInTheDocument()
   })
+
+  it('disables the tournament and venue forms once the tournament is locked, and unlocks them after typed confirmation', () => {
+    const { addTeam, setFields } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    useTournamentStore.getState().generateAndSaveSchedule()
+    const game = useTournamentStore.getState().schedule!.games[0]
+    useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
+
+    render(<ConfigPage />)
+
+    expect(screen.getByLabelText('Turniername')).toBeDisabled()
+    expect(screen.getAllByText(/Turnier läuft bereits/).length).toBeGreaterThan(0)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Bearbeitung freischalten' })[0])
+    fireEvent.change(screen.getByLabelText(/Bestätigungswort/i), { target: { value: 'ÄNDERN' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
+
+    expect(screen.getByLabelText('Turniername')).toBeEnabled()
+  })
+
+  it('requires typed confirmation before regenerating an already-played schedule', () => {
+    const { addTeam, setFields } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    useTournamentStore.getState().generateAndSaveSchedule()
+    const game = useTournamentStore.getState().schedule!.games[0]
+    useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
+
+    render(<ConfigPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Zeitplan generieren' }))
+    expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText(/Bestätigungswort/i), { target: { value: 'ÄNDERN' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
+
+    expect(screen.queryByRole('button', { name: 'Bestätigen' })).not.toBeInTheDocument()
+  })
+
+  it('unlocking the tournament section does not unlock the venue section', () => {
+    const { addTeam, setFields } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    useTournamentStore.getState().generateAndSaveSchedule()
+    const game = useTournamentStore.getState().schedule!.games[0]
+    useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
+
+    render(<ConfigPage />)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Bearbeitung freischalten' })[0])
+    fireEvent.change(screen.getByLabelText(/Bestätigungswort/i), { target: { value: 'ÄNDERN' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
+
+    expect(screen.getByLabelText('Turniername')).toBeEnabled()
+    expect(screen.getByLabelText('Hallenname')).toBeDisabled()
+  })
 })
