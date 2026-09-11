@@ -14,7 +14,8 @@ function isValidTournament(value: unknown): value is TournamentConfig {
     typeof t.fields === 'number' &&
     typeof t.gameSettings === 'object' && t.gameSettings !== null &&
     typeof t.venue === 'object' && t.venue !== null &&
-    Array.isArray(t.teams)
+    Array.isArray(t.teams) &&
+    t.teams.every(team => typeof team === 'object' && team !== null && typeof (team as Record<string, unknown>).id === 'string')
   )
 }
 

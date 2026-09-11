@@ -46,6 +46,15 @@ describe('parseTournamentImport', () => {
     expect(result.ok).toBe(false)
   })
 
+  it('rejects a payload where a team element is null or missing an id', () => {
+    const json = JSON.stringify({
+      tournament: { id: 't1', name: 'Test', mode: 'swiss', fields: 2, gameSettings: {}, venue: {}, teams: [null] },
+      schedule: null,
+    })
+    const result = parseTournamentImport(json)
+    expect(result.ok).toBe(false)
+  })
+
   it('rejects a payload where schedule is present but missing games', () => {
     const json = JSON.stringify({
       tournament: { id: 't1', name: 'Test', mode: 'swiss', fields: 2, gameSettings: {}, venue: {}, teams: [] },

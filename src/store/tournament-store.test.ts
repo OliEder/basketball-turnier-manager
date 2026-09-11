@@ -243,6 +243,32 @@ describe('importTournament', () => {
     expect(state.tournament.teams[0].name).toBe('Imported Team')
     expect(state.schedule).toBeNull()
   })
+
+  it('clears a pre-existing schedule from localStorage when importing with schedule set to null', () => {
+    const { addTeam, setFields, generateAndSaveSchedule, importTournament } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    generateAndSaveSchedule()
+    expect(localStorage.getItem('tm_schedule')).not.toBeNull()
+
+    const importedTournament: TournamentConfig = {
+      id: 'imported-1', name: 'Importiertes Turnier', mode: 'swiss', fields: 3,
+      gameSettings: {
+        periodsCount: 4, periodDurationMin: 5, breakBetweenPeriodsMin: 1,
+        halfTimeBreakMin: 5, bufferBetweenGamesMin: 5, breakBetweenRoundsMin: 15,
+        awardCeremonyMin: 15,
+      },
+      venue: {
+        name: 'Importierte Halle', availabilityWindows: [{ start: '09:00', end: '20:00' }],
+        blackoutPeriods: [], setupBufferMin: 30, teardownBufferMin: 30,
+      },
+      teams: [{ id: 'it1', name: 'Imported Team', logoUrl: '', color: '#000', contact: '', players: [] }],
+    }
+    importTournament(importedTournament, null)
+
+    expect(localStorage.getItem('tm_schedule')).toBeNull()
+  })
 })
 
 describe('isTournamentLocked', () => {
