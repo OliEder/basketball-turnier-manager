@@ -34,7 +34,7 @@ export default function AppShell() {
                   cn(
                     'px-3 py-1.5 rounded-sm text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-white text-brand-primary'
+                      ? 'bg-brand-accent text-brand-primary-dark'
                       : 'text-white/80 hover:text-white hover:bg-white/10',
                   )
                 }
