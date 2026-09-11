@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useTournamentStore, getCurrentSwissRound, isRoundFullyEvaluated } from './tournament-store'
 import { clearAll } from '@/lib/storage'
 import { computeStandings } from '@/lib/standings'
+import type { TournamentConfig } from '@/types'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
   const store = useTournamentStore.getState()
@@ -213,6 +214,34 @@ describe('isRoundFullyEvaluated', () => {
     expect(isRoundFullyEvaluated(useTournamentStore.getState().schedule!.games, 1)).toBe(false)
     submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
     expect(isRoundFullyEvaluated(useTournamentStore.getState().schedule!.games, 1)).toBe(true)
+  })
+})
+
+describe('importTournament', () => {
+  it('replaces the current tournament and schedule with the imported ones', () => {
+    const { addTeam, importTournament } = useTournamentStore.getState()
+    addTeam({ name: 'Old Team', logoUrl: '', color: '#000', contact: '' })
+
+    const importedTournament: TournamentConfig = {
+      id: 'imported-1', name: 'Importiertes Turnier', mode: 'swiss', fields: 3,
+      gameSettings: {
+        periodsCount: 4, periodDurationMin: 5, breakBetweenPeriodsMin: 1,
+        halfTimeBreakMin: 5, bufferBetweenGamesMin: 5, breakBetweenRoundsMin: 15,
+        awardCeremonyMin: 15,
+      },
+      venue: {
+        name: 'Importierte Halle', availabilityWindows: [{ start: '09:00', end: '20:00' }],
+        blackoutPeriods: [], setupBufferMin: 30, teardownBufferMin: 30,
+      },
+      teams: [{ id: 'it1', name: 'Imported Team', logoUrl: '', color: '#000', contact: '', players: [] }],
+    }
+    importTournament(importedTournament, null)
+
+    const state = useTournamentStore.getState()
+    expect(state.tournament.name).toBe('Importiertes Turnier')
+    expect(state.tournament.teams).toHaveLength(1)
+    expect(state.tournament.teams[0].name).toBe('Imported Team')
+    expect(state.schedule).toBeNull()
   })
 })
 

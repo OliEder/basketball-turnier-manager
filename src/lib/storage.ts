@@ -25,6 +25,10 @@ export function loadSchedule(): Schedule | null {
   return JSON.parse(raw) as Schedule
 }
 
+export function clearSchedule(): void {
+  localStorage.removeItem(KEYS.schedule)
+}
+
 export function clearAll(): void {
   localStorage.removeItem(KEYS.tournament)
   localStorage.removeItem(KEYS.schedule)

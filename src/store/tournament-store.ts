@@ -1,7 +1,7 @@
 import { create, type StoreApi } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import type { TournamentConfig, Team, Schedule, GameSettings, Venue, PeriodScore, Game } from '@/types'
-import { saveTournament, loadTournament, saveSchedule, loadSchedule } from '@/lib/storage'
+import { saveTournament, loadTournament, saveSchedule, loadSchedule, clearSchedule } from '@/lib/storage'
 import { generateSchedule } from '@/lib/schedule-generator'
 import { calcGameDurationMin, addMinutes } from '@/lib/game-duration'
 import { computeStandings } from '@/lib/standings'
@@ -76,6 +76,7 @@ interface TournamentStore {
   withdrawTeam: (teamId: string) => void
   correctGameResult: (gameId: string, periodScores: PeriodScore[]) => void
   // Persistence
+  importTournament: (tournament: TournamentConfig, schedule: Schedule | null) => void
   loadFromStorage: () => void
 }
 
@@ -355,6 +356,13 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
     const updated = { ...schedule, games: updatedGames }
     set({ schedule: updated })
     saveSchedule(updated)
+  },
+
+  importTournament: (tournament, schedule) => {
+    set({ tournament, schedule })
+    saveTournament(tournament)
+    if (schedule) saveSchedule(schedule)
+    else clearSchedule()
   },
 
   loadFromStorage: () => {

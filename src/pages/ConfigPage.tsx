@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import TournamentForm from '@/components/config/TournamentForm'
 import GameSettingsForm from '@/components/config/GameSettingsForm'
 import VenueForm from '@/components/venue/VenueForm'
@@ -8,16 +8,21 @@ import { DestructiveConfirmDialog } from '@/components/ui/destructive-confirm-di
 import { useTournamentStore } from '@/store/tournament-store'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { parseTournamentImport } from '@/lib/import/json-import'
+import type { TournamentConfig, Schedule } from '@/types'
 
-type ConfirmTarget = 'tournament' | 'venue' | 'regenerate' | null
+type ConfirmTarget = 'tournament' | 'venue' | 'regenerate' | 'import' | null
 
 export default function ConfigPage() {
-  const { tournament, schedule, generateAndSaveSchedule, isTournamentLocked } = useTournamentStore()
+  const { tournament, schedule, generateAndSaveSchedule, isTournamentLocked, importTournament } = useTournamentStore()
   const locked = isTournamentLocked()
 
   const [tournamentUnlocked, setTournamentUnlocked] = useState(false)
   const [venueUnlocked, setVenueUnlocked] = useState(false)
   const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget>(null)
+  const [pendingImport, setPendingImport] = useState<{ tournament: TournamentConfig; schedule: Schedule | null } | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const canGenerate = tournament.teams.length >= 2
 
@@ -26,6 +31,25 @@ export default function ConfigPage() {
       setConfirmTarget('regenerate')
     } else {
       generateAndSaveSchedule()
+    }
+  }
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setImportError(null)
+    const text = await file.text()
+    const result = parseTournamentImport(text)
+    if (!result.ok) {
+      setImportError(result.error)
+      return
+    }
+    if (locked) {
+      setPendingImport({ tournament: result.tournament, schedule: result.schedule })
+      setConfirmTarget('import')
+    } else {
+      importTournament(result.tournament, result.schedule)
     }
   }
 
@@ -83,6 +107,31 @@ export default function ConfigPage() {
         )}
       </section>
 
+      <section className="space-y-4">
+        <h2 className="text-lg text-brand-primary-light">Turnier importieren</h2>
+        <div className="space-y-1">
+          <Button type="button" onClick={() => fileInputRef.current?.click()}>
+            JSON importieren
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            aria-label="JSON importieren"
+            className="sr-only"
+            onChange={handleFileSelected}
+          />
+        </div>
+        {importError && (
+          <Alert>
+            <AlertDescription>{importError}</AlertDescription>
+          </Alert>
+        )}
+        {tournament.name && (
+          <p className="text-sm text-muted-foreground">Aktuelles Turnier: {tournament.name}</p>
+        )}
+      </section>
+
       <DestructiveConfirmDialog
         open={confirmTarget !== null}
         onOpenChange={(open) => { if (!open) setConfirmTarget(null) }}
@@ -90,6 +139,8 @@ export default function ConfigPage() {
         description={
           confirmTarget === 'regenerate'
             ? 'Der Zeitplan wurde bereits gespielt. Neu generieren verwirft die aktuelle Rundenstruktur — bereits erfasste Ergebnisse können dadurch inkonsistent werden.'
+            : confirmTarget === 'import'
+            ? 'Das aktuelle Turnier läuft bereits (mindestens ein Ergebnis wurde erfasst). Ein Import ersetzt es vollständig durch den Inhalt der ausgewählten Datei.'
             : 'Das Turnier läuft bereits (mindestens ein Ergebnis wurde erfasst). Diese Änderung kann den weiteren Turnierverlauf beeinträchtigen.'
         }
         confirmWord="ÄNDERN"
@@ -97,6 +148,10 @@ export default function ConfigPage() {
           if (confirmTarget === 'tournament') setTournamentUnlocked(true)
           if (confirmTarget === 'venue') setVenueUnlocked(true)
           if (confirmTarget === 'regenerate') generateAndSaveSchedule()
+          if (confirmTarget === 'import' && pendingImport) {
+            importTournament(pendingImport.tournament, pendingImport.schedule)
+            setPendingImport(null)
+          }
           setConfirmTarget(null)
         }}
       />
