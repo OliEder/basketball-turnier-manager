@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { Game, GameSettings, TimeWindow } from '@/types'
-import { calcGameDurationMin, addMinutes, findNextSlot } from './game-duration'
+import { calcGameDurationMin, addMinutes, findNextSlot, maxTime } from './game-duration'
 import { pairFirstSwissRound } from './swiss-pairing'
 
 export interface SwissScheduleInput {
@@ -18,43 +18,66 @@ export interface SwissScheduleResult {
   games: Game[]
 }
 
-export function generateSwissSchedule(input: SwissScheduleInput): SwissScheduleResult {
-  const { teamIds, fields, gameSettings, blackoutPeriods, firstGameStart, availabilityEnd, startGameNumber } = input
-  const gameDuration = calcGameDurationMin(gameSettings)
+function scheduleRoundSlots(
+  slotCount: number,
+  fields: number,
+  gameDuration: number,
+  bufferMin: number,
+  blackoutPeriods: TimeWindow[],
+  availabilityEnd: string,
+  roundStart: string,
+): { starts: string[]; roundEnd: string } {
+  const fieldClocks = Array.from({ length: fields }, () => roundStart)
+  const starts: string[] = []
+  let roundEnd = roundStart
 
-  const { pairs, byeTeamId } = pairFirstSwissRound(teamIds)
-  const games: Game[] = []
-  let gameNumber = startGameNumber
-  const fieldClocks = Array.from({ length: fields }, () => firstGameStart)
-
-  for (let i = 0; i < pairs.length; i++) {
+  for (let i = 0; i < slotCount; i++) {
     const fieldIndex = i % fields
     const start = findNextSlot(fieldClocks[fieldIndex], gameDuration, blackoutPeriods, availabilityEnd)
     if (!start) {
       throw new Error('Zeitplan passt nicht in die verfügbare Hallenzeit — Rundenzahl reduzieren oder mehr Felder einplanen')
     }
     const end = addMinutes(start, gameDuration)
+    starts.push(start)
+    fieldClocks[fieldIndex] = addMinutes(end, bufferMin)
+    roundEnd = maxTime(roundEnd, end)
+  }
+
+  return { starts, roundEnd }
+}
+
+export function generateSwissSchedule(input: SwissScheduleInput): SwissScheduleResult {
+  const { teamIds, swissRounds, fields, gameSettings, blackoutPeriods, firstGameStart, availabilityEnd, startGameNumber } = input
+  const gameDuration = calcGameDurationMin(gameSettings)
+  const games: Game[] = []
+  let gameNumber = startGameNumber
+
+  const { pairs: round1Pairs, byeTeamId: round1Bye } = pairFirstSwissRound(teamIds)
+  const { starts, roundEnd } = scheduleRoundSlots(
+    round1Pairs.length, fields, gameDuration, gameSettings.bufferBetweenGamesMin,
+    blackoutPeriods, availabilityEnd, firstGameStart,
+  )
+
+  for (let i = 0; i < round1Pairs.length; i++) {
     games.push({
       id: uuidv4(),
-      homeTeamId: pairs[i][0],
-      awayTeamId: pairs[i][1],
+      homeTeamId: round1Pairs[i][0],
+      awayTeamId: round1Pairs[i][1],
       stage: 'swiss',
-      field: fieldIndex + 1,
-      scheduledStart: start,
-      scheduledEnd: end,
+      field: (i % fields) + 1,
+      scheduledStart: starts[i],
+      scheduledEnd: addMinutes(starts[i], gameDuration),
       round: 1,
       gameNumber: gameNumber++,
       periodScores: [],
     })
-    fieldClocks[fieldIndex] = addMinutes(end, gameSettings.bufferBetweenGamesMin)
   }
-
-  if (byeTeamId) {
+  if (round1Bye) {
     games.push({
       id: uuidv4(),
       homeTeamId: null,
       awayTeamId: null,
-      byeTeamId,
+      byeTeamId: round1Bye,
       stage: 'swiss',
       field: 0,
       scheduledStart: firstGameStart,
@@ -63,6 +86,52 @@ export function generateSwissSchedule(input: SwissScheduleInput): SwissScheduleR
       gameNumber: gameNumber++,
       periodScores: [],
     })
+  }
+
+  let previousRoundEnd = roundEnd
+  const gamesPerFutureRound = Math.floor(teamIds.length / 2)
+  const hasByeEachRound = teamIds.length % 2 === 1
+
+  for (let round = 2; round <= swissRounds; round++) {
+    const roundStart = addMinutes(previousRoundEnd, gameSettings.bufferBetweenGamesMin + gameSettings.breakBetweenRoundsMin)
+    const { starts: roundStarts, roundEnd: thisRoundEnd } = scheduleRoundSlots(
+      gamesPerFutureRound, fields, gameDuration, gameSettings.bufferBetweenGamesMin,
+      blackoutPeriods, availabilityEnd, roundStart,
+    )
+
+    for (let i = 0; i < gamesPerFutureRound; i++) {
+      const label = `Runde ${round} – Spiel ${i + 1}`
+      games.push({
+        id: uuidv4(),
+        homeTeamId: null,
+        awayTeamId: null,
+        homeLabel: label,
+        awayLabel: label,
+        stage: 'swiss',
+        field: (i % fields) + 1,
+        scheduledStart: roundStarts[i],
+        scheduledEnd: addMinutes(roundStarts[i], gameDuration),
+        round,
+        gameNumber: gameNumber++,
+        periodScores: [],
+      })
+    }
+    if (hasByeEachRound) {
+      games.push({
+        id: uuidv4(),
+        homeTeamId: null,
+        awayTeamId: null,
+        stage: 'swiss',
+        field: 0,
+        scheduledStart: roundStart,
+        scheduledEnd: roundStart,
+        round,
+        gameNumber: gameNumber++,
+        periodScores: [],
+      })
+    }
+
+    previousRoundEnd = thisRoundEnd
   }
 
   return { games }
