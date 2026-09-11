@@ -40,12 +40,18 @@ test('plays through a full 13-team swiss tournament with a bye every round', asy
 
   await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).toBeVisible()
 
-  // Jede Runde hat ein Freilos bekommen (garantiert, da 13 Teams ungerade sind);
-  // welches Team konkret pausiert, ist laut pairNextSwissRound (bevorzugt ein Team ohne
-  // bisheriges Freilos) nicht strikt vorhersagbar, daher wird nur die Anzahl geprüft.
+  // Jede Runde hat ein Freilos bekommen (garantiert, da 13 Teams ungerade sind). Für dieses
+  // konkrete Szenario (13 Teams, nur 4 Runden) sind die Freilos-Teams zusätzlich garantiert
+  // paarweise verschieden: pairNextSwissRound wählt das Freilos aus byeCandidates.find(s =>
+  // !s.hadBye) und fällt nur dann auf byeCandidates[0] (mögliche Wiederholung) zurück, wenn
+  // ALLE aktiven Teams bereits ein Freilos hatten. Da nach Runde k höchstens k Teams ein
+  // Freilos hatten und 13 Teams >> 4 Runden, bleiben in jeder Runde mindestens 13 - 3 = 10
+  // Teams ohne bisheriges Freilos übrig — der Fallback-Pfad mit möglicher Wiederholung ist
+  // hier unerreichbar. Das ist eine Eigenschaft dieses Szenarios (viele Teams, wenige
+  // Runden), keine allgemeine Garantie des Algorithmus.
   expect(byeTeamsPerRound).toHaveLength(totalRounds)
   const distinctByeTeams = new Set(byeTeamsPerRound)
-  expect(distinctByeTeams.size).toBeGreaterThanOrEqual(2)
+  expect(distinctByeTeams.size).toBe(totalRounds)
 
   await page.getByRole('link', { name: 'Turnierübersicht' }).click()
   await expect(page.getByRole('table')).toBeVisible()
