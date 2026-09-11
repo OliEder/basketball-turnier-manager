@@ -1,10 +1,29 @@
 import { getCurrentSwissRound, isRoundFullyEvaluated, useTournamentStore } from '@/store/tournament-store'
 import { computeStandings } from '@/lib/standings'
 import { renderSwissOverviewHtml } from '@/lib/export/swiss-overview-export'
+import { computeRoundPageBreaks } from '@/lib/print-pagination'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
+
+function TableOfContents({ rounds }: { rounds: number[] }) {
+  return (
+    <nav aria-label="Inhalt" className="rounded-md border border-brand-primary/30 bg-tint p-4 text-sm">
+      <p className="font-semibold text-brand-primary mb-2">Inhalt</p>
+      <ul className="space-y-1">
+        <li>
+          <a href="#tabelle" className="text-brand-primary hover:underline">Tabelle</a>
+        </li>
+        {rounds.map(round => (
+          <li key={round}>
+            <a href={`#runde-${round}`} className="text-brand-primary hover:underline">Runde {round}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
 
 export default function SwissOverviewPage() {
   const { tournament, schedule } = useTournamentStore()
@@ -24,6 +43,10 @@ export default function SwissOverviewPage() {
   const standings = computeStandings(tournament.teams, schedule.games, lastCompletedRound)
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
   const rounds = [...new Set(schedule.games.map(g => g.round))].sort((a, b) => a - b)
+  const gamesPerRound = new Map(
+    rounds.map(round => [round, schedule.games.filter(g => g.round === round && g.field > 0).length]),
+  )
+  const roundPageBreaks = computeRoundPageBreaks(rounds, gamesPerRound)
 
   const handlePrint = () => {
     const html = renderSwissOverviewHtml(tournament, schedule, standings)
@@ -45,8 +68,11 @@ export default function SwissOverviewPage() {
       <div className="flex justify-end">
         <Button onClick={handlePrint}>Drucken</Button>
       </div>
+
+      <TableOfContents rounds={rounds} />
+
       <div>
-        <h2 className="font-display text-lg uppercase mb-2">Tabelle</h2>
+        <h2 id="tabelle" className="font-display text-lg uppercase mb-2">Tabelle</h2>
         <p className="text-xs text-muted-foreground mb-2">
           Sortierung: 1. Punkte, 2. Buchholz-Zahl, 3. Korbdifferenz. Die Buchholz-Zahl ist die Summe der
           Punkte aller bisherigen Gegner (zeigt, wie stark die bisherigen Gegner abgeschnitten haben; bei
@@ -82,11 +108,16 @@ export default function SwissOverviewPage() {
         </table>
       </div>
 
-      <div>
+      <div className="print:break-before-page">
         <h2 className="font-display text-lg uppercase mb-2">Zeitplan</h2>
         {rounds.map(round => (
           <div key={round} className="mb-4">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-1">Runde {round}</h3>
+            <h3
+              id={`runde-${round}`}
+              className={`text-sm font-semibold text-muted-foreground mb-1${roundPageBreaks.has(round) ? ' print:break-before-page' : ''}`}
+            >
+              Runde {round}
+            </h3>
             <div className="border border-border rounded-md p-4 bg-card">
               {schedule.games
                 .filter(g => g.round === round && g.field > 0)

@@ -125,3 +125,58 @@ describe('renderSwissOverviewHtml standings explanation', () => {
     expect(html).not.toContain('S-U-N')
   })
 })
+
+describe('renderSwissOverviewHtml table of contents', () => {
+  it('includes a TOC with links to the standings and each round, kept (not stripped) in the print output', () => {
+    const html = renderSwissOverviewHtml(tournament, schedule, standings)
+    expect(html).toContain('aria-label="Inhalt"')
+    expect(html).toContain('<a href="#tabelle">Tabelle</a>')
+    expect(html).toContain('<a href="#runde-1">Runde 1</a>')
+    expect(html).toContain('id="tabelle"')
+    expect(html).toContain('id="runde-1"')
+  })
+})
+
+describe('renderSwissOverviewHtml print pagination', () => {
+  function makeSwissSchedule(gamesPerRound: number[]): Schedule {
+    const games: Schedule['games'] = []
+    let gameNumber = 1
+    gamesPerRound.forEach((count, idx) => {
+      const round = idx + 1
+      for (let i = 0; i < count; i++) {
+        games.push({
+          id: `g-${round}-${i}`,
+          homeTeamId: 't1',
+          awayTeamId: 't2',
+          stage: 'swiss',
+          field: 1,
+          scheduledStart: '09:30',
+          scheduledEnd: '10:00',
+          round,
+          gameNumber: gameNumber++,
+          periodScores: [],
+        })
+      }
+    })
+    return { id: 's1', tournamentId: 't1', generatedAt: '2026-09-11T10:00:00Z', games, totalDurationMin: 30, estimatedEnd: '10:00' }
+  }
+
+  it('always breaks the page before the "Zeitplan" heading, right after the standings table', () => {
+    const html = renderSwissOverviewHtml(tournament, makeSwissSchedule([1, 1]), standings)
+    expect(html).toMatch(/<h2 style="page-break-before: always">Zeitplan<\/h2>/)
+  })
+
+  it('marks the round heading right after the 15-game threshold is crossed, and no earlier one', () => {
+    const schedule15 = makeSwissSchedule([16, 5, 5])
+    const html = renderSwissOverviewHtml(tournament, schedule15, standings)
+    expect(html).toMatch(/<h3 id="runde-2" style="page-break-before: always">Runde 2<\/h3>/)
+    expect(html).toMatch(/<h3 id="runde-1">Runde 1<\/h3>/)
+    expect(html).toMatch(/<h3 id="runde-3">Runde 3<\/h3>/)
+  })
+
+  it('does not add any break markers when the game count never reaches the threshold', () => {
+    const schedule = makeSwissSchedule([3, 3, 3])
+    const html = renderSwissOverviewHtml(tournament, schedule, standings)
+    expect(html).not.toContain('page-break-before: always">Runde')
+  })
+})

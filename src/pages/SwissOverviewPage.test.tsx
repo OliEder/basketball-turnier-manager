@@ -49,8 +49,8 @@ describe('SwissOverviewPage', () => {
     for (const team of teams) {
       expect(screen.getAllByText(team.name).length).toBeGreaterThan(0)
     }
-    expect(screen.getByText('Runde 1')).toBeInTheDocument()
-    expect(screen.getByText('Runde 2')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Runde 1' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Runde 2' })).toBeInTheDocument()
   })
 
   it('opens a printable blob URL when clicking "Drucken"', () => {
@@ -131,5 +131,42 @@ describe('SwissOverviewPage', () => {
     setupSwissTournament(4, 2)
     render(<SwissOverviewPage />)
     expect(screen.queryByText('S-U-N')).not.toBeInTheDocument()
+  })
+
+  it('renders a table of contents linking to the standings and each round', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissOverviewPage />)
+    const nav = screen.getByRole('navigation', { name: 'Inhalt' })
+    expect(within(nav).getByRole('link', { name: 'Tabelle' })).toHaveAttribute('href', '#tabelle')
+    expect(within(nav).getByRole('link', { name: 'Runde 1' })).toHaveAttribute('href', '#runde-1')
+    expect(within(nav).getByRole('link', { name: 'Runde 2' })).toHaveAttribute('href', '#runde-2')
+  })
+
+  it('adds matching anchor ids to the standings heading and each round heading', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissOverviewPage />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Tabelle' })).toHaveAttribute('id', 'tabelle')
+    expect(screen.getByRole('heading', { level: 3, name: 'Runde 1' })).toHaveAttribute('id', 'runde-1')
+    expect(screen.getByRole('heading', { level: 3, name: 'Runde 2' })).toHaveAttribute('id', 'runde-2')
+  })
+
+  it('marks the round heading right after the 15-game print threshold is crossed, and not an earlier round', () => {
+    setupSwissTournament(13, 4)
+    render(<SwissOverviewPage />)
+    const { schedule } = useTournamentStore.getState()
+    const rounds = [...new Set(schedule!.games.map(g => g.round))].sort((a, b) => a - b)
+    let runningSum = 0
+    let expectedBreakRound: number | null = null
+    for (const round of rounds) {
+      const count = schedule!.games.filter(g => g.round === round && g.field > 0).length
+      if (runningSum >= 15) {
+        expectedBreakRound = round
+        break
+      }
+      runningSum += count
+    }
+    expect(expectedBreakRound).not.toBeNull()
+    expect(screen.getByRole('heading', { level: 3, name: `Runde ${expectedBreakRound}` })).toHaveClass('print:break-before-page')
+    expect(screen.getByRole('heading', { level: 3, name: 'Runde 1' })).not.toHaveClass('print:break-before-page')
   })
 })
