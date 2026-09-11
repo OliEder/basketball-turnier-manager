@@ -5,7 +5,12 @@ export interface SwissPairingResult {
   byeTeamId?: string
 }
 
-export class PairingConflictError extends Error {}
+export class PairingConflictError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PairingConflictError'
+  }
+}
 
 export interface SwissPairingInput {
   standings: TeamStanding[]

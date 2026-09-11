@@ -37,7 +37,6 @@ describe('pairNextSwissRound', () => {
       makeStanding('t3', 2),
       makeStanding('t4', 2),
     ]
-    // t1 already played t2 in a previous round
     const playedPairs = new Set(['t1|t2'])
     const result = pairNextSwissRound({ standings, playedPairs })
     expect(result.pairs).toHaveLength(2)
