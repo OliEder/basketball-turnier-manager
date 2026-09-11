@@ -1,17 +1,5 @@
-import { test, expect, type Page } from '@playwright/test'
-
-async function addTeam(page: Page, name: string) {
-  await page.getByRole('button', { name: 'Team hinzufügen' }).click()
-  const dialog = page.getByRole('dialog')
-  await dialog.getByLabel('Name').fill(name)
-  await dialog.getByRole('button', { name: 'Speichern' }).click()
-  await expect(dialog).not.toBeVisible()
-}
-
-async function selectMode(page: Page, label: string) {
-  await page.locator('#tourney-mode').click()
-  await page.getByRole('option', { name: label }).click()
-}
+import { test, expect } from '@playwright/test'
+import { addTeam, selectMode } from './helpers'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
