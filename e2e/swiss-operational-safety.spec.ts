@@ -18,21 +18,15 @@ test('withdrawing a team mid-tournament does not permanently block round progres
 
   // Das zweite (noch nicht befüllte) Spiel ist jetzt die letzte Zeile mit einem leeren
   // Eingabefeld. Zeile über das (accessible) Eingabefeld statt über CSS-Klassen ermitteln,
-  // dann den exakten Teamnamen aus dem Accessible Name eines der "ausgeschieden"-Buttons in
-  // dieser Zeile lesen, um gezielt eines der beiden beteiligten Teams als ausgeschieden zu
-  // markieren.
+  // dann eines der beiden "ausgeschieden"-Buttons in dieser Zeile anklicken (welches der
+  // beiden Teams betroffen ist, ist für diesen Test irrelevant).
   const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/).last()
   const remainingRow = page.locator('div').filter({ has: openInput }).last()
   const withdrawButtons = remainingRow.getByRole('button', { name: /ausgeschieden$/ })
   await expect(withdrawButtons).toHaveCount(2)
-  const buttonLabel = await withdrawButtons.first().textContent()
-  expect(buttonLabel).toBeTruthy()
-  const teamToWithdraw = buttonLabel!.replace(/ ausgeschieden$/, '')
-
-  const withdrawButton = remainingRow.getByRole('button', { name: `${teamToWithdraw} ausgeschieden`, exact: true })
 
   page.once('dialog', dialog => dialog.accept())
-  await withdrawButton.click()
+  await withdrawButtons.first().click()
 
   // Die Runde gilt jetzt als vollständig ausgewertet (das zweite Spiel wurde durch den
   // Rückzug annulliert, das erste hat ein lokal befülltes, gültiges Ergebnis), daher darf
@@ -152,13 +146,8 @@ test('withdrawal that makes the active team count odd reshapes a not-yet-drawn f
   const withdrawRow = page.locator('div').filter({ has: openInput }).last()
   const withdrawButtons = withdrawRow.getByRole('button', { name: /ausgeschieden$/ })
   await expect(withdrawButtons).toHaveCount(2)
-  const buttonLabel = await withdrawButtons.first().textContent()
-  expect(buttonLabel).toBeTruthy()
-  const teamToWithdraw = buttonLabel!.replace(/ ausgeschieden$/, '')
-
-  const withdrawButton = withdrawRow.getByRole('button', { name: `${teamToWithdraw} ausgeschieden`, exact: true })
   page.once('dialog', dialog => dialog.accept())
-  await withdrawButton.click()
+  await withdrawButtons.first().click()
 
   // Runde 1 (bereits abgeschlossen) darf vom Rückzug nicht berührt worden sein.
   await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
