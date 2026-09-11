@@ -315,7 +315,11 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
       if (g.round !== currentRound || g.stage !== 'swiss') return g
       const involvesWithdrawing = g.homeTeamId === teamId || g.awayTeamId === teamId
       if (involvesWithdrawing && g.periodScores.length === 0) {
-        return { ...g, cancelledReason: 'withdrawal' as const }
+        return {
+          ...g,
+          cancelledReason: 'withdrawal' as const,
+          periodScores: [{ period: 1, homeScore: 0, awayScore: 0 }],
+        }
       }
       return g
     })

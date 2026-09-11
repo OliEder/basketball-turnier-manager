@@ -134,6 +134,7 @@ describe('withdrawTeam', () => {
     withdrawTeam(teamToWithdraw)
     const updatedGame = useTournamentStore.getState().schedule!.games.find(g => g.id === openGame.id)!
     expect(updatedGame.cancelledReason).toBe('withdrawal')
+    expect(updatedGame.periodScores).toEqual([{ period: 1, homeScore: 0, awayScore: 0 }])
     const standings = computeStandings(
       useTournamentStore.getState().tournament.teams,
       useTournamentStore.getState().schedule!.games,
