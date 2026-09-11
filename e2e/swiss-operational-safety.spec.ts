@@ -112,3 +112,82 @@ test('manual pairing dialog appears when automatic pairing is exhausted', async 
   await page.getByRole('button', { name: 'Paarungen übernehmen' }).click()
   await expect(page.getByText(/Automatische Paarung nicht möglich/)).not.toBeVisible()
 })
+
+test('withdrawal that makes the active team count odd reshapes a not-yet-drawn future round to include a bye', async ({ page }) => {
+  // 6 Teams (gerade) -> künftige Runden haben 3 echte Spiele und kein Freilos-Slot
+  // (siehe generateSwissSchedule: hasByeEachRound ist nur bei ungerader Teamzahl true).
+  const teamNames = ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F']
+  await setupSwissTournament(page, teamNames, 4)
+
+  // Runde 1 vollständig auswerten, damit Runde 3 beim späteren Rückzug in Runde 2 wirklich
+  // eine "noch nicht ausgeloste" künftige Runde ist (nicht die gerade aktive).
+  await expect(page.getByText(/Runde 1 von 4/)).toBeVisible()
+  const round1HomeInputs = page.getByLabel(/^Ergebnis Heim, Spiel/)
+  const round1Count = await round1HomeInputs.count()
+  expect(round1Count).toBe(3)
+  for (let i = 0; i < round1Count; i++) {
+    await page.getByLabel(/^Ergebnis Heim, Spiel/).nth(i).fill('20')
+    await page.getByLabel(/^Ergebnis Auswärts, Spiel/).nth(i).fill('10')
+  }
+  await page.getByRole('button', { name: 'Nächste Runde auslosen' }).click()
+  await expect(page.getByText(/Runde 2 von 4/)).toBeVisible()
+
+  // Vor dem Rückzug: Runde 3 (noch nicht ausgelost) in der Turnierübersicht inspizieren.
+  // Placeholder-Spiele tragen dort homeLabel/awayLabel wie "Runde 3 – Spiel N (Heim)"
+  // (siehe reshapeFutureSwissRounds / generateSwissSchedule); Freilos-Slots (field === 0)
+  // werden von SwissOverviewPage bewusst herausgefiltert (g.field > 0), sind dort also
+  // nicht sichtbar — nur die Anzahl echter Spiel-Slots lässt sich hier prüfen.
+  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await expect(page.getByRole('heading', { name: 'Runde 3', exact: true })).toBeVisible()
+  const round3PlaceholdersBefore = page.getByText(/^Runde 3 – Spiel \d+ \(Heim\)$/)
+  await expect(round3PlaceholdersBefore).toHaveCount(3)
+
+  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await expect(page.getByText(/Runde 2 von 4/)).toBeVisible()
+
+  // In Runde 2 ein noch offenes Spiel finden (gleiches Muster wie im ersten Test dieser
+  // Datei) und eines der beiden beteiligten Teams als ausgeschieden markieren. 6 -> 5 aktive
+  // Teams macht die Teamzahl ungerade.
+  const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
+  const withdrawRow = page.locator('div').filter({ has: openInput }).last()
+  const withdrawButtons = withdrawRow.getByRole('button', { name: /ausgeschieden$/ })
+  await expect(withdrawButtons).toHaveCount(2)
+  const buttonLabel = await withdrawButtons.first().textContent()
+  expect(buttonLabel).toBeTruthy()
+  const teamToWithdraw = buttonLabel!.replace(/ ausgeschieden$/, '')
+
+  const withdrawButton = withdrawRow.getByRole('button', { name: `${teamToWithdraw} ausgeschieden`, exact: true })
+  page.once('dialog', dialog => dialog.accept())
+  await withdrawButton.click()
+
+  // Runde 1 (bereits abgeschlossen) darf vom Rückzug nicht berührt worden sein.
+  await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
+  await expect(page.getByText(/bereits abgeschlossene Runde/)).toBeVisible()
+  await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(0)
+  await page.getByRole('button', { name: 'Zur aktuellen Runde' }).click()
+  await expect(page.getByText(/Runde 2 von 4/)).toBeVisible()
+
+  // Nach dem Rückzug: Runde 3 hat jetzt nur noch floor(5/2) = 2 echte Spiel-Slots statt 3,
+  // der überzählige Slot wurde laut reshapeFutureSwissRounds in einen Freilos-Slot
+  // umgewandelt (5 aktive Teams sind ungerade -> needsBye = true).
+  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await expect(page.getByRole('heading', { name: 'Runde 3', exact: true })).toBeVisible()
+  const round3PlaceholdersAfter = page.getByText(/^Runde 3 – Spiel \d+ \(Heim\)$/)
+  await expect(round3PlaceholdersAfter).toHaveCount(2)
+
+  // Restliche offene Spiele der Runde 2 auswerten und Runde 3 tatsächlich auslosen, um das
+  // Freilos dort real zu sehen (nicht nur die Slot-Anzahl in der Übersicht).
+  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await expect(page.getByText(/Runde 2 von 4/)).toBeVisible()
+  const remainingHomeInputs = page.getByLabel(/^Ergebnis Heim, Spiel/)
+  const remainingCount = await remainingHomeInputs.count()
+  for (let i = 0; i < remainingCount; i++) {
+    await page.getByLabel(/^Ergebnis Heim, Spiel/).nth(i).fill('20')
+    await page.getByLabel(/^Ergebnis Auswärts, Spiel/).nth(i).fill('10')
+  }
+  await page.getByRole('button', { name: 'Nächste Runde auslosen' }).click()
+
+  await expect(page.getByText(/Runde 3 von 4/)).toBeVisible()
+  await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(2)
+  await expect(page.getByText(/^Freilos: /)).toBeVisible()
+})
