@@ -166,7 +166,7 @@ export default function SwissResultsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs text-muted-foreground"
+                    className="text-xs text-muted-foreground border-dashed border-destructive"
                     onClick={() => {
                       if (confirm(`${home} als ausgeschieden markieren?`)) withdrawTeam(game.homeTeamId!)
                     }}
@@ -176,7 +176,7 @@ export default function SwissResultsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs text-muted-foreground"
+                    className="text-xs text-muted-foreground border-dashed border-destructive"
                     onClick={() => {
                       if (confirm(`${away} als ausgeschieden markieren?`)) withdrawTeam(game.awayTeamId!)
                     }}
