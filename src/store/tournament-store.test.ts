@@ -214,3 +214,29 @@ describe('isRoundFullyEvaluated', () => {
     expect(isRoundFullyEvaluated(useTournamentStore.getState().schedule!.games, 1)).toBe(true)
   })
 })
+
+describe('isTournamentLocked', () => {
+  it('is false when no schedule exists', () => {
+    expect(useTournamentStore.getState().isTournamentLocked()).toBe(false)
+  })
+
+  it('is false when a schedule exists but no result has been entered', () => {
+    const { addTeam, setFields } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    useTournamentStore.getState().generateAndSaveSchedule()
+    expect(useTournamentStore.getState().isTournamentLocked()).toBe(false)
+  })
+
+  it('is true once at least one result has been entered', () => {
+    const { addTeam, setFields } = useTournamentStore.getState()
+    addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'B', logoUrl: '', color: '#000', contact: '' })
+    setFields(1)
+    useTournamentStore.getState().generateAndSaveSchedule()
+    const game = useTournamentStore.getState().schedule!.games[0]
+    useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
+    expect(useTournamentStore.getState().isTournamentLocked()).toBe(true)
+  })
+})

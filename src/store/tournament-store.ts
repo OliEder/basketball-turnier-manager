@@ -54,6 +54,7 @@ const DEFAULT_TOURNAMENT: TournamentConfig = {
 interface TournamentStore {
   tournament: TournamentConfig
   schedule: Schedule | null
+  isTournamentLocked: () => boolean
   // Tournament actions
   setTournamentName: (name: string) => void
   setMode: (mode: TournamentConfig['mode']) => void
@@ -154,6 +155,11 @@ function reshapeFutureSwissRounds(games: Game[], afterRound: number, activeTeamC
 export const useTournamentStore = create<TournamentStore>((set, get) => ({
   tournament: loadTournament() ?? DEFAULT_TOURNAMENT,
   schedule: loadSchedule(),
+
+  isTournamentLocked: () => {
+    const { schedule } = get()
+    return !!schedule && schedule.games.some(g => g.periodScores.length > 0)
+  },
 
   setTournamentName: (name) => {
     set(s => ({ tournament: { ...s.tournament, name } }))
