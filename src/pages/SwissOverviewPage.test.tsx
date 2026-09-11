@@ -123,6 +123,8 @@ describe('SwissOverviewPage', () => {
     render(<SwissOverviewPage />)
     expect(screen.getByText(/Sortierung: 1\. Punkte, 2\. Buchholz-Zahl, 3\. Korbdifferenz/)).toBeInTheDocument()
     expect(screen.getByText(/Buchholz-Zahl ist die Summe der Punkte aller bisherigen Gegner/)).toBeInTheDocument()
+    expect(screen.getByText(/bei einem Freilos zählen die eigenen Punkte/)).toBeInTheDocument()
+    expect(screen.getByText(/zurückgezogen wurde, zählt die Partie nicht mit/)).toBeInTheDocument()
   })
 
   it('does not show a wins-draws-losses column in the standings table', () => {

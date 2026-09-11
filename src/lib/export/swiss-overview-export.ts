@@ -77,7 +77,8 @@ export function renderSwissOverviewHtml(
   <h2>Tabelle</h2>
   <p style="font-size: 0.8rem; color: #64748b; margin: -0.25rem 0 0.5rem;">
     Sortierung: 1. Punkte, 2. Buchholz-Zahl, 3. Korbdifferenz. Die Buchholz-Zahl ist die Summe der Punkte aller bisherigen Gegner
-    (zeigt, wie stark die bisherigen Gegner abgeschnitten haben).
+    (zeigt, wie stark die bisherigen Gegner abgeschnitten haben; bei einem Freilos zählen die eigenen Punkte, bei einem Gegner,
+    der zurückgezogen wurde, zählt die Partie nicht mit).
   </p>
   <table>
     <thead><tr><th>#</th><th>Team</th><th>Pkt</th><th>Buchholz</th><th>Diff</th></tr></thead>
