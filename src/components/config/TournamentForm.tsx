@@ -9,6 +9,9 @@ import type { TournamentMode } from '@/types'
 export default function TournamentForm() {
   const { tournament, setTournamentName, setMode, setFields, setFinalsBracketSize, setSwissRounds } = useTournamentStore()
 
+  const suggestedRounds = Math.max(1, Math.ceil(Math.log2(tournament.teams.length || 1)))
+  const rounds = tournament.swissRounds ?? suggestedRounds
+
   return (
     <div className="space-y-4 max-w-md">
       <div className="space-y-1">
@@ -57,11 +60,13 @@ export default function TournamentForm() {
             id="swiss-rounds"
             type="number"
             min={1}
-            value={tournament.swissRounds ?? Math.max(1, Math.ceil(Math.log2(tournament.teams.length || 1)))}
+            value={rounds}
             onChange={e => setSwissRounds(Number(e.target.value))}
           />
+          <p className="text-xs text-muted-foreground">
+            Vorschlag nach Standard-Schweizer-Formel: {suggestedRounds} Runden — bei Bedarf anpassbar.
+          </p>
           {(() => {
-            const rounds = tournament.swissRounds ?? Math.max(1, Math.ceil(Math.log2(tournament.teams.length || 1)))
             const gameDuration = calcGameDurationMin(tournament.gameSettings)
             const gamesPerRound = Math.floor(tournament.teams.length / 2)
             const roundsWorthOfSlots = Math.max(1, Math.ceil(gamesPerRound / tournament.fields))
