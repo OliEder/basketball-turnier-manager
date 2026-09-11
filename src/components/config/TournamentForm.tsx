@@ -2,10 +2,12 @@ import { useTournamentStore } from '@/store/tournament-store'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { calcGameDurationMin, timeToMinutes, addMinutes } from '@/lib/game-duration'
 import type { TournamentMode } from '@/types'
 
 export default function TournamentForm() {
-  const { tournament, setTournamentName, setMode, setFields, setFinalsBracketSize } = useTournamentStore()
+  const { tournament, setTournamentName, setMode, setFields, setFinalsBracketSize, setSwissRounds } = useTournamentStore()
 
   return (
     <div className="space-y-4 max-w-md">
@@ -27,6 +29,7 @@ export default function TournamentForm() {
           <SelectContent>
             <SelectItem value="round-robin">Jeder gegen Jeden</SelectItem>
             <SelectItem value="round-robin+finals">Jeder gegen Jeden + Finale</SelectItem>
+            <SelectItem value="swiss">Einstufungsturnier (Schweizer System)</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -45,6 +48,39 @@ export default function TournamentForm() {
               <SelectItem value="2">Nur Finale</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      )}
+      {tournament.mode === 'swiss' && (
+        <div className="space-y-1">
+          <Label htmlFor="swiss-rounds">Anzahl Runden</Label>
+          <Input
+            id="swiss-rounds"
+            type="number"
+            min={1}
+            value={tournament.swissRounds ?? Math.max(1, Math.ceil(Math.log2(tournament.teams.length || 1)))}
+            onChange={e => setSwissRounds(Number(e.target.value))}
+          />
+          {(() => {
+            const rounds = tournament.swissRounds ?? Math.max(1, Math.ceil(Math.log2(tournament.teams.length || 1)))
+            const gameDuration = calcGameDurationMin(tournament.gameSettings)
+            const gamesPerRound = Math.floor(tournament.teams.length / 2)
+            const roundsWorthOfSlots = Math.max(1, Math.ceil(gamesPerRound / tournament.fields))
+            const roundDurationMin = roundsWorthOfSlots * (gameDuration + tournament.gameSettings.bufferBetweenGamesMin)
+            const totalMin = rounds * roundDurationMin + (rounds - 1) * tournament.gameSettings.breakBetweenRoundsMin
+            const venueOpen = tournament.venue.availabilityWindows[0]?.start ?? '09:00'
+            const venueClose = tournament.venue.availabilityWindows[0]?.end ?? '20:00'
+            const firstStart = addMinutes(venueOpen, tournament.venue.setupBufferMin)
+            const availabilityEnd = addMinutes(venueClose, -tournament.venue.teardownBufferMin)
+            const fitsInVenue = timeToMinutes(firstStart) + totalMin <= timeToMinutes(availabilityEnd)
+            return (
+              <Alert>
+                <AlertDescription className={fitsInVenue ? '' : 'text-red-600'}>
+                  Geschätzte Gesamtdauer: {totalMin} Minuten.
+                  {!fitsInVenue && ' Das passt nicht in die verfügbare Hallenzeit — Rundenzahl reduzieren oder mehr Felder einplanen.'}
+                </AlertDescription>
+              </Alert>
+            )
+          })()}
         </div>
       )}
       <div className="space-y-1">
