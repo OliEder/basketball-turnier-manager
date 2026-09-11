@@ -140,7 +140,7 @@ export default function SwissResultsPage() {
                 className="grid items-center gap-2"
                 style={{ gridTemplateColumns: '140px 1fr 42px 16px 42px 1fr 140px auto auto' }}
               >
-                {homeTeam?.withdrawnAfterRound !== undefined ? (
+                {homeTeam?.withdrawnAfterRound !== undefined && game.cancelledReason === 'withdrawal' ? (
                   <span className="text-xs font-semibold uppercase tracking-wide rounded-sm bg-destructive text-destructive-foreground w-full min-w-0 truncate px-3 py-1.5 text-center">
                     {home} zurückgezogen
                   </span>
@@ -206,7 +206,7 @@ export default function SwissResultsPage() {
                   {awayTeam ? <TeamNameDisplay team={awayTeam} className="text-left" /> : <span className="font-medium truncate">{away}</span>}
                 </div>
 
-                {awayTeam?.withdrawnAfterRound !== undefined ? (
+                {awayTeam?.withdrawnAfterRound !== undefined && game.cancelledReason === 'withdrawal' ? (
                   <span className="text-xs font-semibold uppercase tracking-wide rounded-sm bg-destructive text-destructive-foreground w-full min-w-0 truncate px-3 py-1.5 text-center">
                     {away} zurückgezogen
                   </span>

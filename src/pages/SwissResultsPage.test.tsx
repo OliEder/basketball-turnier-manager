@@ -279,6 +279,7 @@ describe('SwissResultsPage', () => {
   })
 
   it('shows the score as 0:0 with no editable inputs once a game is cancelled by a withdrawal', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     setupSwissTournament(4, 2)
     render(<SwissResultsPage />)
     const teams = useTournamentStore.getState().tournament.teams
@@ -292,6 +293,7 @@ describe('SwissResultsPage', () => {
   })
 
   it('shows a solid red withdrawn badge instead of the withdraw button once a team has been withdrawn', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     setupSwissTournament(4, 2)
     render(<SwissResultsPage />)
     const teams = useTournamentStore.getState().tournament.teams
@@ -303,5 +305,32 @@ describe('SwissResultsPage', () => {
     expect(screen.queryByRole('button', { name: `${teamAbbreviation} zurückziehen` })).not.toBeInTheDocument()
     const badge = screen.getByText(`${teamAbbreviation} zurückgezogen`)
     expect(badge).toHaveClass('bg-destructive')
+  })
+
+  it('does not show the withdrawn badge on a past round where the team actually played a real game', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const round1Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    round1Games.forEach((g, i) => {
+      fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${g.gameNumber}`), { target: { value: String(20 + i) } })
+      fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: String(10 + i) } })
+    })
+    fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
+
+    const teams = useTournamentStore.getState().tournament.teams
+    const round2Game = useTournamentStore.getState().schedule!.games.find(g => g.round === 2 && g.field > 0)!
+    const teamAbbreviation = getTeamAbbreviation(teams.find(t => t.id === round2Game.homeTeamId)!)
+    fireEvent.click(screen.getByRole('button', { name: `${teamAbbreviation} zurückziehen` }))
+
+    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+
+    expect(screen.queryByText(`${teamAbbreviation} zurückgezogen`)).not.toBeInTheDocument()
+    const round1Game = useTournamentStore.getState().schedule!.games.find(
+      g => g.round === 1 && (g.homeTeamId === round2Game.homeTeamId || g.awayTeamId === round2Game.homeTeamId)
+    )!
+    expect(screen.getByRole('button', { name: `${teamAbbreviation} zurückziehen` })).toBeInTheDocument()
+    expect(screen.getByText(String(round1Game.periodScores[0].homeScore))).toBeInTheDocument()
+    expect(screen.getByText(String(round1Game.periodScores[0].awayScore))).toBeInTheDocument()
   })
 })
