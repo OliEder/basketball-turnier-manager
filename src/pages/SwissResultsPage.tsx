@@ -12,6 +12,7 @@ export default function SwissResultsPage() {
   const [manualPairingNeeded, setManualPairingNeeded] = useState(false)
   const [manualAssignments, setManualAssignments] = useState<Record<string, string>>({})
   const [correctingGameId, setCorrectingGameId] = useState<string | null>(null)
+  const [viewedRound, setViewedRound] = useState<number | null>(null)
 
   if (!schedule) {
     return (
@@ -22,7 +23,9 @@ export default function SwissResultsPage() {
   }
 
   const displayRound = getCurrentSwissRound(schedule.games) || 1
-  const roundGames = schedule.games.filter(g => g.stage === 'swiss' && g.round === displayRound)
+  const currentViewedRound = viewedRound ?? displayRound
+  const isViewingPastRound = currentViewedRound !== displayRound
+  const roundGames = schedule.games.filter(g => g.stage === 'swiss' && g.round === currentViewedRound)
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
   const totalRounds = tournament.swissRounds ?? 1
 
@@ -34,7 +37,11 @@ export default function SwissResultsPage() {
   const allEvaluated = roundGames.every(
     g => g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0 || isScoreEntered(g.id)
   )
-  const tournamentFinished = displayRound >= totalRounds && allEvaluated
+  const activeRoundGames = schedule.games.filter(g => g.stage === 'swiss' && g.round === displayRound)
+  const activeRoundEvaluated = activeRoundGames.every(
+    g => g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0 || isScoreEntered(g.id)
+  )
+  const tournamentFinished = displayRound >= totalRounds && activeRoundEvaluated
 
   const handleAdvance = () => {
     setError(null)
@@ -80,6 +87,28 @@ export default function SwissResultsPage() {
       <h2 className="font-display text-lg uppercase">
         Runde {displayRound} von {totalRounds}
       </h2>
+
+      <div className="flex gap-1 flex-wrap">
+        {Array.from({ length: displayRound }, (_, i) => i + 1).map(r => (
+          <Button
+            key={r}
+            variant={r === currentViewedRound ? undefined : 'outline'}
+            size="sm"
+            onClick={() => setViewedRound(r)}
+          >
+            Runde {r}
+          </Button>
+        ))}
+      </div>
+
+      {isViewingPastRound && (
+        <Alert>
+          <AlertDescription className="flex items-center justify-between gap-3">
+            <span>Du siehst eine bereits abgeschlossene Runde — nicht die aktuell aktive Runde.</span>
+            <Button size="sm" onClick={() => setViewedRound(null)}>Zur aktuellen Runde</Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {error && (
         <Alert>
@@ -213,13 +242,13 @@ export default function SwissResultsPage() {
         <Alert>
           <AlertDescription>Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.</AlertDescription>
         </Alert>
-      ) : (
+      ) : !isViewingPastRound ? (
         <Button onClick={handleAdvance} disabled={!allEvaluated}>
           Nächste Runde auslosen
         </Button>
-      )}
+      ) : null}
 
-      {manualPairingNeeded && (
+      {!isViewingPastRound && manualPairingNeeded && (
         <div className="border border-border rounded-md p-4 bg-card space-y-3">
           <p className="text-sm font-medium">
             Automatische Paarung nicht möglich — bitte Paarungen für die nächste Runde manuell zuweisen.

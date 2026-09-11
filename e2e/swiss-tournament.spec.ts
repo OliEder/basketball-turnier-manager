@@ -54,3 +54,52 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
   await expect(page.getByRole('table')).toBeVisible()
   await expect(page.getByRole('cell', { name: 'Team A' })).toBeVisible()
 })
+
+test('lets the organizer navigate back to a completed round and correct a result through the UI', async ({ page }) => {
+  await page.getByRole('link', { name: 'Teams' }).click()
+  for (const name of ['Team A', 'Team B', 'Team C', 'Team D']) {
+    await addTeam(page, name)
+  }
+  await expect(page.getByText('4 Teams')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await selectMode(page, 'Einstufungsturnier (Schweizer System)')
+  await page.getByLabel('Anzahl Runden').fill('2')
+
+  await page.goto('/schedule')
+  await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
+  await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
+
+  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await expect(page.getByText(/Runde 1 von 2/)).toBeVisible()
+
+  const homeInputs = page.getByLabel(/^Ergebnis Heim, Spiel/)
+  const gameCount = await homeInputs.count()
+  for (let i = 0; i < gameCount; i++) {
+    await page.getByLabel(/^Ergebnis Heim, Spiel/).nth(i).fill('20')
+    await page.getByLabel(/^Ergebnis Auswärts, Spiel/).nth(i).fill('10')
+  }
+  await page.getByRole('button', { name: 'Nächste Runde auslosen' }).click()
+
+  await expect(page.getByText(/Runde 2 von 2/)).toBeVisible()
+  await expect(page.getByText(/bereits abgeschlossene Runde/)).not.toBeVisible()
+  await expect(page.getByRole('button', { name: 'Nächste Runde auslosen' })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
+
+  await expect(page.getByText(/bereits abgeschlossene Runde/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Nächste Runde auslosen' })).not.toBeVisible()
+
+  const correctButtons = page.getByRole('button', { name: 'Korrigieren' })
+  await correctButtons.first().click()
+
+  const correctedHomeInput = page.getByLabel(/^Korrigiertes Ergebnis Heim, Spiel/).first()
+  await correctedHomeInput.fill('55')
+  await page.getByRole('button', { name: 'Speichern' }).first().click()
+
+  await expect(page.getByText('55')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Zur aktuellen Runde' }).click()
+  await expect(page.getByText(/Runde 2 von 2/)).toBeVisible()
+  await expect(page.getByText(/bereits abgeschlossene Runde/)).not.toBeVisible()
+})

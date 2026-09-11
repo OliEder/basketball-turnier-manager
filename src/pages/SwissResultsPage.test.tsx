@@ -180,6 +180,75 @@ describe('SwissResultsPage', () => {
     ).toThrow('Ergebnis kann nicht mehr korrigiert werden — die nächste Runde wurde bereits ausgewertet')
   })
 
+  it('shows the active round with no non-active-round warning right after advancing', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of games) {
+      fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${g.gameNumber}`), { target: { value: '20' } })
+      fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
+    }
+    fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
+
+    expect(screen.getByText(/runde 2 von 2/i)).toBeInTheDocument()
+    expect(screen.queryByText(/bereits abgeschlossene runde/i)).not.toBeInTheDocument()
+  })
+
+  it('lets the organizer navigate back to a completed round and shows a clear non-active-round indicator', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const round1Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${g.gameNumber}`), { target: { value: '20' } })
+      fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
+    }
+    fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
+
+    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+
+    expect(screen.getByText(/bereits abgeschlossene runde/i)).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /korrigieren/i }).length).toBeGreaterThan(0)
+    expect(screen.queryByRole('button', { name: /nächste runde auslosen/i })).not.toBeInTheDocument()
+  })
+
+  it('returns to the active round in one click from a past round view', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const round1Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${g.gameNumber}`), { target: { value: '20' } })
+      fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
+    }
+    fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+    expect(screen.getByText(/bereits abgeschlossene runde/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /zur aktuellen runde/i }))
+
+    expect(screen.queryByText(/bereits abgeschlossene runde/i)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /nächste runde auslosen/i })).toBeInTheDocument()
+  })
+
+  it('lets the organizer correct a result of a past round after navigating back to it', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const round1Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      fireEvent.change(screen.getByLabelText(`Ergebnis Heim, Spiel ${g.gameNumber}`), { target: { value: '20' } })
+      fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
+    }
+    fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+
+    fireEvent.click(screen.getAllByRole('button', { name: /korrigieren/i })[0])
+    const homeInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${round1Games[0].gameNumber}`)
+    fireEvent.change(homeInput, { target: { value: '30' } })
+    fireEvent.click(screen.getAllByRole('button', { name: /speichern/i })[0])
+
+    const updated = useTournamentStore.getState().schedule!.games.find(g => g.id === round1Games[0].id)!
+    expect(updated.periodScores).toEqual([{ period: 1, homeScore: 30, awayScore: 10 }])
+  })
+
   it('marks a team withdrawn and cancels its open game when the organizer confirms', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     setupSwissTournament(4, 2)
