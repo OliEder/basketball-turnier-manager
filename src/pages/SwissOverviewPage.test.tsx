@@ -117,4 +117,17 @@ describe('SwissOverviewPage', () => {
     const abbreviationEl = within(table).getByText('XYZ')
     expect(abbreviationEl).toHaveClass('md:hidden')
   })
+
+  it('shows an explanation of the sort order and buchholz calculation under the standings heading', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissOverviewPage />)
+    expect(screen.getByText(/Sortierung: 1\. Punkte, 2\. Buchholz-Zahl, 3\. Korbdifferenz/)).toBeInTheDocument()
+    expect(screen.getByText(/Buchholz-Zahl ist die Summe der Punkte aller bisherigen Gegner/)).toBeInTheDocument()
+  })
+
+  it('does not show a wins-draws-losses column in the standings table', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissOverviewPage />)
+    expect(screen.queryByText('S-U-N')).not.toBeInTheDocument()
+  })
 })

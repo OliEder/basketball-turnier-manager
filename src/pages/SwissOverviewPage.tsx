@@ -47,6 +47,10 @@ export default function SwissOverviewPage() {
       </div>
       <div>
         <h2 className="font-display text-lg uppercase mb-2">Tabelle</h2>
+        <p className="text-xs text-muted-foreground mb-2">
+          Sortierung: 1. Punkte, 2. Buchholz-Zahl, 3. Korbdifferenz. Die Buchholz-Zahl ist die Summe der
+          Punkte aller bisherigen Gegner (zeigt, wie stark die bisherigen Gegner abgeschnitten haben).
+        </p>
         <table className="w-full border-collapse">
           <thead>
             <tr className="text-left text-sm text-muted-foreground border-b border-border">
@@ -55,7 +59,6 @@ export default function SwissOverviewPage() {
               <th className="py-1 pr-2">Pkt</th>
               <th className="py-1 pr-2">Buchholz</th>
               <th className="py-1 pr-2">Diff</th>
-              <th className="py-1 pr-2">S-U-N</th>
             </tr>
           </thead>
           <tbody>
@@ -71,7 +74,6 @@ export default function SwissOverviewPage() {
                 <td className="py-1 pr-2">{s.points}</td>
                 <td className="py-1 pr-2">{s.buchholz}</td>
                 <td className="py-1 pr-2">{s.pointsDiff > 0 ? '+' : ''}{s.pointsDiff}</td>
-                <td className="py-1 pr-2">{s.wins}-{s.draws}-{s.losses}</td>
               </tr>
             ))}
           </tbody>

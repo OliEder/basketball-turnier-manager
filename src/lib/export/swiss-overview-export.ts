@@ -24,7 +24,6 @@ export function renderSwissOverviewHtml(
     <td>${s.points}</td>
     <td>${s.buchholz}</td>
     <td>${s.pointsDiff > 0 ? '+' : ''}${s.pointsDiff}</td>
-    <td>${s.wins}-${s.draws}-${s.losses}</td>
   </tr>`
   }).join('\n')
 
@@ -76,8 +75,12 @@ export function renderSwissOverviewHtml(
 <body>
   <h1>${escapeHtml(tournament.name)}</h1>
   <h2>Tabelle</h2>
+  <p style="font-size: 0.8rem; color: #64748b; margin: -0.25rem 0 0.5rem;">
+    Sortierung: 1. Punkte, 2. Buchholz-Zahl, 3. Korbdifferenz. Die Buchholz-Zahl ist die Summe der Punkte aller bisherigen Gegner
+    (zeigt, wie stark die bisherigen Gegner abgeschnitten haben).
+  </p>
   <table>
-    <thead><tr><th>#</th><th>Team</th><th>Pkt</th><th>Buchholz</th><th>Diff</th><th>S-U-N</th></tr></thead>
+    <thead><tr><th>#</th><th>Team</th><th>Pkt</th><th>Buchholz</th><th>Diff</th></tr></thead>
     <tbody>${standingsRows}</tbody>
   </table>
   <h2>Zeitplan</h2>

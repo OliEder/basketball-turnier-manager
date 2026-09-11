@@ -98,3 +98,16 @@ describe('renderSwissOverviewHtml schedule time vs score', () => {
     expect(html).toContain('09:30 – 10:00')
   })
 })
+
+describe('renderSwissOverviewHtml standings explanation', () => {
+  it('includes an explanation of the sort order and buchholz calculation near the standings table', () => {
+    const html = renderSwissOverviewHtml(tournament, schedule, standings)
+    expect(html).toMatch(/Sortierung: 1\. Punkte, 2\. Buchholz-Zahl, 3\. Korbdifferenz/)
+    expect(html).toMatch(/Buchholz-Zahl ist die Summe der Punkte aller bisherigen Gegner/)
+  })
+
+  it('does not include a wins-draws-losses column in the standings table', () => {
+    const html = renderSwissOverviewHtml(tournament, schedule, standings)
+    expect(html).not.toContain('S-U-N')
+  })
+})
