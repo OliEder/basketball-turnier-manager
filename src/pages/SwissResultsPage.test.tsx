@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
@@ -48,7 +48,7 @@ describe('SwissResultsPage', () => {
     expect(screen.getByText(/runde 1 von 2/i)).toBeInTheDocument()
     const teams = useTournamentStore.getState().tournament.teams
     for (const team of teams) {
-      expect(screen.getByText(new RegExp(team.name))).toBeInTheDocument()
+      expect(screen.getAllByText(new RegExp(team.name)).length).toBeGreaterThan(0)
     }
   })
 
@@ -104,5 +104,54 @@ describe('SwissResultsPage', () => {
     const round2Games = useTournamentStore.getState().schedule!.games.filter(g => g.round === 2 && g.field > 0)
     const assignedPairs = round2Games.map(g => [g.homeTeamId, g.awayTeamId])
     expect(assignedPairs).toEqual([[teamIds[0], teamIds[1]], [teamIds[2], teamIds[3]]])
+  })
+
+  it('lets the organizer correct an already-entered score', () => {
+    setupSwissTournament(4, 2)
+    const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
+    useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 15 }])
+
+    render(<SwissResultsPage />)
+    expect(screen.getByText('20 : 15')).toBeInTheDocument()
+
+    fireEvent.click(screen.getAllByRole('button', { name: /korrigieren/i })[0])
+    const homeInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`)
+    fireEvent.change(homeInput, { target: { value: '30' } })
+    fireEvent.click(screen.getAllByRole('button', { name: /speichern/i })[0])
+
+    const updated = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
+    expect(updated.periodScores).toEqual([{ period: 1, homeScore: 30, awayScore: 15 }])
+    expect(screen.getByText('30 : 15')).toBeInTheDocument()
+  })
+
+  it('surfaces an error when correction is no longer allowed because the next round already has a result', () => {
+    setupSwissTournament(4, 2)
+    const { schedule, submitGameResult, advanceSwissRound } = useTournamentStore.getState()
+    const round1Games = schedule!.games.filter(g => g.round === 1 && g.field > 0)
+    for (const g of round1Games) {
+      submitGameResult(g.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+    }
+    advanceSwissRound()
+    const round2Game = useTournamentStore.getState().schedule!.games.find(g => g.round === 2 && g.field > 0)!
+    useTournamentStore.getState().submitGameResult(round2Game.id, [{ period: 1, homeScore: 5, awayScore: 5 }])
+
+    expect(() =>
+      useTournamentStore.getState().correctGameResult(round1Games[0].id, [{ period: 1, homeScore: 1, awayScore: 1 }])
+    ).toThrow('Ergebnis kann nicht mehr korrigiert werden — die nächste Runde wurde bereits ausgewertet')
+  })
+
+  it('marks a team withdrawn and cancels its open game when the organizer confirms', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
+    const teamName = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!.name
+
+    fireEvent.click(screen.getByRole('button', { name: `${teamName} ausgeschieden` }))
+
+    const team = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
+    expect(team.withdrawnAfterRound).toBe(1)
+    const updatedGame = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
+    expect(updatedGame.cancelledReason).toBe('withdrawal')
   })
 })

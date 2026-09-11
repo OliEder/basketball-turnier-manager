@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function SwissResultsPage() {
-  const { tournament, schedule, submitGameResult, advanceSwissRound, advanceSwissRoundManually } = useTournamentStore()
+  const { tournament, schedule, submitGameResult, advanceSwissRound, advanceSwissRoundManually, withdrawTeam, correctGameResult } = useTournamentStore()
   const [scores, setScores] = useState<Record<string, { home: string; away: string }>>({})
   const [error, setError] = useState<string | null>(null)
   const [manualPairingNeeded, setManualPairingNeeded] = useState(false)
   const [manualAssignments, setManualAssignments] = useState<Record<string, string>>({})
+  const [correctingGameId, setCorrectingGameId] = useState<string | null>(null)
 
   if (!schedule) {
     return (
@@ -98,11 +99,16 @@ export default function SwissResultsPage() {
             <div key={game.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
               <span className="text-sm font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
               <span className="flex-1 font-medium">{home} vs {away}</span>
-              {hasResult ? (
-                <span className="text-sm text-muted-foreground">
-                  {game.periodScores[0].homeScore} : {game.periodScores[0].awayScore}
-                </span>
-              ) : (
+              {hasResult && correctingGameId !== game.id ? (
+                <>
+                  <span className="text-sm text-muted-foreground">
+                    {game.periodScores[0].homeScore} : {game.periodScores[0].awayScore}
+                  </span>
+                  <Button variant="outline" size="sm" className="text-muted-foreground" onClick={() => setCorrectingGameId(game.id)}>
+                    Korrigieren
+                  </Button>
+                </>
+              ) : !hasResult ? (
                 <>
                   <Input
                     type="number"
@@ -119,6 +125,60 @@ export default function SwissResultsPage() {
                   />
                   <Button onClick={() => handleSubmit(game.id)}>Speichern</Button>
                 </>
+              ) : (
+                <>
+                  <Input
+                    type="number"
+                    className="w-16"
+                    defaultValue={game.periodScores[0].homeScore}
+                    aria-label={`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`}
+                    onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? String(game.periodScores[0].awayScore) } }))}
+                  />
+                  <span>:</span>
+                  <Input
+                    type="number"
+                    className="w-16"
+                    defaultValue={game.periodScores[0].awayScore}
+                    aria-label={`Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}`}
+                    onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? String(game.periodScores[0].homeScore), away: e.target.value } }))}
+                  />
+                  <Button onClick={() => {
+                    const entry = scores[game.id]
+                    if (!entry) { setCorrectingGameId(null); return }
+                    try {
+                      correctGameResult(game.id, [{ period: 1, homeScore: Number(entry.home), awayScore: Number(entry.away) }])
+                      setCorrectingGameId(null)
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : String(err))
+                    }
+                  }}>
+                    Speichern
+                  </Button>
+                </>
+              )}
+              {game.homeTeamId && game.awayTeamId && (
+                <div className="flex gap-1 ml-2 pl-2 border-l border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs text-muted-foreground opacity-70 hover:opacity-100"
+                    onClick={() => {
+                      if (confirm(`${home} als ausgeschieden markieren?`)) withdrawTeam(game.homeTeamId!)
+                    }}
+                  >
+                    {home} ausgeschieden
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs text-muted-foreground opacity-70 hover:opacity-100"
+                    onClick={() => {
+                      if (confirm(`${away} als ausgeschieden markieren?`)) withdrawTeam(game.awayTeamId!)
+                    }}
+                  >
+                    {away} ausgeschieden
+                  </Button>
+                </div>
               )}
             </div>
           )
