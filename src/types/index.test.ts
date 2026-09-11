@@ -5,8 +5,8 @@ describe('Type shapes', () => {
   it('Team has required fields', () => {
     const team: Team = {
       id: 'uuid-1',
-      name: 'Fibalon Baskets',
-      logoUrl: 'https://fibalon-baskets.de/logo.png',
+      name: 'Musterstadt Baskets',
+      logoUrl: 'https://example.com/logo.png',
       color: '#004174',
       contact: 'Max Mustermann',
       players: [],

@@ -20,7 +20,7 @@ export default function TournamentForm({ disabled = false }: { disabled?: boolea
           id="tourney-name"
           value={tournament.name}
           onChange={e => setTournamentName(e.target.value)}
-          placeholder="z.B. Fibalon Sommer-Cup 2026"
+          placeholder="z.B. Verbands-Einstufungsturnier 2026"
           disabled={disabled}
         />
       </div>

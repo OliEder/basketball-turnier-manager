@@ -14,10 +14,10 @@ describe('TeamForm', () => {
   it('calls onSubmit with team data', () => {
     const onSubmit = vi.fn()
     render(<TeamForm onSubmit={onSubmit} />)
-    fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Fibalon Baskets' } })
+    fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Musterstadt Baskets' } })
     fireEvent.submit(screen.getByRole('form'))
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Fibalon Baskets' })
+      expect.objectContaining({ name: 'Musterstadt Baskets' })
     )
   })
 

@@ -24,7 +24,7 @@ export default function AppShell() {
       <header className="border-b border-border bg-brand-primary-dark text-white">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-6">
           <span className="font-display text-lg uppercase tracking-tight">
-            FBNM Turniermanager
+            Basketball Turnier-Manager
           </span>
           <nav className="flex gap-1">
             {navItems.map(({ to, label, gated }) =>
