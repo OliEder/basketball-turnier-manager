@@ -3,6 +3,17 @@ import AxeBuilder from '@axe-core/playwright'
 import { addTeam, selectMode, setupSwissTournament } from './helpers'
 
 async function expectNoSeriousViolations(page: Page) {
+  // Wait for web fonts to finish loading/settling before measuring color contrast.
+  // Without this, axe-core can sample glyphs mid-swap between a fallback font and
+  // the intended web font, which is especially likely to misfire on a machine that
+  // also has a same-named system font installed (e.g. "Aller") — the two can race
+  // for which one paints the text, producing flaky, non-representative contrast
+  // readings that don't match the actual (correct) CSS color values. document.fonts.ready
+  // only guarantees the font-loading process has settled, not that every face resolved
+  // successfully, so a short fixed wait is added as a pragmatic buffer for the final paint.
+  await page.evaluate(() => document.fonts.ready)
+  await page.waitForTimeout(300)
+
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     .analyze()
