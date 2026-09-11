@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
-import type { TournamentConfig, Team, Schedule, GameSettings, Venue } from '@/types'
+import type { TournamentConfig, Team, Schedule, GameSettings, Venue, PeriodScore } from '@/types'
 import { saveTournament, loadTournament, saveSchedule, loadSchedule } from '@/lib/storage'
 import { generateSchedule } from '@/lib/schedule-generator'
 import { calcGameDurationMin, addMinutes } from '@/lib/game-duration'
@@ -51,6 +51,7 @@ interface TournamentStore {
   // Schedule actions
   generateAndSaveSchedule: () => void
   updateGameTime: (gameId: string, scheduledStart: string) => void
+  submitGameResult: (gameId: string, periodScores: PeriodScore[]) => void
   // Persistence
   loadFromStorage: () => void
 }
@@ -147,6 +148,22 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
       g.id === gameId
         ? { ...g, scheduledStart, scheduledEnd: addMinutes(scheduledStart, duration) }
         : g
+    )
+    const updated = { ...schedule, games: updatedGames }
+    set({ schedule: updated })
+    saveSchedule(updated)
+  },
+
+  submitGameResult: (gameId, periodScores) => {
+    const { schedule } = get()
+    if (!schedule) return
+    const game = schedule.games.find(g => g.id === gameId)
+    if (!game) return
+    if (!game.homeTeamId || !game.awayTeamId) {
+      throw new Error('Spiel hat noch keine feststehenden Teams')
+    }
+    const updatedGames = schedule.games.map(g =>
+      g.id === gameId ? { ...g, periodScores } : g
     )
     const updated = { ...schedule, games: updatedGames }
     set({ schedule: updated })
