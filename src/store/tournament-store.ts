@@ -1,9 +1,26 @@
-import { create } from 'zustand'
+import { create, type StoreApi } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
-import type { TournamentConfig, Team, Schedule, GameSettings, Venue, PeriodScore } from '@/types'
+import type { TournamentConfig, Team, Schedule, GameSettings, Venue, PeriodScore, Game } from '@/types'
 import { saveTournament, loadTournament, saveSchedule, loadSchedule } from '@/lib/storage'
 import { generateSchedule } from '@/lib/schedule-generator'
 import { calcGameDurationMin, addMinutes } from '@/lib/game-duration'
+import { computeStandings } from '@/lib/standings'
+import { pairNextSwissRound } from '@/lib/swiss-pairing'
+
+export function getCurrentSwissRound(games: Game[]): number {
+  const decided = games.filter(g =>
+    g.stage === 'swiss' && (g.homeTeamId !== null || g.byeTeamId !== undefined)
+  )
+  if (decided.length === 0) return 0
+  return Math.max(...decided.map(g => g.round))
+}
+
+function isRoundFullyEvaluated(games: Game[], round: number): boolean {
+  const roundGames = games.filter(g => g.stage === 'swiss' && g.round === round)
+  return roundGames.every(g =>
+    g.byeTeamId !== undefined || g.cancelledReason || g.periodScores.length > 0
+  )
+}
 
 const DEFAULT_GAME_SETTINGS: GameSettings = {
   periodsCount: 4,
@@ -52,8 +69,39 @@ interface TournamentStore {
   generateAndSaveSchedule: () => void
   updateGameTime: (gameId: string, scheduledStart: string) => void
   submitGameResult: (gameId: string, periodScores: PeriodScore[]) => void
+  advanceSwissRound: () => void
+  advanceSwissRoundManually: (pairs: [string, string][], byeTeamId?: string) => void
   // Persistence
   loadFromStorage: () => void
+}
+
+function applySwissPairing(
+  set: StoreApi<TournamentStore>['setState'],
+  get: StoreApi<TournamentStore>['getState'],
+  round: number,
+  pairs: [string, string][],
+  byeTeamId: string | undefined,
+): void {
+  const { schedule } = get()
+  if (!schedule) return
+  const placeholders = schedule.games.filter(g => g.stage === 'swiss' && g.round === round)
+  const teamSlots = placeholders.filter(g => g.field > 0)
+  const byeSlot = placeholders.find(g => g.field === 0)
+
+  const updatedGames = schedule.games.map(g => {
+    const slotIndex = teamSlots.indexOf(g)
+    if (slotIndex !== -1 && pairs[slotIndex]) {
+      return { ...g, homeTeamId: pairs[slotIndex][0], awayTeamId: pairs[slotIndex][1], homeLabel: undefined, awayLabel: undefined }
+    }
+    if (byeSlot && g.id === byeSlot.id && byeTeamId) {
+      return { ...g, byeTeamId }
+    }
+    return g
+  })
+
+  const updated = { ...schedule, games: updatedGames }
+  set({ schedule: updated })
+  saveSchedule(updated)
 }
 
 export const useTournamentStore = create<TournamentStore>((set, get) => ({
@@ -168,6 +216,33 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
     const updated = { ...schedule, games: updatedGames }
     set({ schedule: updated })
     saveSchedule(updated)
+  },
+
+  advanceSwissRound: () => {
+    const { schedule, tournament } = get()
+    if (!schedule) return
+    const currentRound = getCurrentSwissRound(schedule.games)
+    if (!isRoundFullyEvaluated(schedule.games, currentRound)) {
+      throw new Error('Runde ist noch nicht vollständig ausgewertet')
+    }
+    const standings = computeStandings(tournament.teams, schedule.games, currentRound)
+    const playedPairs = new Set(
+      schedule.games
+        .filter(g => g.homeTeamId && g.awayTeamId)
+        .map(g => [g.homeTeamId!, g.awayTeamId!].sort().join('|'))
+    )
+    const pairingResult = pairNextSwissRound({ standings, playedPairs })
+    applySwissPairing(set, get, currentRound + 1, pairingResult.pairs, pairingResult.byeTeamId)
+  },
+
+  advanceSwissRoundManually: (pairs, byeTeamId) => {
+    const { schedule } = get()
+    if (!schedule) return
+    const currentRound = getCurrentSwissRound(schedule.games)
+    if (!isRoundFullyEvaluated(schedule.games, currentRound)) {
+      throw new Error('Runde ist noch nicht vollständig ausgewertet')
+    }
+    applySwissPairing(set, get, currentRound + 1, pairs, byeTeamId)
   },
 
   loadFromStorage: () => {
