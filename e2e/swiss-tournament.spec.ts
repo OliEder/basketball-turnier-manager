@@ -52,7 +52,9 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
 
   await page.getByRole('link', { name: 'Turnierübersicht' }).click()
   await expect(page.getByRole('table')).toBeVisible()
-  await expect(page.getByRole('cell', { name: 'Team A' })).toBeVisible()
+  // "Team A".."Team E" leiten alle das identische Kürzel "TEA" ab (gleiches 3-Buchstaben-
+  // Präfix, kein Endziffer-Fall) — daher 5 Zellen statt einer eindeutigen erwarten.
+  await expect(page.getByRole('cell', { name: 'TEA' })).toHaveCount(5)
 })
 
 test('lets the organizer navigate back to a completed round and correct a result through the UI', async ({ page }) => {
