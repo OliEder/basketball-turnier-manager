@@ -1,5 +1,6 @@
 import type { TournamentConfig, Schedule } from '@/types'
 import type { TeamStanding } from '@/lib/standings'
+import { getTeamAbbreviation } from '@/lib/utils'
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -12,27 +13,35 @@ export function renderSwissOverviewHtml(
 ): string {
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
 
-  const standingsRows = standings.map((s, i) => `<tr>
+  const standingsRows = standings.map((s, i) => {
+    const team = teamMap.get(s.teamId)
+    const displayName = team ? getTeamAbbreviation(team) : '?'
+    const fullName = team?.name ?? '?'
+    return `<tr>
     <td>${i + 1}</td>
-    <td>${escapeHtml(teamMap.get(s.teamId)?.name ?? '?')}${s.withdrawn ? ' (ausgeschieden)' : ''}</td>
+    <td title="${escapeHtml(fullName)}">${escapeHtml(displayName)}${s.withdrawn ? ' (ausgeschieden)' : ''}</td>
     <td>${s.points}</td>
     <td>${s.buchholz}</td>
     <td>${s.pointsDiff > 0 ? '+' : ''}${s.pointsDiff}</td>
     <td>${s.wins}-${s.draws}-${s.losses}</td>
-  </tr>`).join('\n')
+  </tr>`
+  }).join('\n')
 
   const rounds = [...new Set(schedule.games.map(g => g.round))].sort((a, b) => a - b)
   const scheduleSections = rounds.map(round => {
     const rows = schedule.games
       .filter(g => g.round === round && g.field > 0)
       .map(g => {
-        const home = escapeHtml(g.homeTeamId ? (teamMap.get(g.homeTeamId)?.name ?? '?') : (g.homeLabel ?? '?'))
-        const away = escapeHtml(g.awayTeamId ? (teamMap.get(g.awayTeamId)?.name ?? '?') : (g.awayLabel ?? '?'))
+        const homeTeam = g.homeTeamId ? teamMap.get(g.homeTeamId) : undefined
+        const awayTeam = g.awayTeamId ? teamMap.get(g.awayTeamId) : undefined
+        const home = escapeHtml(homeTeam ? getTeamAbbreviation(homeTeam) : (g.homeLabel ?? '?'))
+        const away = escapeHtml(awayTeam ? getTeamAbbreviation(awayTeam) : (g.awayLabel ?? '?'))
+        const pairingTitle = escapeHtml([homeTeam?.name, awayTeam?.name].filter(Boolean).join(' vs '))
         return `<tr>
           <td>${g.gameNumber}</td>
           <td>Feld ${g.field}</td>
           <td>${g.scheduledStart} – ${g.scheduledEnd}</td>
-          <td>${home} vs ${away}</td>
+          <td title="${pairingTitle}">${home} vs ${away}</td>
         </tr>`
       }).join('\n')
     return `<h3>Runde ${round}</h3>

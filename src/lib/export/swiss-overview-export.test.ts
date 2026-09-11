@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { renderSwissOverviewHtml } from './swiss-overview-export'
+import { getTeamAbbreviation } from '@/lib/utils'
 import type { TournamentConfig, Schedule } from '@/types'
 import type { TeamStanding } from '@/lib/standings'
 
@@ -36,11 +37,11 @@ const standings: TeamStanding[] = [
 ]
 
 describe('renderSwissOverviewHtml', () => {
-  it('includes tournament name, team names, and standings', () => {
+  it('includes tournament name, team abbreviations, and standings', () => {
     const html = renderSwissOverviewHtml(tournament, schedule, standings)
     expect(html).toContain('Einstufungsturnier')
-    expect(html).toContain('Team A')
-    expect(html).toContain('Team B')
+    expect(html).toContain(getTeamAbbreviation(tournament.teams[0]))
+    expect(html).toContain(getTeamAbbreviation(tournament.teams[1]))
     expect(html).toContain('@media print')
   })
 
@@ -48,6 +49,32 @@ describe('renderSwissOverviewHtml', () => {
     const maliciousTournament: TournamentConfig = {
       ...tournament,
       teams: [{ ...tournament.teams[0], name: '<script>alert(1)</script>' }],
+    }
+    const html = renderSwissOverviewHtml(maliciousTournament, schedule, standings)
+    expect(html).not.toContain('<script>alert(1)</script>')
+    expect(html).toContain('&lt;script&gt;')
+  })
+})
+
+describe('renderSwissOverviewHtml team abbreviation', () => {
+  it('shows the team abbreviation instead of the full name, with the full name as a tooltip', () => {
+    const tournamentWithAbbrev: TournamentConfig = {
+      ...tournament,
+      teams: [
+        { ...tournament.teams[0], abbreviation: 'TMA' },
+        tournament.teams[1],
+      ],
+    }
+    const html = renderSwissOverviewHtml(tournamentWithAbbrev, schedule, standings)
+    expect(html).toContain('TMA')
+    expect(html).toContain('title="Team A"')
+    expect(html).toContain(getTeamAbbreviation(tournament.teams[1]))
+  })
+
+  it('escapes HTML in a malicious abbreviation', () => {
+    const maliciousTournament: TournamentConfig = {
+      ...tournament,
+      teams: [{ ...tournament.teams[0], abbreviation: '<script>alert(1)</script>' }],
     }
     const html = renderSwissOverviewHtml(maliciousTournament, schedule, standings)
     expect(html).not.toContain('<script>alert(1)</script>')
