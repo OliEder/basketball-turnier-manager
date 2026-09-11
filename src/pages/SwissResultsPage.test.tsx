@@ -270,11 +270,38 @@ describe('SwissResultsPage', () => {
     const team = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
     const teamAbbreviation = getTeamAbbreviation(team)
 
-    fireEvent.click(screen.getByRole('button', { name: `${teamAbbreviation} ausgeschieden` }))
+    fireEvent.click(screen.getByRole('button', { name: `${teamAbbreviation} zurückziehen` }))
 
     const updatedTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
     expect(updatedTeam.withdrawnAfterRound).toBe(1)
     const updatedGame = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
     expect(updatedGame.cancelledReason).toBe('withdrawal')
+  })
+
+  it('shows the score as 0:0 with no editable inputs once a game is cancelled by a withdrawal', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const teams = useTournamentStore.getState().tournament.teams
+    const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
+    const teamAbbreviation = getTeamAbbreviation(teams.find(t => t.id === game.homeTeamId)!)
+
+    fireEvent.click(screen.getByRole('button', { name: `${teamAbbreviation} zurückziehen` }))
+
+    expect(screen.queryByLabelText(`Ergebnis Heim, Spiel ${game.gameNumber}`)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(`Ergebnis Auswärts, Spiel ${game.gameNumber}`)).not.toBeInTheDocument()
+  })
+
+  it('shows a solid red withdrawn badge instead of the withdraw button once a team has been withdrawn', () => {
+    setupSwissTournament(4, 2)
+    render(<SwissResultsPage />)
+    const teams = useTournamentStore.getState().tournament.teams
+    const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
+    const teamAbbreviation = getTeamAbbreviation(teams.find(t => t.id === game.homeTeamId)!)
+
+    fireEvent.click(screen.getByRole('button', { name: `${teamAbbreviation} zurückziehen` }))
+
+    expect(screen.queryByRole('button', { name: `${teamAbbreviation} zurückziehen` })).not.toBeInTheDocument()
+    const badge = screen.getByText(`${teamAbbreviation} zurückgezogen`)
+    expect(badge).toHaveClass('bg-destructive')
   })
 })

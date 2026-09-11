@@ -17,16 +17,22 @@ test('withdrawing a team mid-tournament does not permanently block round progres
   await expect(advanceButton).toBeDisabled()
 
   // Das zweite (noch nicht befüllte) Spiel ist jetzt die letzte Zeile mit einem leeren
-  // Eingabefeld. Zeile über das (accessible) Eingabefeld statt über CSS-Klassen ermitteln,
-  // dann eines der beiden "ausgeschieden"-Buttons in dieser Zeile anklicken (welches der
-  // beiden Teams betroffen ist, ist für diesen Test irrelevant).
-  const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/).last()
-  const remainingRow = page.locator('div').filter({ has: openInput }).last()
-  const withdrawButtons = remainingRow.getByRole('button', { name: /ausgeschieden$/ })
+  // Eingabefeld. Zeile über die feste Spielzeilen-Klasse ermitteln (eine pro Spiel der
+  // Runde), dann eines der beiden "zurückziehen"-Buttons in dieser Zeile anklicken (welches
+  // der beiden Teams betroffen ist, ist für diesen Test irrelevant).
+  const gameRows = page.locator('div.py-2.border-b')
+  await expect(gameRows).toHaveCount(2)
+  const remainingRow = gameRows.last()
+  const withdrawButtons = remainingRow.getByRole('button', { name: /zurückziehen$/ })
   await expect(withdrawButtons).toHaveCount(2)
 
   page.once('dialog', dialog => dialog.accept())
   await withdrawButtons.first().click()
+
+  // Der geklickte Button ist einem roten Status-Badge gewichen, nur noch ein
+  // "zurückziehen"-Button (für das Gegnerteam) bleibt in dieser Zeile übrig.
+  await expect(remainingRow.getByRole('button', { name: /zurückziehen$/ })).toHaveCount(1)
+  await expect(remainingRow.getByText(/zurückgezogen$/)).toBeVisible()
 
   // Die Runde gilt jetzt als vollständig ausgewertet (das zweite Spiel wurde durch den
   // Rückzug annulliert, das erste hat ein lokal befülltes, gültiges Ergebnis), daher darf
@@ -140,11 +146,11 @@ test('withdrawal that makes the active team count odd reshapes a not-yet-drawn f
   await expect(page.getByText(/Runde 2 von 4/)).toBeVisible()
 
   // In Runde 2 ein noch offenes Spiel finden (gleiches Muster wie im ersten Test dieser
-  // Datei) und eines der beiden beteiligten Teams als ausgeschieden markieren. 6 -> 5 aktive
+  // Datei) und eines der beiden beteiligten Teams zurückziehen. 6 -> 5 aktive
   // Teams macht die Teamzahl ungerade.
   const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
   const withdrawRow = page.locator('div').filter({ has: openInput }).last()
-  const withdrawButtons = withdrawRow.getByRole('button', { name: /ausgeschieden$/ })
+  const withdrawButtons = withdrawRow.getByRole('button', { name: /zurückziehen$/ })
   await expect(withdrawButtons).toHaveCount(2)
   page.once('dialog', dialog => dialog.accept())
   await withdrawButtons.first().click()

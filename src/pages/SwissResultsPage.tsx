@@ -140,17 +140,21 @@ export default function SwissResultsPage() {
                 className="grid items-center gap-2"
                 style={{ gridTemplateColumns: '140px 1fr 42px 16px 42px 1fr 140px auto auto' }}
               >
-                {canWithdraw ? (
+                {homeTeam?.withdrawnAfterRound !== undefined ? (
+                  <span className="text-xs font-semibold uppercase tracking-wide rounded-sm bg-destructive text-destructive-foreground w-full min-w-0 truncate px-3 py-1.5 text-center">
+                    {home} zurückgezogen
+                  </span>
+                ) : canWithdraw ? (
                   <Button
                     variant="outline"
                     size="sm"
                     className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
-                    title={`${home} ausgeschieden`}
+                    title={`${home} zurückziehen`}
                     onClick={() => {
-                      if (confirm(`${home} als ausgeschieden markieren?`)) withdrawTeam(game.homeTeamId!)
+                      if (confirm(`${home} als zurückgezogen markieren?`)) withdrawTeam(game.homeTeamId!)
                     }}
                   >
-                    {home} ausgeschieden
+                    {home} zurückziehen
                   </Button>
                 ) : <span />}
 
@@ -202,17 +206,21 @@ export default function SwissResultsPage() {
                   {awayTeam ? <TeamNameDisplay team={awayTeam} className="text-left" /> : <span className="font-medium truncate">{away}</span>}
                 </div>
 
-                {canWithdraw ? (
+                {awayTeam?.withdrawnAfterRound !== undefined ? (
+                  <span className="text-xs font-semibold uppercase tracking-wide rounded-sm bg-destructive text-destructive-foreground w-full min-w-0 truncate px-3 py-1.5 text-center">
+                    {away} zurückgezogen
+                  </span>
+                ) : canWithdraw ? (
                   <Button
                     variant="outline"
                     size="sm"
                     className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
-                    title={`${away} ausgeschieden`}
+                    title={`${away} zurückziehen`}
                     onClick={() => {
-                      if (confirm(`${away} als ausgeschieden markieren?`)) withdrawTeam(game.awayTeamId!)
+                      if (confirm(`${away} als zurückgezogen markieren?`)) withdrawTeam(game.awayTeamId!)
                     }}
                   >
-                    {away} ausgeschieden
+                    {away} zurückziehen
                   </Button>
                 ) : <span />}
 
