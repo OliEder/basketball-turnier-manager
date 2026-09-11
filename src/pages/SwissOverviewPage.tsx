@@ -65,7 +65,7 @@ export default function SwissOverviewPage() {
                 <td className="py-1 pr-2 font-medium max-w-0 w-full">
                   <div className="flex items-center gap-1">
                     <TeamNameDisplay team={teamMap.get(s.teamId)!} />
-                    {s.withdrawn && <span className="text-muted-foreground text-xs shrink-0">(ausgeschieden)</span>}
+                    {s.withdrawn && <span className="text-muted-foreground text-xs shrink-0">(zurückgezogen)</span>}
                   </div>
                 </td>
                 <td className="py-1 pr-2">{s.points}</td>
