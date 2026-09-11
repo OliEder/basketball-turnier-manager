@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
+import { getTeamAbbreviation } from '@/lib/utils'
 import SwissOverviewPage from './SwissOverviewPage'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
@@ -47,7 +48,8 @@ describe('SwissOverviewPage', () => {
     render(<SwissOverviewPage />)
     const teams = useTournamentStore.getState().tournament.teams
     for (const team of teams) {
-      expect(screen.getAllByText(new RegExp(`^${team.name}$`)).length).toBeGreaterThan(0)
+      const abbrev = getTeamAbbreviation(team)
+      expect(screen.getAllByText(new RegExp(`^${abbrev}$`)).length).toBeGreaterThan(0)
     }
     expect(screen.getByText('Runde 1')).toBeInTheDocument()
     expect(screen.getByText('Runde 2')).toBeInTheDocument()
@@ -71,11 +73,23 @@ describe('SwissOverviewPage', () => {
     const { schedule, submitGameResult, tournament } = useTournamentStore.getState()
     const game = schedule!.games.find(g => g.round === 1 && g.field > 0)!
     submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
-    const winnerName = tournament.teams.find(t => t.id === game.homeTeamId)!.name
+    const winner = tournament.teams.find(t => t.id === game.homeTeamId)!
 
     render(<SwissOverviewPage />)
     const table = screen.getByRole('table')
-    const winnerRow = within(table).getByText(winnerName).closest('tr')!
+    const winnerRow = within(table).getByText(getTeamAbbreviation(winner)).closest('tr')!
     expect(winnerRow).toHaveTextContent('2')
+  })
+
+  it('shows an explicitly set team abbreviation instead of the derived one', () => {
+    setupSwissTournament(4, 2)
+    const team = useTournamentStore.getState().tournament.teams[0]
+    useTournamentStore.getState().updateTeam(team.id, { abbreviation: 'XYZ' })
+
+    render(<SwissOverviewPage />)
+
+    const table = screen.getByRole('table')
+    expect(within(table).getByText('XYZ')).toBeInTheDocument()
+    expect(within(table).queryByText(team.name)).not.toBeInTheDocument()
   })
 })
