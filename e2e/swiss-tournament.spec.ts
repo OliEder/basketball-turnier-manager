@@ -24,8 +24,7 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
   const totalRounds = Number(totalRoundsStr)
   expect(totalRounds).toBeGreaterThan(0)
 
-  // Zeitplan generieren (Route /schedule, kein Nav-Link im Swiss-Modus)
-  await page.goto('/schedule')
+  // Zeitplan generieren (auf der Konfigurationsseite)
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
@@ -68,7 +67,6 @@ test('lets the organizer navigate back to a completed round and correct a result
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
   await page.getByLabel('Anzahl Runden').fill('2')
 
-  await page.goto('/schedule')
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 

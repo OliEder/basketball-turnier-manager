@@ -29,7 +29,6 @@ export async function setupSwissTournament(page: Page, teamNames: string[], swis
     await page.getByLabel('Anzahl Runden').fill(String(swissRounds))
   }
 
-  await page.goto('/schedule')
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
