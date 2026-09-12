@@ -62,11 +62,10 @@ test('imports a 64-team, 16-group tournament and generates a correct schedule', 
   fs.writeFileSync(filePath, JSON.stringify(fixture))
 
   try {
-    await page.goto('/')
+    await page.goto('/config')
     await page.evaluate(() => localStorage.clear())
     await page.reload()
 
-    await page.getByRole('link', { name: 'Konfiguration' }).click()
     await page.getByLabel('JSON importieren').setInputFiles(filePath)
 
     await expect(page.getByText('Aktuelles Turnier: Großturnier 64')).toBeVisible()
