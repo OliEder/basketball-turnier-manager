@@ -39,6 +39,12 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
   const clocks = [...fieldNextFree]
 
   if (finalsBracketSize === 4) {
+    // This branch's scheduling logic (field-clock management, semifinal + third-place + final
+    // generation) duplicates the same ideas now implemented generically in
+    // finals-variant-generator.ts's buildBracket() (which supports 2/4/8/16/32). Left as-is
+    // rather than migrated to call buildBracket() directly, to keep that addition low-risk and
+    // non-regressing for this pre-existing feature -- a future cleanup could have this branch
+    // call buildBracket({ bracketSize: 4, ... }) instead of hand-rolling the same shape.
     const sf1Start = findNextSlot(maxTime(clocks[0], clocks[1] ?? clocks[0]), gameDuration, blackoutPeriods, availabilityEnd)
     if (!sf1Start) {
       throw new Error('Kein Zeitfenster für Halbfinale verfügbar — Hallenzeit reicht nicht aus')

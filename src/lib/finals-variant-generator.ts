@@ -144,6 +144,9 @@ export function buildBracket(input: BuildBracketInput): Game[] {
         round: roundIndex + 1,
         gameNumber: gameNumber++,
         periodScores: [],
+        // matchIndex*2 / matchIndex*2+1: standard binary-tree parent-child indexing -- this
+        // round's match i is fed by the previous round's matches at 2i and 2i+1 (see the doc
+        // comment above this function for the general statement of this invariant).
         ...(isFirstRound
           ? {
               homeSourceRank: sourceRanks[matchIndex * 2],
