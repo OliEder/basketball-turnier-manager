@@ -1,0 +1,635 @@
+{
+  "tournament": {
+    "id": "demo-round-robin",
+    "name": "Sommerturnier Musterstadt (Jeder gegen Jeden)",
+    "mode": "round-robin",
+    "fields": 3,
+    "gameSettings": {
+      "periodsCount": 4,
+      "periodDurationMin": 8,
+      "breakBetweenPeriodsMin": 1,
+      "halfTimeBreakMin": 5,
+      "bufferBetweenGamesMin": 5,
+      "breakBetweenRoundsMin": 15,
+      "awardCeremonyMin": 15
+    },
+    "venue": {
+      "name": "Sporthalle am Ring",
+      "availabilityWindows": [
+        {
+          "start": "09:00",
+          "end": "20:00"
+        }
+      ],
+      "blackoutPeriods": [
+        {
+          "start": "12:30",
+          "end": "13:30",
+          "reason": "Mittagspause"
+        }
+      ],
+      "setupBufferMin": 30,
+      "teardownBufferMin": 30
+    },
+    "teams": [
+      {
+        "id": "t1",
+        "name": "Musterstadt Baskets",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t2",
+        "name": "SG Nord",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t3",
+        "name": "TV Süd",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t4",
+        "name": "BC West",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t5",
+        "name": "Rhein Kings",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t6",
+        "name": "Main Eagles",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t7",
+        "name": "Neckar Bulls",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t8",
+        "name": "Alb Panthers",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t9",
+        "name": "Donau Hawks",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      }
+    ]
+  },
+  "schedule": {
+    "id": "b28a4e42-b1d1-4c64-a0f3-cf1c2da1c3ad",
+    "tournamentId": "demo-round-robin",
+    "generatedAt": "2026-09-12T12:15:50.978Z",
+    "games": [
+      {
+        "id": "261a1a8b-1c0f-42d6-8ad1-a54d772e2fc8",
+        "homeTeamId": "t2",
+        "awayTeamId": "t9",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "09:30",
+        "scheduledEnd": "10:09",
+        "round": 1,
+        "gameNumber": 1,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 27,
+            "awayScore": 21
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "50e435aa-1382-455b-84f6-8db5aa5b2bd5",
+        "homeTeamId": "t3",
+        "awayTeamId": "t8",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "09:30",
+        "scheduledEnd": "10:09",
+        "round": 1,
+        "gameNumber": 2,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 24,
+            "awayScore": 25
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "1142900a-eff9-4fc7-905c-4ac7ee4c5599",
+        "homeTeamId": "t4",
+        "awayTeamId": "t7",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "09:30",
+        "scheduledEnd": "10:09",
+        "round": 1,
+        "gameNumber": 3,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 30,
+            "awayScore": 20
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "1cdbbe8e-0fe1-4dc2-879c-c9263d5194e5",
+        "homeTeamId": "t5",
+        "awayTeamId": "t6",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "10:14",
+        "scheduledEnd": "10:53",
+        "round": 1,
+        "gameNumber": 4,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 26,
+            "awayScore": 12
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "fef7d5b5-8317-4b0e-b988-987c43d49356",
+        "homeTeamId": "t1",
+        "awayTeamId": "t9",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "10:14",
+        "scheduledEnd": "10:53",
+        "round": 2,
+        "gameNumber": 5,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 20,
+            "awayScore": 20
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "4bfd7206-e0dc-4d24-9805-6c02d5a9d7c9",
+        "homeTeamId": "t2",
+        "awayTeamId": "t7",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "10:14",
+        "scheduledEnd": "10:53",
+        "round": 2,
+        "gameNumber": 6,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 27,
+            "awayScore": 26
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "c2f00267-bd1c-4a11-abdf-38c8521499ee",
+        "homeTeamId": "t3",
+        "awayTeamId": "t6",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "10:58",
+        "scheduledEnd": "11:37",
+        "round": 2,
+        "gameNumber": 7,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 27,
+            "awayScore": 21
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "da87cbbb-ce16-44af-bd17-02f2bedce81b",
+        "homeTeamId": "t4",
+        "awayTeamId": "t5",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "10:58",
+        "scheduledEnd": "11:37",
+        "round": 2,
+        "gameNumber": 8,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 23,
+            "awayScore": 24
+          }
+        ],
+        "groupId": "A"
+      },
+      {
+        "id": "a51b6bc0-5d2b-4b1c-b8db-830bed9c7276",
+        "homeTeamId": "t1",
+        "awayTeamId": "t8",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "10:58",
+        "scheduledEnd": "11:37",
+        "round": 3,
+        "gameNumber": 9,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "756bd668-8c45-447e-8e4b-db1f1bf64d79",
+        "homeTeamId": "t9",
+        "awayTeamId": "t7",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "11:42",
+        "scheduledEnd": "12:21",
+        "round": 3,
+        "gameNumber": 10,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "6eb16972-054b-49be-9093-bc726d3cd319",
+        "homeTeamId": "t2",
+        "awayTeamId": "t5",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "11:42",
+        "scheduledEnd": "12:21",
+        "round": 3,
+        "gameNumber": 11,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "a07b484f-f618-4ced-bf0e-54ab0f996800",
+        "homeTeamId": "t3",
+        "awayTeamId": "t4",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "11:42",
+        "scheduledEnd": "12:21",
+        "round": 3,
+        "gameNumber": 12,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "6472f5ba-2523-4d89-bc74-80941816bbbc",
+        "homeTeamId": "t1",
+        "awayTeamId": "t7",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "13:30",
+        "scheduledEnd": "14:09",
+        "round": 4,
+        "gameNumber": 13,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "f2cb90e3-5ae2-476d-8241-883b31eb4d78",
+        "homeTeamId": "t8",
+        "awayTeamId": "t6",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "13:30",
+        "scheduledEnd": "14:09",
+        "round": 4,
+        "gameNumber": 14,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "fdfe2cd1-4346-42e4-9278-901d76c310a2",
+        "homeTeamId": "t9",
+        "awayTeamId": "t5",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "13:30",
+        "scheduledEnd": "14:09",
+        "round": 4,
+        "gameNumber": 15,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "440a2bb6-ac49-4bf0-b2f3-fbc59955fd7b",
+        "homeTeamId": "t2",
+        "awayTeamId": "t3",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "14:14",
+        "scheduledEnd": "14:53",
+        "round": 4,
+        "gameNumber": 16,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "846d415d-c6a3-452d-b484-a30fb4b42e9b",
+        "homeTeamId": "t1",
+        "awayTeamId": "t6",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "14:14",
+        "scheduledEnd": "14:53",
+        "round": 5,
+        "gameNumber": 17,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "354d1bc5-1fce-40cd-a46a-a1a9e8b9e5bb",
+        "homeTeamId": "t7",
+        "awayTeamId": "t5",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "14:14",
+        "scheduledEnd": "14:53",
+        "round": 5,
+        "gameNumber": 18,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "09e2c9b5-470a-4a3a-bff6-1bfbdbed20e4",
+        "homeTeamId": "t8",
+        "awayTeamId": "t4",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "14:58",
+        "scheduledEnd": "15:37",
+        "round": 5,
+        "gameNumber": 19,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "2f16e9f6-01c2-4021-96e9-e64e58ff3595",
+        "homeTeamId": "t9",
+        "awayTeamId": "t3",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "14:58",
+        "scheduledEnd": "15:37",
+        "round": 5,
+        "gameNumber": 20,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "e3a0b734-db19-44fa-b0ca-e338d86771cc",
+        "homeTeamId": "t1",
+        "awayTeamId": "t5",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "14:58",
+        "scheduledEnd": "15:37",
+        "round": 6,
+        "gameNumber": 21,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "78e7b29f-c263-40cc-98d4-b56063664645",
+        "homeTeamId": "t6",
+        "awayTeamId": "t4",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "15:42",
+        "scheduledEnd": "16:21",
+        "round": 6,
+        "gameNumber": 22,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "2bda5927-a723-46d8-8a96-e687875503df",
+        "homeTeamId": "t7",
+        "awayTeamId": "t3",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "15:42",
+        "scheduledEnd": "16:21",
+        "round": 6,
+        "gameNumber": 23,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "321b2258-33d5-4cb8-b018-00334703767e",
+        "homeTeamId": "t8",
+        "awayTeamId": "t2",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "15:42",
+        "scheduledEnd": "16:21",
+        "round": 6,
+        "gameNumber": 24,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "0d48eca0-38e9-4181-ae7a-eb8118a8b6c3",
+        "homeTeamId": "t1",
+        "awayTeamId": "t4",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "16:26",
+        "scheduledEnd": "17:05",
+        "round": 7,
+        "gameNumber": 25,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "923590ee-760e-4679-a926-87d74714965d",
+        "homeTeamId": "t5",
+        "awayTeamId": "t3",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "16:26",
+        "scheduledEnd": "17:05",
+        "round": 7,
+        "gameNumber": 26,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "433119e1-4d58-4a57-9d4f-d43f4bb06ebf",
+        "homeTeamId": "t6",
+        "awayTeamId": "t2",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "16:26",
+        "scheduledEnd": "17:05",
+        "round": 7,
+        "gameNumber": 27,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "b890244a-a934-4fb1-9a5e-19a4925b940f",
+        "homeTeamId": "t8",
+        "awayTeamId": "t9",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "17:10",
+        "scheduledEnd": "17:49",
+        "round": 7,
+        "gameNumber": 28,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "e29fd39d-cbb5-4cfc-97ee-4269fdf6776f",
+        "homeTeamId": "t1",
+        "awayTeamId": "t3",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "17:10",
+        "scheduledEnd": "17:49",
+        "round": 8,
+        "gameNumber": 29,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "961df808-9705-4805-93ec-e577ce81c54b",
+        "homeTeamId": "t4",
+        "awayTeamId": "t2",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "17:10",
+        "scheduledEnd": "17:49",
+        "round": 8,
+        "gameNumber": 30,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "667cf19c-f4d7-4254-adf8-8c43a51eac88",
+        "homeTeamId": "t6",
+        "awayTeamId": "t9",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "17:54",
+        "scheduledEnd": "18:33",
+        "round": 8,
+        "gameNumber": 31,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "1bd1f43d-60cc-4635-896c-cdf75803f432",
+        "homeTeamId": "t7",
+        "awayTeamId": "t8",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "17:54",
+        "scheduledEnd": "18:33",
+        "round": 8,
+        "gameNumber": 32,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "9a29034c-514e-49d9-b53f-b8e370598514",
+        "homeTeamId": "t1",
+        "awayTeamId": "t2",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "17:54",
+        "scheduledEnd": "18:33",
+        "round": 9,
+        "gameNumber": 33,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "897da7e6-32b0-4ec9-a76a-36331d0c05c3",
+        "homeTeamId": "t4",
+        "awayTeamId": "t9",
+        "stage": "group",
+        "field": 1,
+        "scheduledStart": "18:38",
+        "scheduledEnd": "19:17",
+        "round": 9,
+        "gameNumber": 34,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "e4bff908-11f3-44fc-a02b-7f9956a5ba6e",
+        "homeTeamId": "t5",
+        "awayTeamId": "t8",
+        "stage": "group",
+        "field": 2,
+        "scheduledStart": "18:38",
+        "scheduledEnd": "19:17",
+        "round": 9,
+        "gameNumber": 35,
+        "periodScores": [],
+        "groupId": "A"
+      },
+      {
+        "id": "9f2dc5fb-3b5e-41c2-8b6b-714eef7f6e9a",
+        "homeTeamId": "t6",
+        "awayTeamId": "t7",
+        "stage": "group",
+        "field": 3,
+        "scheduledStart": "18:38",
+        "scheduledEnd": "19:17",
+        "round": 9,
+        "gameNumber": 36,
+        "periodScores": [],
+        "groupId": "A"
+      }
+    ],
+    "totalDurationMin": 587,
+    "estimatedEnd": "19:17"
+  },
+  "exportedAt": "2026-09-12T12:15:50.989Z"
+}
