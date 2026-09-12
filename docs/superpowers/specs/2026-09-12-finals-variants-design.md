@@ -147,6 +147,7 @@ Sichtbar nur bei `mode === 'round-robin+finals'` UND `groupCount > 1`:
 ### Neue Seite „Endrunde: Ergebnisse erfassen"
 
 Analog zu `GroupResultsPage` (gleiche Filter-/Eingabe-/Korrektur-Interaktion), aber:
+
 - Datenbasis: alle Spiele mit `stage !== 'group'`.
 - Zeilen-Tag: Bracket-/Rangstufen-Kennzeichnung (z. B. „Viertelfinale — Platz 1–4" oder „Rangstufe 2 — Platz 5–8") statt Gruppen-Tag.
 - Spiele mit noch unaufgelösten Platzhaltern (`homeTeamId === null`) werden nicht zur Ergebniseingabe angeboten (kein Team einzutragen), erscheinen aber informativ mit Platzhaltertext in der Liste.
