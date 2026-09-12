@@ -11,12 +11,17 @@ export interface PlayoffInput {
   fieldNextFree: string[]
   teamCount: number
   startGameNumber: number
+  // When provided (Endrunde 3: qualification restricted to each group's rank-1 team), seeds the
+  // semifinals' homeSourceRank/awaySourceRank in bracket order: [sf1.home, sf1.away, sf2.home,
+  // sf2.away] for a 4-bracket, [final.home, final.away] for a 2-bracket. Omitted for the
+  // pre-existing simple round-robin+finals feature, which has no group-phase qualification.
+  qualifierSourceRanks?: { groupId: string; rank: number }[]
 }
 
 export function generatePlayoffGames(input: PlayoffInput): Game[] {
   const {
     finalsBracketSize, fields, gameSettings, blackoutPeriods,
-    availabilityEnd, fieldNextFree, teamCount, startGameNumber,
+    availabilityEnd, fieldNextFree, teamCount, startGameNumber, qualifierSourceRanks,
   } = input
 
   if (teamCount < finalsBracketSize) {
@@ -53,6 +58,10 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       round: 2,
       gameNumber: gameNumber++,
       periodScores: [],
+      ...(qualifierSourceRanks && {
+        homeSourceRank: qualifierSourceRanks[0],
+        awaySourceRank: qualifierSourceRanks[1],
+      }),
     })
 
     let sf2Start: string
@@ -82,6 +91,10 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       round: 2,
       gameNumber: gameNumber++,
       periodScores: [],
+      ...(qualifierSourceRanks && {
+        homeSourceRank: qualifierSourceRanks[2],
+        awaySourceRank: qualifierSourceRanks[3],
+      }),
     })
 
     const latestAfterSemis = maxTime(
@@ -137,6 +150,8 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       round: 3,
       gameNumber: gameNumber++,
       periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1, outcome: 'loser' },
+      awaySourceSemifinal: { semifinalIndex: 2, outcome: 'loser' },
     })
 
     games.push({
@@ -152,6 +167,8 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       round: 3,
       gameNumber: gameNumber++,
       periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1, outcome: 'winner' },
+      awaySourceSemifinal: { semifinalIndex: 2, outcome: 'winner' },
     })
   } else {
     const latest = clocks.reduce((max, t) => maxTime(max, t), clocks[0])

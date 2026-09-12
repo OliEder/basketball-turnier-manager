@@ -80,12 +80,40 @@ describe('generatePlayoffGames', () => {
     expect(thirdPlace.stage).toBe('third-place')
     expect(thirdPlace.homeLabel).toBe('Verlierer HF 1')
     expect(thirdPlace.awayLabel).toBe('Verlierer HF 2')
+    expect(thirdPlace.homeSourceSemifinal).toEqual({ semifinalIndex: 1, outcome: 'loser' })
+    expect(thirdPlace.awaySourceSemifinal).toEqual({ semifinalIndex: 2, outcome: 'loser' })
 
     expect(final.stage).toBe('final')
     expect(final.homeLabel).toBe('Sieger HF 1')
     expect(final.awayLabel).toBe('Sieger HF 2')
     expect(final.field).toBe(1)
     expect(final.gameNumber).toBe(10)
+    expect(final.homeSourceSemifinal).toEqual({ semifinalIndex: 1, outcome: 'winner' })
+    expect(final.awaySourceSemifinal).toEqual({ semifinalIndex: 2, outcome: 'winner' })
+  })
+
+  it('sets homeSourceRank/awaySourceRank on semifinal games when qualifierSourceRanks is provided (Endrunde 3)', () => {
+    const games = generatePlayoffGames({
+      finalsBracketSize: 4,
+      fields: 2,
+      gameSettings,
+      blackoutPeriods: [],
+      availabilityEnd: '19:30',
+      fieldNextFree: ['11:00', '11:00'],
+      teamCount: 4,
+      startGameNumber: 1,
+      qualifierSourceRanks: [
+        { groupId: 'A', rank: 1 },
+        { groupId: 'D', rank: 1 },
+        { groupId: 'B', rank: 1 },
+        { groupId: 'C', rank: 1 },
+      ],
+    })
+    const [sf1, sf2] = games
+    expect(sf1.homeSourceRank).toEqual({ groupId: 'A', rank: 1 })
+    expect(sf1.awaySourceRank).toEqual({ groupId: 'D', rank: 1 })
+    expect(sf2.homeSourceRank).toEqual({ groupId: 'B', rank: 1 })
+    expect(sf2.awaySourceRank).toEqual({ groupId: 'C', rank: 1 })
   })
 
   it('bracket size 4 with 1 field runs semifinals, third-place game and final sequentially on field 1', () => {
