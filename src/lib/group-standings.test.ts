@@ -88,4 +88,41 @@ describe('computeGroupStandings', () => {
     const standings = computeGroupStandings(teams, games, 'A')
     expect(standings.every(s => s.points === 0)).toBe(true)
   })
+
+  it('awards walkover points to the surviving team when the home team withdrew after the FINALS stage (not just "group")', () => {
+    // Regression: the walkover-survivor lookup used to literal-match withdrawnAfterStage === 'group',
+    // so a team carrying withdrawnAfterStage: 'finals' was treated as NOT withdrawn here, flipping the
+    // walkover points to the wrong side. The correct check is "did either side withdraw at all".
+    const teams = [
+      { ...makeTeam('t1', 'Team 1'), withdrawnAfterStage: 'finals' as const },
+      makeTeam('t2', 'Team 2'),
+    ]
+    const games = [
+      makeGame({
+        homeTeamId: 't1', awayTeamId: 't2', cancelledReason: 'withdrawal',
+        periodScores: [{ period: 1, homeScore: 0, awayScore: 0 }],
+      }),
+    ]
+    const standings = computeGroupStandings(teams, games, 'A')
+    expect(standings.find(s => s.teamId === 't2')!.points).toBe(2)
+    expect(standings.find(s => s.teamId === 't1')!.points).toBe(0)
+  })
+
+  it('marks a team with any withdrawnAfterStage value as withdrawn, and excludes it from qualification-eligible ranking', () => {
+    const teams = [
+      makeTeam('t1', 'Team 1'),
+      { ...makeTeam('t2', 'Team 2'), withdrawnAfterStage: 'group' as const },
+    ]
+    // t2 won its only played game before withdrawing, then withdrew from its remaining game vs t1
+    // (walkover point to t1). t2 still outscores t1 on raw points if withdrawal isn't excluded.
+    const games = [
+      makeGame({
+        id: 'g1', homeTeamId: 't1', awayTeamId: 't2', cancelledReason: 'withdrawal',
+        periodScores: [{ period: 1, homeScore: 0, awayScore: 0 }],
+      }),
+    ]
+    const standings = computeGroupStandings(teams, games, 'A')
+    expect(standings.find(s => s.teamId === 't2')!.withdrawn).toBe(true)
+    expect(standings.find(s => s.teamId === 't1')!.withdrawn).toBe(false)
+  })
 })
