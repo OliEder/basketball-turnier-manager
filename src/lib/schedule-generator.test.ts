@@ -155,6 +155,51 @@ describe('generateSchedule', () => {
   })
 })
 
+describe('generateSchedule with doubleRoundRobin', () => {
+  it('doubles the number of group-stage games with reversed home/away in the return leg', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      doubleRoundRobin: true,
+    }
+    const schedule = generateSchedule(config)
+    // 4 teams, single leg = 6 games; double leg = 12
+    expect(schedule.games).toHaveLength(12)
+  })
+
+  it('return-leg games have home/away swapped compared to the first leg', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      doubleRoundRobin: true,
+    }
+    const schedule = generateSchedule(config)
+    const firstLegPairs = new Map(
+      schedule.games.filter(g => g.round <= 3).map(g => [
+        [g.homeTeamId, g.awayTeamId].sort().join('|'),
+        [g.homeTeamId, g.awayTeamId],
+      ]),
+    )
+    const returnLegGames = schedule.games.filter(g => g.round > 3)
+    expect(returnLegGames).toHaveLength(6)
+    for (const game of returnLegGames) {
+      const key = [game.homeTeamId, game.awayTeamId].sort().join('|')
+      const [firstHome] = firstLegPairs.get(key)!
+      // In the return leg, whoever was away in the first leg is now home.
+      expect(game.homeTeamId).not.toBe(firstHome)
+    }
+  })
+
+  it('assigns continuing round numbers to the return leg (not restarting at 1)', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      doubleRoundRobin: true,
+    }
+    const schedule = generateSchedule(config)
+    const rounds = new Set(schedule.games.map(g => g.round))
+    // 4 teams: 3 rounds per leg, 2 legs = rounds 1-6
+    expect(rounds).toEqual(new Set([1, 2, 3, 4, 5, 6]))
+  })
+})
+
 describe('generateSchedule with round-robin+finals mode', () => {
   it('appends semifinal and final games after the group stage', () => {
     const config: TournamentConfig = {

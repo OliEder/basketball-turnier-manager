@@ -90,10 +90,12 @@ export function generateSchedule(config: TournamentConfig): Schedule {
 
   const groupIds = [...new Set(teams.map(t => t.groupId ?? 'A'))].sort()
   const roundsByGroup = new Map(
-    groupIds.map(groupId => [
-      groupId,
-      generateRoundRobinRounds(teams.filter(t => (t.groupId ?? 'A') === groupId).map(t => t.id)),
-    ]),
+    groupIds.map(groupId => {
+      const firstLeg = generateRoundRobinRounds(teams.filter(t => (t.groupId ?? 'A') === groupId).map(t => t.id))
+      if (!config.doubleRoundRobin) return [groupId, firstLeg] as const
+      const returnLeg = firstLeg.map(round => round.map(([home, away]) => [away, home] as [string, string]))
+      return [groupId, [...firstLeg, ...returnLeg]] as const
+    }),
   )
   const maxRoundCount = Math.max(0, ...[...roundsByGroup.values()].map(r => r.length))
 
