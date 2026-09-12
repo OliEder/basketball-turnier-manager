@@ -17,6 +17,7 @@ const makeTeam = (id: string, groupId: string): Team => ({
 
 const standing = (teamId: string, points: number): GroupStanding => ({
   teamId, points, wins: 0, draws: 0, losses: 0, pointsFor: 0, pointsAgainst: 0, pointsDiff: 0,
+  withdrawn: false,
 })
 
 describe('computeGroupPhaseBuchholz', () => {

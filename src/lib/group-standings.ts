@@ -10,6 +10,7 @@ export interface GroupStanding {
   pointsFor: number
   pointsAgainst: number
   pointsDiff: number
+  withdrawn: boolean
 }
 
 function pointsForResult(home: number, away: number): [number, number] {
@@ -40,16 +41,19 @@ export function computeGroupStandings(teams: Team[], games: Game[], groupId: str
   const groupTeamIds = new Set(teams.filter(t => (t.groupId ?? 'A') === groupId).map(t => t.id))
   const relevantGames = games.filter(g => g.stage === 'group' && (g.groupId ?? 'A') === groupId)
 
+  const teamsById = new Map(teams.map(t => [t.id, t]))
+
   const standingsByTeamId = new Map<string, GroupStanding>(
     [...groupTeamIds].map(teamId => [teamId, {
       teamId, points: 0, wins: 0, draws: 0, losses: 0,
       pointsFor: 0, pointsAgainst: 0, pointsDiff: 0,
+      withdrawn: teamsById.get(teamId)?.withdrawnAfterStage != null,
     }]),
   )
 
   for (const game of relevantGames) {
     if (game.cancelledReason === 'withdrawal' && game.homeTeamId && game.awayTeamId) {
-      const homeWithdrawn = teams.find(t => t.id === game.homeTeamId)?.withdrawnAfterStage === 'group'
+      const homeWithdrawn = teamsById.get(game.homeTeamId)?.withdrawnAfterStage != null
       const survivorId = homeWithdrawn ? game.awayTeamId : game.homeTeamId
       const survivor = standingsByTeamId.get(survivorId)
       if (survivor) survivor.points += 2 // walkover win; no pointsFor/pointsAgainst — no game was actually played
