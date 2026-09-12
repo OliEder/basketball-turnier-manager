@@ -104,4 +104,35 @@ describe('FinalsVariantForm', () => {
     fireEvent.change(select, { target: { value: 'endrunde-3' } })
     expect(useTournamentStore.getState().tournament.finalsVariant).toBe('endrunde-3')
   })
+
+  it('offers Endrunde 1 as an option and disables it unless the group count is an exact power of 2 up to 32', () => {
+    // beforeEach sets up groupCount: 2 -- Endrunde 1 IS usable at groupCount 2, so re-set to 3 to test the disabled case
+    useTournamentStore.setState({
+      tournament: { ...useTournamentStore.getState().tournament, groupCount: 3 },
+    })
+    render(<FinalsVariantForm />)
+    const endrunde1Options = screen.getAllByRole('option', { name: /Endrunde 1/ })
+    expect(endrunde1Options[endrunde1Options.length - 1]).toBeDisabled()
+    expect(screen.getByText(/Endrunde 1.*2, 4, 8, 16 oder 32 Gruppen/)).toBeInTheDocument()
+  })
+
+  it('lets the organizer select Endrunde 1 when the group count is a supported power of 2', () => {
+    useTournamentStore.setState({
+      tournament: {
+        ...useTournamentStore.getState().tournament,
+        groupCount: 8,
+        teams: Array.from({ length: 16 }, (_, i) => ({
+          id: `t${i}`, name: `T${i}`, logoUrl: '', color: '#000', contact: '', players: [],
+          groupId: String.fromCharCode(65 + (i % 8)),
+        })),
+      },
+    })
+    render(<FinalsVariantForm />)
+    const endrunde1Options = screen.getAllByRole('option', { name: /Endrunde 1/ })
+    expect(endrunde1Options[endrunde1Options.length - 1]).not.toBeDisabled()
+
+    const select = screen.getByLabelText('Endrunden-Variante')
+    fireEvent.change(select, { target: { value: 'endrunde-1' } })
+    expect(useTournamentStore.getState().tournament.finalsVariant).toBe('endrunde-1')
+  })
 })
