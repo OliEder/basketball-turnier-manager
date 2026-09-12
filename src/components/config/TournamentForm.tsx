@@ -32,7 +32,7 @@ export default function TournamentForm({ disabled = false }: { disabled?: boolea
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="round-robin">Jeder gegen Jeden</SelectItem>
-            <SelectItem value="round-robin+finals">Jeder gegen Jeden + Finale</SelectItem>
+            <SelectItem value="round-robin+finals">Gruppenphase + Endrunde</SelectItem>
             <SelectItem value="swiss">Einstufungsturnier (Schweizer System)</SelectItem>
           </SelectContent>
         </Select>

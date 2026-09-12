@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { Team, Player, Game } from './index'
+import type { Team, Player, Game, TournamentConfig } from './index'
 
 describe('Type shapes', () => {
   it('Team has required fields', () => {
@@ -86,5 +86,27 @@ describe('Type shapes', () => {
       withdrawnAfterRound: 2,
     }
     expect(team.withdrawnAfterRound).toBe(2)
+  })
+
+  it('Team can have an optional groupId', () => {
+    const team: Team = {
+      id: 'uuid-1', name: 'Musterstadt Baskets', logoUrl: '', color: '#004174',
+      contact: '', players: [], groupId: 'B',
+    }
+    expect(team.groupId).toBe('B')
+  })
+
+  it('TournamentConfig can have optional groupCount and doubleRoundRobin', () => {
+    const config: Pick<TournamentConfig, 'groupCount' | 'doubleRoundRobin'> = {
+      groupCount: 2,
+      doubleRoundRobin: true,
+    }
+    expect(config.groupCount).toBe(2)
+    expect(config.doubleRoundRobin).toBe(true)
+  })
+
+  it('Game can have an optional groupId', () => {
+    const game: Pick<Game, 'groupId'> = { groupId: 'A' }
+    expect(game.groupId).toBe('A')
   })
 })

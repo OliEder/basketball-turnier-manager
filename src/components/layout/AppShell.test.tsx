@@ -26,7 +26,7 @@ beforeEach(() => {
 })
 
 function renderShell() {
-  render(
+  return render(
     <MemoryRouter initialEntries={['/teams']}>
       <Routes>
         <Route path="/" element={<AppShell />}>
@@ -86,5 +86,53 @@ describe('AppShell', () => {
   it('renders Anleitung as a clickable link even when no schedule exists', () => {
     renderShell()
     expect(screen.getByRole('link', { name: 'Anleitung' })).toBeInTheDocument()
+  })
+
+  it('shows the "Gruppentabellen" nav link only when teams are actually split across multiple groups', () => {
+    const { addTeam, setTeamGroup } = useTournamentStore.getState()
+    useTournamentStore.getState().setMode('round-robin+finals')
+    useTournamentStore.getState().setGroupCount(2)
+    addTeam({ name: 'Team 1', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'Team 2', logoUrl: '', color: '#000', contact: '' })
+    const teams = useTournamentStore.getState().tournament.teams
+    setTeamGroup(teams[0].id, 'A')
+    setTeamGroup(teams[1].id, 'A')
+    const { unmount } = renderShell()
+    expect(screen.queryByText('Gruppentabellen')).not.toBeInTheDocument()
+    unmount()
+
+    setTeamGroup(teams[1].id, 'B')
+    renderShell()
+    expect(screen.getByText('Gruppentabellen')).toBeInTheDocument()
+  })
+
+  it('shows "Ergebnisse erfassen" as a link for round-robin mode once a schedule exists', () => {
+    useTournamentStore.getState().addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.getState().addTeam({ name: 'Team B', logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.getState().generateAndSaveSchedule()
+
+    renderShell()
+
+    expect(screen.getByRole('link', { name: 'Ergebnisse erfassen' })).toHaveAttribute('href', '/group-results')
+  })
+
+  it('shows "Ergebnisse erfassen" as a non-clickable label for round-robin mode when no schedule exists', () => {
+    renderShell()
+    expect(screen.queryByRole('link', { name: 'Ergebnisse erfassen' })).not.toBeInTheDocument()
+    expect(screen.getByText('Ergebnisse erfassen')).toBeInTheDocument()
+  })
+
+  it('shows the "Gruppentabellen" nav link when teams are split across multiple groups, even if groupCount was never explicitly set', () => {
+    const { addTeam, setTeamGroup } = useTournamentStore.getState()
+    useTournamentStore.getState().setMode('round-robin+finals')
+    addTeam({ name: 'Team 1', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'Team 2', logoUrl: '', color: '#000', contact: '' })
+    const teams = useTournamentStore.getState().tournament.teams
+    setTeamGroup(teams[0].id, 'A')
+    setTeamGroup(teams[1].id, 'B')
+    // groupCount was never explicitly set — it should still show the link because teams are actually split
+    expect(useTournamentStore.getState().tournament.groupCount).toBeUndefined()
+    renderShell()
+    expect(screen.getByText('Gruppentabellen')).toBeInTheDocument()
   })
 })

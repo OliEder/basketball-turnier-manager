@@ -41,7 +41,14 @@ function SubSection({ id, title, children }: { id?: string; title: string; child
 const TOC_ITEMS = [
   { id: 'ueberblick', title: '1. Überblick' },
   { id: 'teams', title: '2. Teams anlegen' },
-  { id: 'konfiguration', title: '3. Turnier konfigurieren' },
+  {
+    id: 'konfiguration',
+    title: '3. Turnier konfigurieren',
+    children: [
+      { id: 'konfiguration-gruppen', title: '3.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde' },
+      { id: 'konfiguration-gruppenergebnisse', title: '3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' },
+    ],
+  },
   {
     id: 'ergebnisse',
     title: '4. Ergebnisse erfassen',
@@ -51,7 +58,13 @@ const TOC_ITEMS = [
       { id: 'ergebnisse-manuelle-paarung', title: '4.3 Automatische Paarung nicht möglich' },
     ],
   },
-  { id: 'turnieruebersicht', title: '5. Turnierübersicht' },
+  {
+    id: 'turnieruebersicht',
+    title: '5. Turnierübersicht',
+    children: [
+      { id: 'turnieruebersicht-gruppentabellen', title: '5.1 Gruppentabellen (bei mehreren Gruppen)' },
+    ],
+  },
   { id: 'aenderungsschutz', title: '6. Turnier läuft bereits: Änderungsschutz' },
   { id: 'export', title: '7. Export' },
   { id: 'import', title: '8. Turnier importieren (JSON)' },
@@ -113,8 +126,15 @@ export default function ManualPage() {
       <Section id="ueberblick" title="1. Überblick">
         <p>Der Basketball Turnier-Manager unterstützt drei Turnierformen:</p>
         <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Jeder gegen Jeden</strong> (Round-Robin)</li>
-          <li><strong>Jeder gegen Jeden + Finale</strong> (Round-Robin mit anschließender K.O.-Finalrunde)</li>
+          <li>
+            <strong>Jeder gegen Jeden</strong> (Round-Robin) — alle Teams spielen einmal (optional zweimal, siehe
+            unten) gegeneinander, keine Gruppenaufteilung, keine Endrunde
+          </li>
+          <li>
+            <strong>Gruppenphase + Endrunde</strong> — Teams werden in eine oder mehrere Gruppen aufgeteilt, spielen
+            innerhalb ihrer Gruppe jeder gegen jeden, anschließend folgt eine K.O.-Endrunde (Halbfinale + Finale
+            oder nur Finale)
+          </li>
           <li>
             <strong>Einstufungsturnier (Schweizer System)</strong> — automatische, leistungsbasierte Paarung über
             mehrere Runden, ideal für Verbandsturniere mit vielen Teams und begrenzter Zeit
@@ -123,7 +143,8 @@ export default function ManualPage() {
         <p>
           Diese Anleitung führt einmal komplett durch ein Einstufungsturnier (Schweizer System), da es die meisten
           Funktionen des Tools nutzt. Die Schritte 1–3 (Teams, Grundkonfiguration, Zeitplan generieren) gelten für
-          alle drei Turnierformen gleichermaßen.
+          alle drei Turnierformen gleichermaßen. Die Besonderheiten von „Jeder gegen Jeden" und „Gruppenphase +
+          Endrunde" (Gruppenaufteilung, Rückrunde) sind in Abschnitt 3.1 gesondert beschrieben.
         </p>
         <p>
           Alle Daten werden ausschließlich lokal im Browser gespeichert (kein Server, kein Konto nötig). Über den
@@ -176,6 +197,117 @@ export default function ManualPage() {
           Darunter zeigt das Tool eine geschätzte Gesamtdauer des Turniers, basierend auf Rundenzahl, Spieldauer und
           Anzahl der Felder.
         </p>
+
+        <SubSection id="konfiguration-gruppen" title="3.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde">
+          <p>
+            Bei den Modi <strong>„Jeder gegen Jeden"</strong> und <strong>„Gruppenphase + Endrunde"</strong> plant
+            das Tool die Begegnungen nach der klassischen <strong>Rundensystem-Methode</strong> (Circle-Method): alle
+            Spiele einer Runde betreffen unterschiedliche Teams, dadurch werden alle verfügbaren Felder von Anfang
+            an gleichzeitig genutzt statt nacheinander abgearbeitet.
+          </p>
+
+          <p>
+            Bei <strong>„Jeder gegen Jeden"</strong> spielt immer die komplette Teamliste in einer einzigen Gruppe
+            gegeneinander — es gibt keine weitere Einstellung dazu, und keine anschließende Endrunde.
+          </p>
+
+          <p>
+            Beim Modus <strong>„Gruppenphase + Endrunde"</strong> erscheint zusätzlich der Abschnitt{' '}
+            <strong>Gruppen</strong>, in dem sich das Turnier auf mehrere parallele Vorrundengruppen aufteilen
+            lässt:
+          </p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>
+              <strong>Anzahl Gruppen</strong> — wie viele Gruppen es geben soll. Das Tool schlägt automatisch einen
+              sinnvollen Wert vor (basierend auf der Teamanzahl, mit dem Ziel, Gruppen von etwa 3–4 Teams zu bilden
+              und die spätere Endrunde ohne Freilose planen zu können) — der Vorschlag lässt sich jederzeit manuell
+              überschreiben. Bei „Anzahl Gruppen" gleich 1 verhält sich der Modus wie eine einzelne Vorrundengruppe
+              mit anschließender Endrunde (das bisherige, unveränderte Verhalten).
+            </li>
+            <li>
+              <strong>Mit Rückspiel (Hin- und Rückrunde)</strong> — wenn aktiviert, spielt jedes Team innerhalb
+              seiner Gruppe zweimal gegen jeden Gegner (einmal als Heim-, einmal als Auswärtsteam mit vertauschten
+              Rollen), statt nur einmal.
+            </li>
+            <li>
+              Für jedes angelegte Team lässt sich per Dropdown die <strong>Gruppe</strong> (A, B, C, …) auswählen,
+              in der es spielen soll. Neu angelegte Teams landen zunächst automatisch in Gruppe A.
+            </li>
+          </ul>
+          <Screenshot
+            src="24-konfiguration-gruppen.png"
+            alt="Abschnitt Gruppen mit Gruppenvorschlag, Rückspiel-Option und Team-Zuordnung"
+          />
+          <Callout title="Wichtig: Gruppengröße">
+            Eine Gruppe sollte praktisch nicht mehr als etwa 6, besser 3–4 Teams umfassen — sonst wird die
+            Gruppenphase selbst sehr lang. Bei vielen Teams ist es sinnvoller, mehr, dafür kleinere Gruppen zu
+            bilden (das schlägt das Tool auch automatisch so vor).
+          </Callout>
+          <p>
+            Das funktioniert auch bei sehr großen Turnieren zuverlässig: bei 64 angemeldeten Teams schlägt das Tool
+            automatisch 16 Gruppen zu je 4 Teams vor (statt z. B. 2 riesiger Gruppen zu 32 Teams), damit die
+            Gruppenphase selbst überschaubar bleibt:
+          </p>
+          <Screenshot
+            src="27-konfiguration-gruppen-64-teams.png"
+            alt="Automatischer Gruppenvorschlag bei 64 Teams: 16 Gruppen à 4 Teams"
+          />
+          <p>
+            Sobald mehr als eine Gruppe existiert (also mindestens ein Team einer zweiten Gruppe zugewiesen wurde),
+            erscheint nach dem Generieren des Zeitplans zusätzlich der Navigationspunkt{' '}
+            <strong>„Gruppentabellen"</strong> (siehe Abschnitt 5.1) — bei nur einer Gruppe reicht weiterhin die
+            normale Zeitplan-Ansicht.
+          </p>
+          <Callout title="Hinweis: kein Freilos in der Gruppenphase">
+            Anders als beim Schweizer System (Abschnitt 4) gibt es in der Gruppenphase kein Freilos. Ist eine Gruppe
+            ungerade groß, setzt in jeder Runde einfach das jeweils passende Team aus — ohne Spiel und ohne
+            Punktgutschrift für diese Runde.
+          </Callout>
+        </SubSection>
+
+        <SubSection id="konfiguration-gruppenergebnisse" title="3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen">
+          <p>
+            Sobald ein Zeitplan generiert wurde, steht für die Modi „Jeder gegen Jeden" und „Gruppenphase + Endrunde"
+            der Navigationspunkt <strong>„Ergebnisse erfassen"</strong> zur Verfügung. Dort erscheinen alle Spiele
+            der Gruppenphase chronologisch nach Uhrzeit sortiert — unabhängig davon, aus welcher Gruppe oder von
+            welchem Feld sie stammen:
+          </p>
+          <Screenshot
+            src="29-ergebnisse-erfassen-gruppenphase.png"
+            alt="Ergebnisse erfassen mit Status-, Gruppen- und Feld-Filter"
+          />
+          <p>Drei Filter lassen sich beliebig miteinander kombinieren:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>
+              <strong>Status</strong> — „Offen" (Standardeinstellung, zeigt nur noch nicht gespielte Partien),
+              „Erfasst" (nur bereits eingetragene Ergebnisse) oder „Alle".
+            </li>
+            <li><strong>Gruppe</strong> — auf eine einzelne Gruppe eingrenzen, oder „Alle Gruppen" (Standard).</li>
+            <li><strong>Feld</strong> — auf ein einzelnes Feld eingrenzen, oder „Alle Felder" (Standard).</li>
+          </ul>
+          <p>
+            Bei jeder Zeile lässt sich das Ergebnis direkt eintragen: Heim- und Auswärtspunkte eingeben, auf{' '}
+            <strong>„Speichern"</strong> klicken — fertig. Nach dem Speichern erscheint ein Hinweis mit einem Link
+            direkt zur aktualisierten Tabelle der betroffenen Gruppe:
+          </p>
+          <Screenshot
+            src="30-ergebnis-gespeichert-link-gruppentabelle.png"
+            alt="Bestätigung nach dem Speichern eines Ergebnisses mit Link zur Gruppentabelle"
+          />
+          <Callout title="Wichtig: jedes Ergebnis wird sofort für sich gespeichert">
+            Anders als beim Schweizer System (Abschnitt 4) gibt es hier keinen Rundenabschluss-Schritt — jedes
+            Ergebnis wird unabhängig von allen anderen Spielen direkt beim Klick auf „Speichern" übernommen. Mehrere
+            Gruppen können dadurch völlig unabhängig voneinander und in beliebiger Reihenfolge bearbeitet werden.
+          </Callout>
+          <p>
+            Bereits erfasste Ergebnisse lassen sich jederzeit korrigieren: über den Status-Filter „Alle" oder
+            „Erfasst" anzeigen lassen, dann bei der betreffenden Zeile auf <strong>„Korrigieren"</strong> klicken —
+            die Eingabefelder erscheinen mit dem bisherigen Ergebnis vorausgefüllt, erneutes „Speichern" übernimmt
+            die Änderung. Eine Korrektur ist — anders als beim Schweizer System — zu jedem Zeitpunkt möglich, auch
+            wenn bereits weitere Spiele dieser oder anderer Gruppen gespielt wurden.
+          </p>
+        </SubSection>
+
         <p>
           Im Abschnitt <strong>Spieleinstellungen</strong> werden Anzahl und Dauer der Spielabschnitte, Pausen und
           Wechselzeiten festgelegt:
@@ -312,6 +444,52 @@ export default function ManualPage() {
           Über den Button <strong>„Drucken"</strong> oben rechts lässt sich die komplette Übersicht (Tabelle +
           Zeitplan) als druckfertige Seite öffnen — praktisch für einen Aushang vor Ort.
         </p>
+
+        <SubSection id="turnieruebersicht-gruppentabellen" title="5.1 Gruppentabellen (bei mehreren Gruppen)">
+          <p>
+            Im Modus „Gruppenphase + Endrunde" erscheint bei mehr als einer Gruppe (siehe Abschnitt 3.1) statt der
+            oben beschriebenen Turnierübersicht der Navigationspunkt <strong>„Gruppentabellen"</strong>. Über die
+            Reiter oben (<strong>„Gruppe A"</strong>, <strong>„Gruppe B"</strong>, …) lässt sich zwischen den
+            Gruppen wechseln — es wird immer nur eine Gruppe gleichzeitig angezeigt (Tabelle plus der vollständige
+            Zeitplan dieser Gruppe), damit die Seite auch bei vielen Gruppen übersichtlich bleibt:
+          </p>
+          <Screenshot
+            src="28-gruppentabellen-tabs-drucken.png"
+            alt="Gruppentabellen-Seite mit Gruppen-Reitern und Drucken-Buttons"
+          />
+          <p>Jede Gruppentabelle ist sortiert nach:</p>
+          <ol className="list-decimal pl-6 space-y-1">
+            <li><strong>Punkte</strong> (Sieg = 2, Unentschieden = 1, Niederlage = 0)</li>
+            <li>
+              <strong>Direkter Vergleich</strong> — bei Punktgleichstand entscheidet zunächst das Ergebnis der
+              direkten Begegnung(en) der betroffenen Teams untereinander
+            </li>
+            <li>
+              <strong>Korbdifferenz</strong> — erst wenn auch der direkte Vergleich keinen Unterschied ergibt (z. B.
+              weil die Teams noch nicht gegeneinander gespielt haben), entscheidet die Gesamt-Korbdifferenz
+            </li>
+          </ol>
+          <p>
+            Diese Sortierung unterscheidet sich bewusst von der Turnierübersicht des Schweizer Systems: dort wird
+            als Kriterium die Buchholz-Zahl verwendet (Abschnitt 5), in der Gruppenphase dagegen der direkte
+            Vergleich — das ist die in Vereinsliga- und Gruppenturnieren übliche Konvention. Es gibt in der
+            Gruppentabelle kein Buchholz-Kriterium.
+          </p>
+          <p>
+            Diese Ansicht funktioniert unverändert auch bei sehr vielen Gruppen — bei 64 Teams in 16 Gruppen
+            erscheinen entsprechend 16 Reiter, jeder mit seinen eigenen 4 Teams:
+          </p>
+          <Screenshot
+            src="26-gruppentabellen-64-teams.png"
+            alt="Gruppentabellen A, B, C bei einem 64-Teams-Turnier mit 16 Gruppen"
+          />
+          <p>
+            Über die Buttons <strong>„Diese Gruppe drucken"</strong> und <strong>„Alle Gruppen drucken"</strong>{' '}
+            oben rechts lässt sich entweder nur die gerade angezeigte Gruppe oder das komplette Turnier als
+            druckfertige Seite öffnen. Beim Drucken aller Gruppen beginnt jede Gruppe automatisch auf einer neuen
+            Seite, sodass sich einzelne Gruppen problemlos getrennt aushängen lassen.
+          </p>
+        </SubSection>
       </Section>
 
       <Section id="aenderungsschutz" title="6. Turnier läuft bereits: Änderungsschutz">

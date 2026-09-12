@@ -297,6 +297,46 @@ describe('isTournamentLocked', () => {
   })
 })
 
+describe('multi-group configuration', () => {
+  it('setGroupCount updates tournament.groupCount', () => {
+    useTournamentStore.getState().setGroupCount(3)
+    expect(useTournamentStore.getState().tournament.groupCount).toBe(3)
+  })
+
+  it('setDoubleRoundRobin updates tournament.doubleRoundRobin', () => {
+    useTournamentStore.getState().setDoubleRoundRobin(true)
+    expect(useTournamentStore.getState().tournament.doubleRoundRobin).toBe(true)
+  })
+
+  it('setTeamGroup updates a specific team\'s groupId', () => {
+    const { addTeam } = useTournamentStore.getState()
+    addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    const teamId = useTournamentStore.getState().tournament.teams[0].id
+    useTournamentStore.getState().setTeamGroup(teamId, 'B')
+    expect(useTournamentStore.getState().tournament.teams[0].groupId).toBe('B')
+  })
+
+  it('setGroupCount reassigns teams whose groupId is now out of range to the last valid group', () => {
+    const { addTeam, setGroupCount, setTeamGroup } = useTournamentStore.getState()
+    addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    setGroupCount(3)
+    const teamId = useTournamentStore.getState().tournament.teams[0].id
+    setTeamGroup(teamId, 'C')
+    setGroupCount(2)
+    expect(useTournamentStore.getState().tournament.teams[0].groupId).toBe('B')
+  })
+
+  it('setGroupCount leaves teams with an already-valid groupId untouched', () => {
+    const { addTeam, setGroupCount, setTeamGroup } = useTournamentStore.getState()
+    addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    setGroupCount(3)
+    const teamId = useTournamentStore.getState().tournament.teams[0].id
+    setTeamGroup(teamId, 'A')
+    setGroupCount(2)
+    expect(useTournamentStore.getState().tournament.teams[0].groupId).toBe('A')
+  })
+})
+
 describe('resetTournament', () => {
   it('clears the tournament, schedule and localStorage, and issues a fresh tournament id', () => {
     const { addTeam, setFields, generateAndSaveSchedule, resetTournament } = useTournamentStore.getState()

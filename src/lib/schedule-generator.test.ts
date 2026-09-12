@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { generateRoundRobinPairs, generateSchedule } from './schedule-generator'
+import { generateRoundRobinPairs, generateSchedule, generateRoundRobinRounds } from './schedule-generator'
 import { timeToMinutes } from './game-duration'
 import type { TournamentConfig, Team } from '@/types'
 
@@ -121,6 +121,83 @@ describe('generateSchedule', () => {
       }
     }
   })
+
+  it('utilizes all available fields simultaneously when enough teams exist', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      fields: 3,
+      teams: [
+        makeTeam('t1', 'Team 1'), makeTeam('t2', 'Team 2'),
+        makeTeam('t3', 'Team 3'), makeTeam('t4', 'Team 4'),
+        makeTeam('t5', 'Team 5'), makeTeam('t6', 'Team 6'),
+        makeTeam('t7', 'Team 7'), makeTeam('t8', 'Team 8'),
+      ],
+    }
+    const schedule = generateSchedule(config)
+    const byStart = new Map<string, number>()
+    for (const game of schedule.games) {
+      byStart.set(game.scheduledStart, (byStart.get(game.scheduledStart) ?? 0) + 1)
+    }
+    // With 8 teams and 3 fields, the very first wave of games must use all 3 fields at once —
+    // this is exactly the bug that was reported and reproduced (only 1 field used at the start).
+    const firstStart = schedule.games[0].scheduledStart
+    expect(byStart.get(firstStart)).toBe(3)
+  })
+
+  it('assigns increasing round numbers to round-robin games matching the circle-method structure', () => {
+    const schedule = generateSchedule(baseConfig)
+    // 4 teams -> 3 rounds, 2 games per round
+    const rounds = new Set(schedule.games.map(g => g.round))
+    expect(rounds).toEqual(new Set([1, 2, 3]))
+    for (const round of rounds) {
+      expect(schedule.games.filter(g => g.round === round)).toHaveLength(2)
+    }
+  })
+})
+
+describe('generateSchedule with doubleRoundRobin', () => {
+  it('doubles the number of group-stage games with reversed home/away in the return leg', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      doubleRoundRobin: true,
+    }
+    const schedule = generateSchedule(config)
+    // 4 teams, single leg = 6 games; double leg = 12
+    expect(schedule.games).toHaveLength(12)
+  })
+
+  it('return-leg games have home/away swapped compared to the first leg', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      doubleRoundRobin: true,
+    }
+    const schedule = generateSchedule(config)
+    const firstLegPairs = new Map(
+      schedule.games.filter(g => g.round <= 3).map(g => [
+        [g.homeTeamId, g.awayTeamId].sort().join('|'),
+        [g.homeTeamId, g.awayTeamId],
+      ]),
+    )
+    const returnLegGames = schedule.games.filter(g => g.round > 3)
+    expect(returnLegGames).toHaveLength(6)
+    for (const game of returnLegGames) {
+      const key = [game.homeTeamId, game.awayTeamId].sort().join('|')
+      const [firstHome] = firstLegPairs.get(key)!
+      // In the return leg, whoever was away in the first leg is now home.
+      expect(game.homeTeamId).not.toBe(firstHome)
+    }
+  })
+
+  it('assigns continuing round numbers to the return leg (not restarting at 1)', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      doubleRoundRobin: true,
+    }
+    const schedule = generateSchedule(config)
+    const rounds = new Set(schedule.games.map(g => g.round))
+    // 4 teams: 3 rounds per leg, 2 legs = rounds 1-6
+    expect(rounds).toEqual(new Set([1, 2, 3, 4, 5, 6]))
+  })
 })
 
 describe('generateSchedule with round-robin+finals mode', () => {
@@ -175,5 +252,169 @@ describe('generateSchedule with swiss mode', () => {
     }
     const schedule = generateSchedule(config)
     expect(schedule.awardCeremonyEstimate).toBeUndefined()
+  })
+})
+
+describe('generateSchedule with multiple groups', () => {
+  const multiGroupConfig: TournamentConfig = {
+    ...baseConfig,
+    mode: 'round-robin+finals',
+    finalsBracketSize: 4,
+    fields: 4,
+    groupCount: 2,
+    teams: [
+      { ...makeTeam('t1', 'Team 1'), groupId: 'A' },
+      { ...makeTeam('t2', 'Team 2'), groupId: 'A' },
+      { ...makeTeam('t3', 'Team 3'), groupId: 'A' },
+      { ...makeTeam('t4', 'Team 4'), groupId: 'A' },
+      { ...makeTeam('t5', 'Team 5'), groupId: 'B' },
+      { ...makeTeam('t6', 'Team 6'), groupId: 'B' },
+      { ...makeTeam('t7', 'Team 7'), groupId: 'B' },
+      { ...makeTeam('t8', 'Team 8'), groupId: 'B' },
+    ],
+  }
+
+  it('generates group-stage games tagged with their groupId', () => {
+    const schedule = generateSchedule(multiGroupConfig)
+    const groupGames = schedule.games.filter(g => g.stage === 'group')
+    // 2 groups of 4 teams each: 6 games per group = 12 total
+    expect(groupGames).toHaveLength(12)
+    expect(groupGames.filter(g => g.groupId === 'A')).toHaveLength(6)
+    expect(groupGames.filter(g => g.groupId === 'B')).toHaveLength(6)
+  })
+
+  it('never pairs teams from different groups against each other', () => {
+    const schedule = generateSchedule(multiGroupConfig)
+    const teamGroup = new Map(multiGroupConfig.teams.map(t => [t.id, t.groupId]))
+    for (const game of schedule.games.filter(g => g.stage === 'group')) {
+      expect(teamGroup.get(game.homeTeamId!)).toBe(teamGroup.get(game.awayTeamId!))
+    }
+  })
+
+  it('interleaves round 1 of both groups so multiple fields are used simultaneously', () => {
+    const schedule = generateSchedule(multiGroupConfig)
+    const round1Games = schedule.games.filter(g => g.stage === 'group' && g.round === 1)
+    // Round 1 of each 4-team group has 2 games; both groups' round 1 together = 4 games,
+    // and with 4 fields available they should all start at the same time.
+    expect(round1Games).toHaveLength(4)
+    const startTimes = new Set(round1Games.map(g => g.scheduledStart))
+    expect(startTimes.size).toBe(1)
+  })
+
+  it('falls back to a single group "A" when groupCount is not set', () => {
+    const singleGroupConfig: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+    }
+    const schedule = generateSchedule(singleGroupConfig)
+    const groupGames = schedule.games.filter(g => g.stage === 'group')
+    expect(groupGames.every(g => g.groupId === 'A')).toBe(true)
+  })
+
+  it('handles uneven group sizes without dropping or duplicating games', () => {
+    const unevenConfig: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+      fields: 4,
+      groupCount: 3,
+      teams: [
+        { ...makeTeam('t1', 'Team 1'), groupId: 'A' },
+        { ...makeTeam('t2', 'Team 2'), groupId: 'A' },
+        { ...makeTeam('t3', 'Team 3'), groupId: 'A' },
+        { ...makeTeam('t4', 'Team 4'), groupId: 'A' },
+        { ...makeTeam('t5', 'Team 5'), groupId: 'B' },
+        { ...makeTeam('t6', 'Team 6'), groupId: 'B' },
+        { ...makeTeam('t7', 'Team 7'), groupId: 'B' },
+        { ...makeTeam('t8', 'Team 8'), groupId: 'C' },
+        { ...makeTeam('t9', 'Team 9'), groupId: 'C' },
+        { ...makeTeam('t10', 'Team 10'), groupId: 'C' },
+        { ...makeTeam('t11', 'Team 11'), groupId: 'C' },
+        { ...makeTeam('t12', 'Team 12'), groupId: 'C' },
+        { ...makeTeam('t13', 'Team 13'), groupId: 'C' },
+      ],
+    }
+    const schedule = generateSchedule(unevenConfig)
+    const groupGames = schedule.games.filter(g => g.stage === 'group')
+    // Group A: 4 teams -> C(4,2) = 6 games. Group B: 3 teams -> C(3,2) = 3 games.
+    // Group C: 6 teams -> C(6,2) = 15 games. Total = 24.
+    expect(groupGames).toHaveLength(24)
+    expect(groupGames.filter(g => g.groupId === 'A')).toHaveLength(6)
+    expect(groupGames.filter(g => g.groupId === 'B')).toHaveLength(3)
+    expect(groupGames.filter(g => g.groupId === 'C')).toHaveLength(15)
+  })
+
+  it('gives a single-team group zero group-stage games without crashing', () => {
+    const soloGroupConfig: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+      fields: 4,
+      groupCount: 2,
+      teams: [
+        { ...makeTeam('t1', 'Team 1'), groupId: 'A' },
+        { ...makeTeam('t2', 'Team 2'), groupId: 'A' },
+        { ...makeTeam('t3', 'Team 3'), groupId: 'A' },
+        { ...makeTeam('t4', 'Team 4'), groupId: 'B' },
+      ],
+    }
+    expect(() => generateSchedule(soloGroupConfig)).not.toThrow()
+    const schedule = generateSchedule(soloGroupConfig)
+    const groupGames = schedule.games.filter(g => g.stage === 'group')
+    expect(groupGames.filter(g => g.groupId === 'B')).toHaveLength(0)
+    expect(groupGames.filter(g => g.groupId === 'A')).toHaveLength(3)
+  })
+})
+
+describe('generateRoundRobinRounds', () => {
+  it('generates N-1 rounds with N/2 pairs each for even team counts', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3', 't4'])
+    expect(rounds).toHaveLength(3)
+    for (const round of rounds) {
+      expect(round).toHaveLength(2)
+    }
+  })
+
+  it('generates N rounds with (N-1)/2 pairs each for odd team counts (one team sits out per round)', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3'])
+    expect(rounds).toHaveLength(3)
+    for (const round of rounds) {
+      expect(round).toHaveLength(1)
+    }
+  })
+
+  it('every team appears at most once per round', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3', 't4', 't5', 't6'])
+    for (const round of rounds) {
+      const teamsInRound = round.flatMap(([home, away]) => [home, away])
+      const uniqueTeams = new Set(teamsInRound)
+      expect(uniqueTeams.size).toBe(teamsInRound.length)
+    }
+  })
+
+  it('each unique pair plays exactly once across all rounds', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3', 't4', 't5'])
+    const seen = new Set<string>()
+    let totalPairs = 0
+    for (const round of rounds) {
+      for (const [home, away] of round) {
+        const key = [home, away].sort().join('|')
+        expect(seen.has(key)).toBe(false)
+        seen.add(key)
+        totalPairs++
+      }
+    }
+    // 5 teams: 5×4/2 = 10 unique pairs
+    expect(totalPairs).toBe(10)
+  })
+
+  it('returns an empty array for a single team', () => {
+    expect(generateRoundRobinRounds(['t1'])).toEqual([])
+  })
+
+  it('returns one round with one pair for two teams', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2'])
+    expect(rounds).toEqual([[['t1', 't2']]])
   })
 })
