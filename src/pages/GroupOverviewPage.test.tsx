@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
@@ -114,10 +114,29 @@ describe('GroupOverviewPage', () => {
     }
   })
 
-  it('renders "Diese Gruppe drucken" and "Alle Gruppen drucken" buttons', () => {
+  it('opens a printable blob URL when clicking "Diese Gruppe drucken"', () => {
     setupMultiGroupTournament()
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+    URL.revokeObjectURL = vi.fn()
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+
     render(<GroupOverviewPage />)
-    expect(screen.getByRole('button', { name: 'Diese Gruppe drucken' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Alle Gruppen drucken' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Diese Gruppe drucken' }))
+
+    expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
+    expect(openSpy).toHaveBeenCalledWith('blob:mock-url', '_blank')
+  })
+
+  it('opens a printable blob URL when clicking "Alle Gruppen drucken"', () => {
+    setupMultiGroupTournament()
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+    URL.revokeObjectURL = vi.fn()
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+
+    render(<GroupOverviewPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Alle Gruppen drucken' }))
+
+    expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
+    expect(openSpy).toHaveBeenCalledWith('blob:mock-url', '_blank')
   })
 })
