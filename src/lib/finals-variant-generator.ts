@@ -32,27 +32,40 @@ export function computeGroupPhaseBuchholz(
 }
 
 /**
- * Seeds the 4 group-winners of an Endrunde-3 tournament into semifinal slots: standard
- * cross-bracket seeding (best vs. weakest) isn't meaningful here since groups can't be compared
- * against each other before any results exist (each group's "rank 1" is only known relative to its
- * own group) — so seeding is simply by groupId, alphabetically sorted, paired first-vs-last,
- * second-vs-second-last. This mirrors the deterministic-by-groupId approach already used for
- * Endrunde 4's placement cohorts.
- *
- * Returns 4 sourceRanks in bracket order: [sf1.home, sf1.away, sf2.home, sf2.away], each pointing
- * at group-phase rank 1 of the given group — for direct use as PlayoffInput.qualifierSourceRanks.
+ * Standard single-elimination bracket seed order for `size` slots: pairs seed 1 with seed `size`,
+ * seed 2 with seed `size-1`, etc., recursively arranged so the two best seeds can only meet in the
+ * final (the well-known "avoid an early final" seeding used by most KO tournaments). Returns a
+ * flat list of 0-based seed indices in bracket match order: [match0.home, match0.away, match1.home, match1.away, ...].
  */
-export function buildQualifierSeeds(groupIds: string[]): { groupId: string; rank: number }[] {
-  if (groupIds.length !== 4) {
-    throw new Error('Endrunde 3 benötigt genau 4 Gruppen')
+function standardBracketSeedOrder(size: number): number[] {
+  if (size === 1) return [0]
+  const half = standardBracketSeedOrder(size / 2)
+  const order: number[] = []
+  for (const seed of half) {
+    order.push(seed, size - 1 - seed)
+  }
+  return order
+}
+
+/**
+ * Seeds `groupIds.length` groups (must be exactly 2, 4, 8, 16, or 32) into KO-bracket qualifying
+ * slots for the given rank tier: standard cross-bracket seeding (best vs. weakest) isn't
+ * meaningful here since groups can't be compared against each other before any results exist
+ * (each group's rank is only known relative to its own group) — so seeding is simply by groupId,
+ * alphabetically sorted, then arranged via the standard single-elimination seed order so the
+ * "best" (alphabetically-first) groups are spread across the bracket rather than clustered. This
+ * mirrors the deterministic-by-groupId approach already used for Endrunde 4's placement cohorts.
+ *
+ * Returns groupIds.length sourceRanks in bracket match order — for direct use as
+ * BuildBracketInput.sourceRanks.
+ */
+export function buildQualifierSeeds(groupIds: string[], rank: number): { groupId: string; rank: number }[] {
+  const size = groupIds.length
+  if (![2, 4, 8, 16, 32].includes(size)) {
+    throw new Error('Endrunde 1/3 benötigt 2, 4, 8, 16 oder 32 Gruppen')
   }
   const sorted = [...groupIds].sort()
-  return [
-    { groupId: sorted[0], rank: 1 },
-    { groupId: sorted[3], rank: 1 },
-    { groupId: sorted[1], rank: 1 },
-    { groupId: sorted[2], rank: 1 },
-  ]
+  return standardBracketSeedOrder(size).map(seedIndex => ({ groupId: sorted[seedIndex], rank }))
 }
 
 const BRACKET_STAGE_SEQUENCE: Record<number, GameStage[]> = {

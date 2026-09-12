@@ -197,7 +197,7 @@ describe('buildPlacementGames', () => {
 
 describe('buildQualifierSeeds', () => {
   it('seeds exactly 4 groups into semifinal order: [0]v[3], [1]v[2] by alphabetical groupId', () => {
-    const seeds = buildQualifierSeeds(['A', 'B', 'C', 'D'])
+    const seeds = buildQualifierSeeds(['A', 'B', 'C', 'D'], 1)
     // sf1.home, sf1.away, sf2.home, sf2.away
     expect(seeds).toEqual([
       { groupId: 'A', rank: 1 },
@@ -208,7 +208,7 @@ describe('buildQualifierSeeds', () => {
   })
 
   it('sorts group IDs alphabetically regardless of input order', () => {
-    const seeds = buildQualifierSeeds(['D', 'A', 'C', 'B'])
+    const seeds = buildQualifierSeeds(['D', 'A', 'C', 'B'], 1)
     expect(seeds).toEqual([
       { groupId: 'A', rank: 1 },
       { groupId: 'D', rank: 1 },
@@ -217,9 +217,33 @@ describe('buildQualifierSeeds', () => {
     ])
   })
 
-  it('throws when there are not exactly 4 groups', () => {
-    expect(() => buildQualifierSeeds(['A', 'B', 'C'])).toThrow('Endrunde 3 benötigt genau 4 Gruppen')
-    expect(() => buildQualifierSeeds(['A', 'B', 'C', 'D', 'E'])).toThrow('Endrunde 3 benötigt genau 4 Gruppen')
+  it('uses the given rank for every seed, for a non-1 rank tier', () => {
+    const seeds = buildQualifierSeeds(['A', 'B', 'C', 'D'], 2)
+    expect(seeds.every(s => s.rank === 2)).toBe(true)
+  })
+
+  it('seeds 2 groups into a single final matchup', () => {
+    expect(buildQualifierSeeds(['A', 'B'], 1)).toEqual([
+      { groupId: 'A', rank: 1 },
+      { groupId: 'B', rank: 1 },
+    ])
+  })
+
+  it('seeds 8 groups into quarterfinal order: standard 1-vs-8, 2-vs-7, ... bracket seeding', () => {
+    const seeds = buildQualifierSeeds(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 1)
+    // Standard seed order for 8: 1v8, 4v5, 2v7, 3v6 (matches how a single-elimination bracket
+    // avoids the two best seeds meeting before the final) -- pairs, in quarterfinal matchIndex order.
+    expect(seeds).toEqual([
+      { groupId: 'A', rank: 1 }, { groupId: 'H', rank: 1 },
+      { groupId: 'D', rank: 1 }, { groupId: 'E', rank: 1 },
+      { groupId: 'B', rank: 1 }, { groupId: 'G', rank: 1 },
+      { groupId: 'C', rank: 1 }, { groupId: 'F', rank: 1 },
+    ])
+  })
+
+  it('throws when the group count is not exactly 2, 4, 8, 16, or 32', () => {
+    expect(() => buildQualifierSeeds(['A', 'B', 'C'], 1)).toThrow('Endrunde 1/3 benötigt 2, 4, 8, 16 oder 32 Gruppen')
+    expect(() => buildQualifierSeeds(['A', 'B', 'C', 'D', 'E'], 1)).toThrow('Endrunde 1/3 benötigt 2, 4, 8, 16 oder 32 Gruppen')
   })
 })
 
