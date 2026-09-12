@@ -150,6 +150,43 @@ export default function ManualPage() {
           Alle Daten werden ausschließlich lokal im Browser gespeichert (kein Server, kein Konto nötig). Über den
           JSON-Export/-Import (Abschnitt 9) lässt sich ein Turnier auf ein anderes Gerät übertragen oder sichern.
         </p>
+        <Callout title="Zum Ausprobieren: Demo-Turniere">
+          Wer das Tool erst einmal unverbindlich testen möchte, muss nicht bei null anfangen — fünf vorbereitete,
+          bereits laufende Beispielturniere stehen zum Herunterladen bereit (Liste darunter). Eine heruntergeladene
+          Datei lässt sich über „Turnier importieren" auf der Konfigurationsseite (Abschnitt 8) direkt laden.
+        </Callout>
+        <p>
+          Je eines pro Turnierform (mit ca. 9 Teams, einige Ergebnisse bereits eingetragen) sowie zwei
+          Großturnier-Beispiele mit 64 Teams in 16 Gruppen (einmal ohne, einmal mit Ergebnissen), um die Skalierung
+          bei sehr vielen Teilnehmern zu zeigen:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>
+            <a href={`${import.meta.env.BASE_URL}demos/01-jeder-gegen-jeden-9-teams-laufend.json`} className="text-brand-primary underline" download>
+              Jeder gegen Jeden, 9 Teams
+            </a>
+          </li>
+          <li>
+            <a href={`${import.meta.env.BASE_URL}demos/02-gruppenphase-endrunde-9-teams-laufend.json`} className="text-brand-primary underline" download>
+              Gruppenphase + Endrunde, 9 Teams / 2 Gruppen
+            </a>
+          </li>
+          <li>
+            <a href={`${import.meta.env.BASE_URL}demos/03-schweizer-system-9-teams-laufend.json`} className="text-brand-primary underline" download>
+              Einstufungsturnier (Schweizer System), 9 Teams
+            </a>
+          </li>
+          <li>
+            <a href={`${import.meta.env.BASE_URL}demos/04-grossturnier-64-teams-16-gruppen-ungespielt.json`} className="text-brand-primary underline" download>
+              Großturnier, 64 Teams / 16 Gruppen (ohne Ergebnisse)
+            </a>
+          </li>
+          <li>
+            <a href={`${import.meta.env.BASE_URL}demos/05-grossturnier-64-teams-16-gruppen-laufend.json`} className="text-brand-primary underline" download>
+              Großturnier, 64 Teams / 16 Gruppen (mit Ergebnissen)
+            </a>
+          </li>
+        </ul>
       </Section>
 
       <Section id="teams" title="2. Teams anlegen">
