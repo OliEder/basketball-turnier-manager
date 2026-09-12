@@ -60,8 +60,30 @@ describe('buildPlacementCohorts', () => {
     const standingsByGroup = new Map(groupIds.map(g => [g, computeGroupStandings(teams, games, g)]))
     const cohorts = buildPlacementCohorts(standingsByGroup)
     expect(cohorts).toHaveLength(2)
+    // 2 groups -> each cohort spans 2 places: cohort 1 = places 1-2, cohort 2 = places 3-4
     expect(cohorts[0]).toEqual({ rankTier: 1, placementFrom: 1, teamIds: ['a1', 'b1'] })
-    expect(cohorts[1]).toEqual({ rankTier: 2, placementFrom: 5, teamIds: ['a2', 'b2'] })
+    expect(cohorts[1]).toEqual({ rankTier: 2, placementFrom: 3, teamIds: ['a2', 'b2'] })
+  })
+
+  it('spans placement ranges by the actual group count, not a fixed size (4 groups -> 1-4, 5-8, ...)', () => {
+    const teams = [
+      makeTeam('a1', 'A'), makeTeam('a2', 'A'),
+      makeTeam('b1', 'B'), makeTeam('b2', 'B'),
+      makeTeam('c1', 'C'), makeTeam('c2', 'C'),
+      makeTeam('d1', 'D'), makeTeam('d2', 'D'),
+    ]
+    const games = [
+      makeGame({ id: 'gA', groupId: 'A', homeTeamId: 'a1', awayTeamId: 'a2', periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }] }),
+      makeGame({ id: 'gB', groupId: 'B', homeTeamId: 'b1', awayTeamId: 'b2', periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }] }),
+      makeGame({ id: 'gC', groupId: 'C', homeTeamId: 'c1', awayTeamId: 'c2', periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }] }),
+      makeGame({ id: 'gD', groupId: 'D', homeTeamId: 'd1', awayTeamId: 'd2', periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }] }),
+    ]
+    const groupIds = ['A', 'B', 'C', 'D']
+    const standingsByGroup = new Map(groupIds.map(g => [g, computeGroupStandings(teams, games, g)]))
+    const cohorts = buildPlacementCohorts(standingsByGroup)
+    expect(cohorts).toHaveLength(2)
+    expect(cohorts[0].placementFrom).toBe(1)
+    expect(cohorts[1].placementFrom).toBe(5)
   })
 
   it('caps the number of rank tiers at the smallest group size', () => {
