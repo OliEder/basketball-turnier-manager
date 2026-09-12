@@ -36,6 +36,13 @@ export function computeGroupPhaseBuchholz(
  * seed 2 with seed `size-1`, etc., recursively arranged so the two best seeds can only meet in the
  * final (the well-known "avoid an early final" seeding used by most KO tournaments). Returns a
  * flat list of 0-based seed indices in bracket match order: [match0.home, match0.away, match1.home, match1.away, ...].
+ *
+ * Worked trace for size=4: half = order(2) = [0,1] (base case pairs 0 with 2-1-0=1, i.e. [0,1]);
+ * then each seed in half is paired with its mirror (size-1-seed): 0->3, 1->2, giving [0,3,1,2] —
+ * i.e. match0 = seed0 vs seed3 (1v4), match1 = seed1 vs seed2 (2v3). The recursion preserves this
+ * mirror-pairing invariant at every level, since halving/mirroring a valid order for size/2 and
+ * then mirroring each element against `size-1` always keeps the two lowest (best) seeds in
+ * different halves of the bracket until the final round.
  */
 function standardBracketSeedOrder(size: number): number[] {
   if (size === 1) return [0]
@@ -57,7 +64,10 @@ function standardBracketSeedOrder(size: number): number[] {
  * mirrors the deterministic-by-groupId approach already used for Endrunde 4's placement cohorts.
  *
  * Returns groupIds.length sourceRanks in bracket match order — for direct use as
- * BuildBracketInput.sourceRanks.
+ * BuildBracketInput.sourceRanks. Consumed pairwise as
+ * `sourceRanks[matchIndex*2]`/`sourceRanks[matchIndex*2+1]` (see the `homeSourceRank`/
+ * `awaySourceRank` assignment in buildBracket's first-round loop below) — if that indexing
+ * convention ever changes, this function's "match order" contract must change with it.
  */
 export function buildQualifierSeeds(groupIds: string[], rank: number): { groupId: string; rank: number }[] {
   const size = groupIds.length
