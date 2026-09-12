@@ -53,4 +53,25 @@ describe('FinalsVariantForm', () => {
     fireEvent.change(select, { target: { value: 'walkover' } })
     expect(useTournamentStore.getState().tournament.dropoutHandling).toBe('walkover')
   })
+
+  it('shows a capacity warning when Endrunde 4 would generate many extra games', () => {
+    useTournamentStore.setState({
+      tournament: {
+        ...useTournamentStore.getState().tournament,
+        groupCount: 8,
+        finalsVariant: 'endrunde-4',
+        teams: Array.from({ length: 32 }, (_, i) => ({
+          id: `t${i}`, name: `T${i}`, logoUrl: '', color: '#000', contact: '', players: [],
+          groupId: String.fromCharCode(65 + (i % 8)),
+        })),
+      },
+    })
+    render(<FinalsVariantForm />)
+    expect(screen.getByText(/zusätzliche Spiele/i)).toBeInTheDocument()
+  })
+
+  it('does not show a capacity warning for a small Endrunde 4 setup', () => {
+    render(<FinalsVariantForm />)
+    expect(screen.queryByText(/zusätzliche Spiele/i)).not.toBeInTheDocument()
+  })
 })
