@@ -14,6 +14,7 @@ export interface Team {
   players: Player[]
   abbreviation?: string  // optional, max. 4 Zeichen; wird in platzbeschränkten Ansichten anstelle des vollen Namens angezeigt
   withdrawnAfterRound?: number  // set when the team withdrew mid-tournament; value = last round played normally
+  groupId?: string  // Gruppenzuordnung in der Mehrgruppen-Vorrunde; fehlt = Standardgruppe "A"
 }
 
 export interface TimeWindow {
@@ -48,6 +49,8 @@ export interface TournamentConfig {
   mode: TournamentMode
   finalsBracketSize?: 2 | 4  // only relevant when mode === 'round-robin+finals'; 4 = semifinals+final, 2 = final only
   swissRounds?: number       // only relevant when mode === 'swiss'; number of swiss rounds to play
+  groupCount?: number        // only relevant when mode === 'round-robin+finals'; number of parallel group-stage groups, default 1
+  doubleRoundRobin?: boolean // if true, each group plays a return leg (home/away swapped), default false
   fields: number
   gameSettings: GameSettings
   venue: Venue
@@ -77,6 +80,7 @@ export interface Game {
   periodScores: PeriodScore[]
   byeTeamId?: string      // set instead of home/awayTeamId when this "game" is a bye
   cancelledReason?: 'withdrawal'  // set when the game was cancelled due to a team withdrawing
+  groupId?: string        // which group this game belongs to (only stage === 'group' with multiple groups)
 }
 
 export interface Schedule {
