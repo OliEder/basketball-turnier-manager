@@ -6,6 +6,7 @@ export default function AppShell() {
   const { tournament, schedule } = useTournamentStore()
   const isSwiss = tournament.mode === 'swiss'
   const hasSchedule = !!schedule && schedule.games.length > 0
+  const hasMultipleGroups = (tournament.groupCount ?? 1) > 1
 
   const navItems = [
     { to: '/teams', label: 'Teams', gated: false },
@@ -15,7 +16,12 @@ export default function AppShell() {
           { to: '/swiss-results', label: 'Ergebnisse erfassen', gated: true },
           { to: '/swiss-overview', label: 'Turnierübersicht', gated: true },
         ]
-      : [{ to: '/schedule', label: 'Zeitplan', gated: true }]),
+      : [
+          { to: '/schedule', label: 'Zeitplan', gated: true },
+          ...(hasMultipleGroups
+            ? [{ to: '/group-overview', label: 'Gruppentabellen', gated: true }]
+            : []),
+        ]),
     { to: '/export', label: 'Export', gated: false },
     { to: '/anleitung', label: 'Anleitung', gated: false },
   ]

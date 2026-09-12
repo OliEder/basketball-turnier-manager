@@ -26,7 +26,7 @@ beforeEach(() => {
 })
 
 function renderShell() {
-  render(
+  return render(
     <MemoryRouter initialEntries={['/teams']}>
       <Routes>
         <Route path="/" element={<AppShell />}>
@@ -86,5 +86,17 @@ describe('AppShell', () => {
   it('renders Anleitung as a clickable link even when no schedule exists', () => {
     renderShell()
     expect(screen.getByRole('link', { name: 'Anleitung' })).toBeInTheDocument()
+  })
+
+  it('shows the "Gruppentabellen" nav link only when multiple groups are configured', () => {
+    useTournamentStore.getState().setMode('round-robin+finals')
+    useTournamentStore.getState().setGroupCount(1)
+    const { unmount } = renderShell()
+    expect(screen.queryByText('Gruppentabellen')).not.toBeInTheDocument()
+    unmount()
+
+    useTournamentStore.getState().setGroupCount(2)
+    renderShell()
+    expect(screen.getByText('Gruppentabellen')).toBeInTheDocument()
   })
 })
