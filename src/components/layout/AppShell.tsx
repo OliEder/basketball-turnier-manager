@@ -18,6 +18,7 @@ export default function AppShell() {
         ]
       : [
           { to: '/schedule', label: 'Zeitplan', gated: true },
+          { to: '/group-results', label: 'Ergebnisse erfassen', gated: true },
           ...(hasMultipleGroups
             ? [{ to: '/group-overview', label: 'Gruppentabellen', gated: true }]
             : []),

@@ -106,6 +106,22 @@ describe('AppShell', () => {
     expect(screen.getByText('Gruppentabellen')).toBeInTheDocument()
   })
 
+  it('shows "Ergebnisse erfassen" as a link for round-robin mode once a schedule exists', () => {
+    useTournamentStore.getState().addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.getState().addTeam({ name: 'Team B', logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.getState().generateAndSaveSchedule()
+
+    renderShell()
+
+    expect(screen.getByRole('link', { name: 'Ergebnisse erfassen' })).toHaveAttribute('href', '/group-results')
+  })
+
+  it('shows "Ergebnisse erfassen" as a non-clickable label for round-robin mode when no schedule exists', () => {
+    renderShell()
+    expect(screen.queryByRole('link', { name: 'Ergebnisse erfassen' })).not.toBeInTheDocument()
+    expect(screen.getByText('Ergebnisse erfassen')).toBeInTheDocument()
+  })
+
   it('shows the "Gruppentabellen" nav link when teams are split across multiple groups, even if groupCount was never explicitly set', () => {
     const { addTeam, setTeamGroup } = useTournamentStore.getState()
     useTournamentStore.getState().setMode('round-robin+finals')
