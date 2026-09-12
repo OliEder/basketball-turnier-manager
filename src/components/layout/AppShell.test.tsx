@@ -88,14 +88,34 @@ describe('AppShell', () => {
     expect(screen.getByRole('link', { name: 'Anleitung' })).toBeInTheDocument()
   })
 
-  it('shows the "Gruppentabellen" nav link only when multiple groups are configured', () => {
+  it('shows the "Gruppentabellen" nav link only when teams are actually split across multiple groups', () => {
+    const { addTeam, setTeamGroup } = useTournamentStore.getState()
     useTournamentStore.getState().setMode('round-robin+finals')
-    useTournamentStore.getState().setGroupCount(1)
+    useTournamentStore.getState().setGroupCount(2)
+    addTeam({ name: 'Team 1', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'Team 2', logoUrl: '', color: '#000', contact: '' })
+    const teams = useTournamentStore.getState().tournament.teams
+    setTeamGroup(teams[0].id, 'A')
+    setTeamGroup(teams[1].id, 'A')
     const { unmount } = renderShell()
     expect(screen.queryByText('Gruppentabellen')).not.toBeInTheDocument()
     unmount()
 
-    useTournamentStore.getState().setGroupCount(2)
+    setTeamGroup(teams[1].id, 'B')
+    renderShell()
+    expect(screen.getByText('Gruppentabellen')).toBeInTheDocument()
+  })
+
+  it('shows the "Gruppentabellen" nav link when teams are split across multiple groups, even if groupCount was never explicitly set', () => {
+    const { addTeam, setTeamGroup } = useTournamentStore.getState()
+    useTournamentStore.getState().setMode('round-robin+finals')
+    addTeam({ name: 'Team 1', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'Team 2', logoUrl: '', color: '#000', contact: '' })
+    const teams = useTournamentStore.getState().tournament.teams
+    setTeamGroup(teams[0].id, 'A')
+    setTeamGroup(teams[1].id, 'B')
+    // groupCount was never explicitly set — it should still show the link because teams are actually split
+    expect(useTournamentStore.getState().tournament.groupCount).toBeUndefined()
     renderShell()
     expect(screen.getByText('Gruppentabellen')).toBeInTheDocument()
   })

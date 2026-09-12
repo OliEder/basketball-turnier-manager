@@ -6,7 +6,7 @@ export default function AppShell() {
   const { tournament, schedule } = useTournamentStore()
   const isSwiss = tournament.mode === 'swiss'
   const hasSchedule = !!schedule && schedule.games.length > 0
-  const hasMultipleGroups = (tournament.groupCount ?? 1) > 1
+  const hasMultipleGroups = new Set(tournament.teams.map((t) => t.groupId ?? 'A')).size > 1
 
   const navItems = [
     { to: '/teams', label: 'Teams', gated: false },
