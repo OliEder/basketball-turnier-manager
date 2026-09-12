@@ -80,16 +80,16 @@ describe('generatePlayoffGames', () => {
     expect(thirdPlace.stage).toBe('third-place')
     expect(thirdPlace.homeLabel).toBe('Verlierer HF 1')
     expect(thirdPlace.awayLabel).toBe('Verlierer HF 2')
-    expect(thirdPlace.homeSourceSemifinal).toEqual({ semifinalIndex: 1, outcome: 'loser' })
-    expect(thirdPlace.awaySourceSemifinal).toEqual({ semifinalIndex: 2, outcome: 'loser' })
+    expect(thirdPlace.homeSourceMatch).toEqual({ stage: 'semifinal', matchIndex: 0, outcome: 'loser' })
+    expect(thirdPlace.awaySourceMatch).toEqual({ stage: 'semifinal', matchIndex: 1, outcome: 'loser' })
 
     expect(final.stage).toBe('final')
     expect(final.homeLabel).toBe('Sieger HF 1')
     expect(final.awayLabel).toBe('Sieger HF 2')
     expect(final.field).toBe(1)
     expect(final.gameNumber).toBe(10)
-    expect(final.homeSourceSemifinal).toEqual({ semifinalIndex: 1, outcome: 'winner' })
-    expect(final.awaySourceSemifinal).toEqual({ semifinalIndex: 2, outcome: 'winner' })
+    expect(final.homeSourceMatch).toEqual({ stage: 'semifinal', matchIndex: 0, outcome: 'winner' })
+    expect(final.awaySourceMatch).toEqual({ stage: 'semifinal', matchIndex: 1, outcome: 'winner' })
   })
 
   it('sets homeSourceRank/awaySourceRank on semifinal games when qualifierSourceRanks is provided (Endrunde 3)', () => {

@@ -52,6 +52,7 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       homeLabel: '1. der Vorrunde',
       awayLabel: '4. der Vorrunde',
       stage: 'semifinal',
+      matchIndex: 0,
       field: 1,
       scheduledStart: sf1Start,
       scheduledEnd: sf1End,
@@ -85,6 +86,7 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       homeLabel: '2. der Vorrunde',
       awayLabel: '3. der Vorrunde',
       stage: 'semifinal',
+      matchIndex: 1,
       field: sf2Field,
       scheduledStart: sf2Start,
       scheduledEnd: sf2End,
@@ -144,14 +146,15 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       homeLabel: 'Verlierer HF 1',
       awayLabel: 'Verlierer HF 2',
       stage: 'third-place',
+      matchIndex: 0,
       field: thirdPlaceField,
       scheduledStart: thirdPlaceStart,
       scheduledEnd: thirdPlaceStart === roundThreeStart ? roundThreeEnd : addMinutes(thirdPlaceStart, gameDuration),
       round: 3,
       gameNumber: gameNumber++,
       periodScores: [],
-      homeSourceSemifinal: { semifinalIndex: 1, outcome: 'loser' },
-      awaySourceSemifinal: { semifinalIndex: 2, outcome: 'loser' },
+      homeSourceMatch: { stage: 'semifinal', matchIndex: 0, outcome: 'loser' },
+      awaySourceMatch: { stage: 'semifinal', matchIndex: 1, outcome: 'loser' },
     })
 
     games.push({
@@ -161,14 +164,15 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       homeLabel: 'Sieger HF 1',
       awayLabel: 'Sieger HF 2',
       stage: 'final',
+      matchIndex: 0,
       field: finalField,
       scheduledStart: finalStart,
       scheduledEnd: addMinutes(finalStart, gameDuration),
       round: 3,
       gameNumber: gameNumber++,
       periodScores: [],
-      homeSourceSemifinal: { semifinalIndex: 1, outcome: 'winner' },
-      awaySourceSemifinal: { semifinalIndex: 2, outcome: 'winner' },
+      homeSourceMatch: { stage: 'semifinal', matchIndex: 0, outcome: 'winner' },
+      awaySourceMatch: { stage: 'semifinal', matchIndex: 1, outcome: 'winner' },
     })
   } else {
     const latest = clocks.reduce((max, t) => maxTime(max, t), clocks[0])
