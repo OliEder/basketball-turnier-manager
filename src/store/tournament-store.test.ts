@@ -600,6 +600,53 @@ describe('withdrawTeam (group stage)', () => {
   })
 })
 
+describe('withdrawTeam (finals/placement stage)', () => {
+  it('cancels a withdrawing team\'s remaining placement-cohort games as a walkover', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      finalsVariant: 'endrunde-4' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const playedPlacementGame = {
+      id: 'pg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'placement' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 1, gameNumber: 1,
+      periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 2 },
+    }
+    const unplayedPlacementGame = {
+      id: 'pg2', homeTeamId: 't2', awayTeamId: 't3', stage: 'placement' as const, field: 1,
+      scheduledStart: '11:00', scheduledEnd: '11:30', round: 2, gameNumber: 2, periodScores: [],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 2 }, awaySourceRank: { groupId: 'A', rank: 3 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [playedPlacementGame, unplayedPlacementGame], totalDurationMin: 90, estimatedEnd: '11:30',
+      },
+    })
+
+    useTournamentStore.getState().withdrawTeam('t2')
+
+    const cancelled = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg2')!
+    expect(cancelled.cancelledReason).toBe('withdrawal')
+    expect(cancelled.periodScores).toEqual([{ period: 1, homeScore: 0, awayScore: 0 }])
+    const untouched = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
+    expect(untouched.cancelledReason).toBeUndefined()
+
+    const withdrawnTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === 't2')!
+    expect(withdrawnTeam.withdrawnAfterStage).toBe('finals')
+  })
+})
+
 describe('computeGroupStandings walkover scoring (via group-stage withdrawal)', () => {
   it('awards the surviving team 2 walkover points when the opponent withdrew', () => {
     const tournament = {
