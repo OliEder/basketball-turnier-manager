@@ -231,7 +231,12 @@ function withdrawNonSwissTeam(
     t.id === teamId ? { ...t, withdrawnAfterStage: wasInPlacementStage ? 'finals' as const : 'group' as const } : t
   )
 
-  const updatedSchedule = { ...schedule, games: updatedGames }
+  // A group-stage withdrawal can be the last unplayed game in its group, newly completing that
+  // group — re-run placeholder resolution so any waiting placement game picks this up immediately,
+  // consistent with submitGameResult/correctGameResult.
+  const resolvedGames = resolvePlaceholders(updatedGames, updatedTeams)
+
+  const updatedSchedule = { ...schedule, games: resolvedGames }
   const updatedTournament = { ...tournament, teams: updatedTeams }
   set({ schedule: updatedSchedule, tournament: updatedTournament })
   saveSchedule(updatedSchedule)
@@ -247,6 +252,8 @@ function withdrawNonSwissTeam(
  * correction can flip the resolved team — homeSourceRank/awaySourceRank are never cleared, exactly
  * so this re-resolution can happen without needing separate bookkeeping. A placement game that has
  * already been scored itself is left untouched, regardless of what the group phase does afterward.
+ * A withdrawn team is excluded from the qualifying ranks (see standingsByGroup below) — walkover
+ * wins it banked before withdrawing must not let it occupy a placement-cohort slot.
  */
 function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
   const groupIds = [...new Set(teams.map(t => t.groupId ?? 'A'))]
@@ -258,7 +265,12 @@ function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
 
   // Recomputed on every submitGameResult/correctGameResult call, not cached across calls — cheap
   // at this app's tournament sizes (small team/group counts), so not worth the added complexity.
-  const standingsByGroup = new Map(groupIds.map(id => [id, computeGroupStandings(teams, games, id)]))
+  // A withdrawn team is excluded from the qualifying ranks — walkover wins it banked before
+  // withdrawing must not let it occupy a placement-cohort slot (Endrunde 4 has no
+  // wildcard/next-best-fills-in concept, so the slot simply is not filled from this group).
+  const standingsByGroup = new Map(
+    groupIds.map(id => [id, computeGroupStandings(teams, games, id).filter(s => !s.withdrawn)]),
+  )
 
   return games.map(g => {
     if (g.stage !== 'placement' || g.periodScores.length > 0) return g
