@@ -53,7 +53,7 @@ export interface TournamentConfig {
   swissRounds?: number       // only relevant when mode === 'swiss'; number of swiss rounds to play
   groupCount?: number        // only relevant when mode === 'round-robin+finals'; number of parallel group-stage groups, default 1
   doubleRoundRobin?: boolean // if true, each group plays a return leg (home/away swapped), default false
-  finalsVariant?: 'endrunde-3' | 'endrunde-4'  // only relevant when mode === 'round-robin+finals' and
+  finalsVariant?: 'endrunde-1' | 'endrunde-3' | 'endrunde-4'  // only relevant when mode === 'round-robin+finals' and
     // groupCount > 1; more variants ('endrunde-1' | 'endrunde-2' | ...) are added in a later phase —
     // see docs/superpowers/specs/2026-09-12-finals-variants-design.md
   dropoutHandling?: 'walkover' | 'next-best-fills-in'  // default 'next-best-fills-in'; governs what
