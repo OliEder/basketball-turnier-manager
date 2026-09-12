@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { generateRoundRobinPairs, generateSchedule } from './schedule-generator'
+import { generateRoundRobinPairs, generateSchedule, generateRoundRobinRounds } from './schedule-generator'
 import { timeToMinutes } from './game-duration'
 import type { TournamentConfig, Team } from '@/types'
 
@@ -175,5 +175,57 @@ describe('generateSchedule with swiss mode', () => {
     }
     const schedule = generateSchedule(config)
     expect(schedule.awardCeremonyEstimate).toBeUndefined()
+  })
+})
+
+describe('generateRoundRobinRounds', () => {
+  it('generates N-1 rounds with N/2 pairs each for even team counts', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3', 't4'])
+    expect(rounds).toHaveLength(3)
+    for (const round of rounds) {
+      expect(round).toHaveLength(2)
+    }
+  })
+
+  it('generates N rounds with (N-1)/2 pairs each for odd team counts (one team sits out per round)', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3'])
+    expect(rounds).toHaveLength(3)
+    for (const round of rounds) {
+      expect(round).toHaveLength(1)
+    }
+  })
+
+  it('every team appears at most once per round', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3', 't4', 't5', 't6'])
+    for (const round of rounds) {
+      const teamsInRound = round.flatMap(([home, away]) => [home, away])
+      const uniqueTeams = new Set(teamsInRound)
+      expect(uniqueTeams.size).toBe(teamsInRound.length)
+    }
+  })
+
+  it('each unique pair plays exactly once across all rounds', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2', 't3', 't4', 't5'])
+    const seen = new Set<string>()
+    let totalPairs = 0
+    for (const round of rounds) {
+      for (const [home, away] of round) {
+        const key = [home, away].sort().join('|')
+        expect(seen.has(key)).toBe(false)
+        seen.add(key)
+        totalPairs++
+      }
+    }
+    // 5 teams: 5×4/2 = 10 unique pairs
+    expect(totalPairs).toBe(10)
+  })
+
+  it('returns an empty array for a single team', () => {
+    expect(generateRoundRobinRounds(['t1'])).toEqual([])
+  })
+
+  it('returns one round with one pair for two teams', () => {
+    const rounds = generateRoundRobinRounds(['t1', 't2'])
+    expect(rounds).toEqual([[['t1', 't2']]])
   })
 })

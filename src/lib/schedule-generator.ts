@@ -15,6 +15,41 @@ export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
   return pairs
 }
 
+/**
+ * Generate round-robin rounds using the circle method (Berger tables): each round contains
+ * every team at most once, so all rounds can be scheduled in parallel across available fields.
+ * Odd team counts get one sitting-out team per round (no bye game is generated for it — this
+ * differs from the swiss-system bye, which awards points; a round-robin sit-out earns nothing).
+ */
+export function generateRoundRobinRounds(teamIds: string[]): [string, string][][] {
+  if (teamIds.length < 2) return []
+
+  const hasOddCount = teamIds.length % 2 === 1
+  const working: (string | null)[] = hasOddCount ? [...teamIds, null] : [...teamIds]
+  const n = working.length
+  const roundCount = n - 1
+  const rounds: [string, string][][] = []
+
+  const rotating = working.slice(1)
+  const fixed = working[0]
+
+  for (let r = 0; r < roundCount; r++) {
+    const roundTeams = [fixed, ...rotating]
+    const roundPairs: [string, string][] = []
+    for (let i = 0; i < n / 2; i++) {
+      const home = roundTeams[i]
+      const away = roundTeams[n - 1 - i]
+      if (home !== null && away !== null) {
+        roundPairs.push([home, away])
+      }
+    }
+    rounds.push(roundPairs)
+    rotating.unshift(rotating.pop()!)
+  }
+
+  return rounds
+}
+
 export function generateSchedule(config: TournamentConfig): Schedule {
   const { teams, fields, gameSettings, venue } = config
   const gameDuration = calcGameDurationMin(gameSettings)
