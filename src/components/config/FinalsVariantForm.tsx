@@ -67,11 +67,15 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
           className="border border-border rounded-sm px-2 py-1 text-sm w-full"
           value={tournament.dropoutHandling ?? 'next-best-fills-in'}
           onChange={e => setDropoutHandling(e.target.value as 'walkover' | 'next-best-fills-in')}
-          disabled={disabled}
+          disabled={true}
         >
           <option value="next-best-fills-in">Nächster Nachrücker rückt nach</option>
           <option value="walkover">Gegner rückt kampflos vor (Walkover)</option>
         </select>
+        <p className="text-xs text-muted-foreground">
+          Bei „Endrunde 4“ gibt es keine Nachrücker — ein Rückzug wird immer als Walkover gewertet.
+          Diese Einstellung wird erst für künftige KO-Endrunden-Varianten wirksam.
+        </p>
       </div>
     </div>
   )
