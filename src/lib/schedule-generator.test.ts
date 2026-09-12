@@ -229,6 +229,29 @@ describe('generateSchedule with round-robin+finals mode', () => {
       timeToMinutes(final.scheduledEnd) + 15,
     )
   })
+
+  it('generates placement-cohort games instead of a KO bracket when finalsVariant is endrunde-4', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      groupCount: 2,
+      finalsVariant: 'endrunde-4',
+      teams: [
+        { ...makeTeam('t1', 'T1'), groupId: 'A' },
+        { ...makeTeam('t2', 'T2'), groupId: 'A' },
+        { ...makeTeam('t3', 'T3'), groupId: 'B' },
+        { ...makeTeam('t4', 'T4'), groupId: 'B' },
+      ],
+    }
+    const schedule = generateSchedule(config)
+    const placementGames = schedule.games.filter(g => g.stage === 'placement')
+    // 2 groups of 2 teams each -> smallest group size is 2 -> 2 rank tiers (group winners' cohort
+    // playing for places 1-2, runners-up cohort playing for places 3-4), each cohort has 2 teams
+    // (one per group) -> 1 round-robin game per cohort -> 2 placement games total.
+    expect(placementGames).toHaveLength(2)
+    expect(placementGames.map(g => g.rankTier).sort()).toEqual([1, 2])
+    expect(schedule.games.some(g => g.stage === 'semifinal' || g.stage === 'final')).toBe(false)
+  })
 })
 
 describe('generateSchedule with swiss mode', () => {

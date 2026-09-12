@@ -3,6 +3,8 @@ import type { TournamentConfig, Game, Schedule } from '@/types'
 import { calcGameDurationMin, addMinutes, timeToMinutes, maxTime, findNextSlot } from './game-duration'
 import { generatePlayoffGames } from './playoff-generator'
 import { generateSwissSchedule } from './swiss-schedule'
+import { buildPlacementCohorts, buildPlacementGames } from './finals-variant-generator'
+import { computeGroupStandings } from './group-standings'
 
 /** Generate all unique pairs for round-robin. Returns [homeId, awayId][] */
 export function generateRoundRobinPairs(teamIds: string[]): [string, string][] {
@@ -159,7 +161,31 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     }
   }
 
-  if (config.mode === 'round-robin+finals') {
+  if (config.mode === 'round-robin+finals' && config.finalsVariant === 'endrunde-4') {
+    // Group phase hasn't been played yet at this point (periodScores are all empty), so
+    // computeGroupStandings here yields all-zero, arbitrarily-ordered rankings — cohort.teamIds
+    // from buildPlacementCohorts is therefore NOT a real team assignment and must not be used as
+    // one. Only cohort.rankTier (e.g. "rank 1 in each group") and cohort.teamIds.length (how many
+    // groups feed this cohort) are meaningful at generation time; sourceRanks are synthesized from
+    // the real, stable groupIds paired with rankTier instead. Actual team resolution happens later,
+    // once the group phase has real results.
+    const standingsByGroup = new Map(groupIds.map(groupId => [groupId, computeGroupStandings(teams, games, groupId)]))
+    const cohorts = buildPlacementCohorts(standingsByGroup).map(cohort => ({
+      rankTier: cohort.rankTier,
+      placementFrom: cohort.placementFrom,
+      sourceRanks: groupIds.slice(0, cohort.teamIds.length).map(groupId => ({ groupId, rank: cohort.rankTier })),
+    }))
+    const placementGames = buildPlacementGames({
+      cohorts,
+      fields,
+      gameSettings,
+      blackoutPeriods: venue.blackoutPeriods,
+      availabilityEnd,
+      fieldNextFree,
+      startGameNumber: gameNumber,
+    })
+    games.push(...placementGames)
+  } else if (config.mode === 'round-robin+finals') {
     const playoffGames = generatePlayoffGames({
       finalsBracketSize: config.finalsBracketSize ?? 4,
       fields,
