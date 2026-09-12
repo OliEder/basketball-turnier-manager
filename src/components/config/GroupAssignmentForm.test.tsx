@@ -42,6 +42,25 @@ describe('GroupAssignmentForm', () => {
     expect(useTournamentStore.getState().tournament.groupCount).toBe(3)
   })
 
+  it('commits the suggested group count into the store as soon as teams exist, even before any explicit change', () => {
+    // Regression: the input used to only display groupCount ?? suggestedGroupCount without ever
+    // writing the suggestion into the store. If the organizer's intended value happened to equal
+    // the suggestion (a common case), typing/confirming it produced no visible DOM change, so
+    // React's controlled-input change tracking never fired onChange and groupCount was never
+    // actually written -- any UI gated on "groupCount > 1" (e.g. the Endrunden-Variante section)
+    // then silently never appeared despite the field showing the correct number. Committing the
+    // suggestion eagerly closes this gap: by the time the organizer looks at the field, the store
+    // already holds a real value.
+    const { addTeam } = useTournamentStore.getState()
+    for (let i = 1; i <= 12; i++) {
+      addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })
+    }
+    render(<GroupAssignmentForm />)
+    // 12 teams -> suggested group count is 4 (see group-suggestion.ts).
+    expect(screen.getByLabelText('Anzahl Gruppen')).toHaveValue(4)
+    expect(useTournamentStore.getState().tournament.groupCount).toBe(4)
+  })
+
   it('toggles doubleRoundRobin via the checkbox', () => {
     render(<GroupAssignmentForm />)
     fireEvent.click(screen.getByLabelText('Mit Rückspiel (Hin- und Rückrunde)'))
