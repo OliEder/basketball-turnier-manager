@@ -114,7 +114,7 @@ export default function ManualPage() {
         <p>Der Basketball Turnier-Manager unterstützt drei Turnierformen:</p>
         <ul className="list-disc pl-6 space-y-1">
           <li><strong>Jeder gegen Jeden</strong> (Round-Robin)</li>
-          <li><strong>Jeder gegen Jeden + Finale</strong> (Round-Robin mit anschließender K.O.-Finalrunde)</li>
+          <li><strong>Gruppenphase + Endrunde</strong> (Round-Robin mit anschließender K.O.-Finalrunde)</li>
           <li>
             <strong>Einstufungsturnier (Schweizer System)</strong> — automatische, leistungsbasierte Paarung über
             mehrere Runden, ideal für Verbandsturniere mit vielen Teams und begrenzter Zeit
