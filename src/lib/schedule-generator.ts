@@ -3,7 +3,7 @@ import type { TournamentConfig, Game, Schedule } from '@/types'
 import { calcGameDurationMin, addMinutes, timeToMinutes, maxTime, findNextSlot } from './game-duration'
 import { generatePlayoffGames } from './playoff-generator'
 import { generateSwissSchedule } from './swiss-schedule'
-import { buildPlacementCohorts, buildPlacementGames, buildQualifierSeeds } from './finals-variant-generator'
+import { buildPlacementCohorts, buildPlacementGames, buildQualifierSeeds, buildBracket } from './finals-variant-generator'
 import { computeGroupStandings } from './group-standings'
 
 /** Generate all unique pairs for round-robin. Returns [homeId, awayId][] */
@@ -187,6 +187,41 @@ export function generateSchedule(config: TournamentConfig): Schedule {
       startGameNumber: gameNumber,
     })
     games.push(...placementGames)
+  } else if (config.mode === 'round-robin+finals' && config.finalsVariant === 'endrunde-1') {
+    // Every rank tier gets its own bracket, same rank-tier-count logic as Endrunde 4: capped by
+    // the smallest group's size, so every team ends up in exactly one bracket.
+    const standingsByGroup = new Map(groupIds.map(groupId => [groupId, computeGroupStandings(teams, games, groupId)]))
+    const rankTierCount = Math.min(...[...standingsByGroup.values()].map(s => s.length))
+    for (let rankTier = 1; rankTier <= rankTierCount; rankTier++) {
+      const sourceRanks = buildQualifierSeeds(groupIds, rankTier)
+      const bracketGames = buildBracket({
+        bracketSize: groupIds.length as 2 | 4 | 8 | 16 | 32,
+        rankTier,
+        sourceRanks,
+        fields,
+        gameSettings,
+        blackoutPeriods: venue.blackoutPeriods,
+        availabilityEnd,
+        fieldNextFree,
+        startGameNumber: gameNumber,
+      })
+      games.push(...bracketGames)
+      gameNumber += bracketGames.length
+      // buildBracket takes an internal COPY of fieldNextFree and never writes back to it (same
+      // contract as generatePlayoffGames) -- since this loop calls it once PER RANK TIER sharing
+      // the same fieldNextFree array, the next tier's bracket must start from where this tier's
+      // games actually left each field, or two rank tiers' brackets would get scheduled as if
+      // they were the only thing using the venue, double-booking fields. Recompute each field's
+      // next-free time from what this call actually produced (slotDuration is already computed
+      // once at the top of generateSchedule, from the same gameSettings).
+      for (const g of bracketGames) {
+        const fieldIndex = g.field - 1
+        const candidateNextFree = addMinutes(g.scheduledStart, slotDuration)
+        if (timeToMinutes(candidateNextFree) > timeToMinutes(fieldNextFree[fieldIndex])) {
+          fieldNextFree[fieldIndex] = candidateNextFree
+        }
+      }
+    }
   } else if (config.mode === 'round-robin+finals' && config.finalsVariant === 'endrunde-3') {
     // Only the 4 group-winners qualify, regardless of how many teams are actually in each group —
     // teamCount is fixed at 4 (the qualifying pool size), not teams.length (the whole tournament).

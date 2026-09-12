@@ -290,6 +290,56 @@ describe('generateSchedule with round-robin+finals mode', () => {
     expect(semifinals[1].homeSourceRank).toEqual({ groupId: 'B', rank: 1 })
     expect(semifinals[1].awaySourceRank).toEqual({ groupId: 'C', rank: 1 })
   })
+
+  it('generates one KO bracket per rank tier when finalsVariant is endrunde-1, capped by the smallest group size', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      groupCount: 4,
+      finalsVariant: 'endrunde-1',
+      teams: [
+        { ...makeTeam('t1', 'T1'), groupId: 'A' },
+        { ...makeTeam('t2', 'T2'), groupId: 'A' },
+        { ...makeTeam('t3', 'T3'), groupId: 'B' },
+        { ...makeTeam('t4', 'T4'), groupId: 'B' },
+        { ...makeTeam('t5', 'T5'), groupId: 'C' },
+        { ...makeTeam('t6', 'T6'), groupId: 'C' },
+        { ...makeTeam('t7', 'T7'), groupId: 'D' },
+        { ...makeTeam('t8', 'T8'), groupId: 'D' },
+      ],
+    }
+    const schedule = generateSchedule(config)
+    // 4 groups of 2 -> smallest group size 2 -> 2 rank tiers, each a 4-team bracket
+    // (semifinal x2 + third-place + final = 4 games per tier -> 8 KO games total).
+    const koGames = schedule.games.filter(g =>
+      g.stage === 'semifinal' || g.stage === 'final' || g.stage === 'third-place')
+    expect(koGames).toHaveLength(8)
+    expect(koGames.filter(g => g.rankTier === 1)).toHaveLength(4)
+    expect(koGames.filter(g => g.rankTier === 2)).toHaveLength(4)
+    expect(schedule.games.some(g => g.stage === 'placement')).toBe(false)
+
+    const rankTier1Semifinals = koGames.filter(g => g.rankTier === 1 && g.stage === 'semifinal')
+    expect(rankTier1Semifinals[0].homeSourceRank).toEqual({ groupId: 'A', rank: 1 })
+    expect(rankTier1Semifinals[0].awaySourceRank).toEqual({ groupId: 'D', rank: 1 })
+    const rankTier2Semifinals = koGames.filter(g => g.rankTier === 2 && g.stage === 'semifinal')
+    expect(rankTier2Semifinals[0].homeSourceRank).toEqual({ groupId: 'A', rank: 2 })
+    expect(rankTier2Semifinals[0].awaySourceRank).toEqual({ groupId: 'D', rank: 2 })
+
+    // Regression guard for field-clock threading between successive buildBracket calls: baseConfig
+    // only has 2 fields, so rank tier 1's bracket alone occupies both fields across 2 rounds
+    // (semifinals, then final+third-place). If generateSchedule failed to carry each field's
+    // actual next-free time forward into rank tier 2's buildBracket call, tier 2's games would be
+    // scheduled as if the fields were still free from the very start of the tournament, causing an
+    // impossible time overlap with tier 1's games on the same field. No game on field 1 (or field
+    // 2) may start before every EARLIER-starting game already scheduled on that same field has
+    // ended.
+    for (const field of [1, 2]) {
+      const gamesOnField = schedule.games.filter(g => g.field === field).sort((a, b) => a.scheduledStart.localeCompare(b.scheduledStart))
+      for (let i = 1; i < gamesOnField.length; i++) {
+        expect(gamesOnField[i].scheduledStart >= gamesOnField[i - 1].scheduledEnd).toBe(true)
+      }
+    }
+  })
 })
 
 describe('generateSchedule with swiss mode', () => {
