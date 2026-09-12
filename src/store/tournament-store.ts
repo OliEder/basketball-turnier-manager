@@ -61,6 +61,8 @@ interface TournamentStore {
   setFinalsBracketSize: (size: 2 | 4) => void
   setGroupCount: (count: number) => void
   setDoubleRoundRobin: (enabled: boolean) => void
+  setFinalsVariant: (variant: TournamentConfig['finalsVariant']) => void
+  setDropoutHandling: (handling: NonNullable<TournamentConfig['dropoutHandling']>) => void
   setSwissRounds: (rounds: number) => void
   setFields: (fields: number) => void
   updateGameSettings: (settings: Partial<GameSettings>) => void
@@ -210,6 +212,16 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
 
   setDoubleRoundRobin: (enabled) => {
     set(s => ({ tournament: { ...s.tournament, doubleRoundRobin: enabled } }))
+    saveTournament(get().tournament)
+  },
+
+  setFinalsVariant: (variant) => {
+    set(s => ({ tournament: { ...s.tournament, finalsVariant: variant } }))
+    saveTournament(get().tournament)
+  },
+
+  setDropoutHandling: (handling) => {
+    set(s => ({ tournament: { ...s.tournament, dropoutHandling: handling } }))
     saveTournament(get().tournament)
   },
 

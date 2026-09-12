@@ -337,6 +337,20 @@ describe('multi-group configuration', () => {
   })
 })
 
+describe('setFinalsVariant / setDropoutHandling', () => {
+  it('setFinalsVariant updates the finals variant', () => {
+    const { setFinalsVariant } = useTournamentStore.getState()
+    setFinalsVariant('endrunde-4')
+    expect(useTournamentStore.getState().tournament.finalsVariant).toBe('endrunde-4')
+  })
+
+  it('setDropoutHandling updates the dropout handling mode', () => {
+    const { setDropoutHandling } = useTournamentStore.getState()
+    setDropoutHandling('walkover')
+    expect(useTournamentStore.getState().tournament.dropoutHandling).toBe('walkover')
+  })
+})
+
 describe('resetTournament', () => {
   it('clears the tournament, schedule and localStorage, and issues a fresh tournament id', () => {
     const { addTeam, setFields, generateAndSaveSchedule, resetTournament } = useTournamentStore.getState()
