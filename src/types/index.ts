@@ -109,9 +109,11 @@ export interface Game {
     // Only set on a bracket's FIRST round (its qualifying round) and on 'placement' games.
   awaySourceRank?: { groupId: string; rank: number }  // same for the away slot
   homeSourceMatch?: { stage: GameStage; matchIndex: number; outcome: 'winner' | 'loser' }  // which
-    // earlier-round match's winner/loser feeds the home slot; stays set even after resolution, so
-    // a later result correction can re-resolve this slot. Only set on bracket rounds AFTER the
-    // first (semifinal onward for a 4-bracket, quarterfinal onward for an 8-bracket, etc.).
+    // earlier-round match's winner/loser feeds the home slot — {stage, matchIndex} is only unique
+    // within this game's own rankTier, so resolution must look up the matching rankTier + stage +
+    // matchIndex, not stage + matchIndex alone. Stays set even after resolution, so a later result
+    // correction can re-resolve this slot. Only set on bracket rounds AFTER the first (semifinal
+    // onward for a 4-bracket, quarterfinal onward for an 8-bracket, etc.).
   awaySourceMatch?: { stage: GameStage; matchIndex: number; outcome: 'winner' | 'loser' }  // same for the away slot
 }
 
