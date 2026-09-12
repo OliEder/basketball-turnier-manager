@@ -1795,7 +1795,7 @@ Add to `src/lib/final-standings.ts` (after the existing `computeFinalStandings` 
  * completed final AND third-place game, none of the 4 places in that tier can be assigned at all,
  * since resolvePlaceholders may not even have filled in real team IDs yet).
  */
-export function computeEndrunde1Standings(teams: Team[], games: Game[]): FinalStanding[] {
+export function computeEndrunde1Standings(_teams: Team[], games: Game[]): FinalStanding[] {
   const koGames = games.filter(g => g.stage === 'final' || g.stage === 'third-place')
   const rankTiers = [...new Set(koGames.map(g => g.rankTier!))].sort((a, b) => a - b)
 
