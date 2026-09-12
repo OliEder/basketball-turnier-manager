@@ -1181,3 +1181,71 @@ git commit -m "feat: add a dedicated results-entry page for round-robin group-st
   3. Drucken testen: "Diese Gruppe drucken" und "Alle Gruppen drucken", inklusive Seitenumbruch-Kontrolle in der Browser-Druckvorschau.
   4. Bestätigen, dass sich am Swiss-System-Verhalten (eigene "Ergebnisse erfassen"-Seite unter `/swiss-results`) nichts geändert hat.
 - [ ] **Step 5**: Kein Commit nötig (reine Verifikation). Bei gefundenen Bugs: neuen Task mit Fix + Test ergänzen, einzeln committen.
+
+---
+
+## Task 5: Anleitung aktualisieren (echte Screenshots)
+
+**Voraussetzung:** NUR starten, wenn Task 4 (Abschlussregression) vollständig grün ist — Tests, Build, e2e, manueller Durchlauf.
+
+**Files:**
+- Modify: `src/pages/ManualPage.tsx`
+- Modify: `src/pages/ManualPage.test.tsx`
+- Create: `public/anleitung/28-gruppentabellen-tabs.png` (und ggf. weitere, siehe unten — exakte Nummerierung fortlaufend ab der höchsten bereits vorhandenen Datei in `public/anleitung/`, per `ls public/anleitung/ | sort` zu Beginn dieses Tasks ermitteln)
+
+**Kontext:** Die bestehende Anleitung (`/anleitung`) dokumentiert bereits Abschnitt 3.1 (Gruppen-Konfiguration) und 5.1 (Gruppentabellen) mit echten, per Playwright-Browser aufgenommenen Screenshots (siehe Commit `b4b8116` als Vorlage für Vorgehen und Bildstil). Dieser Task ergänzt die Anleitung um die in diesem Plan neu hinzugekommenen UI-Elemente: die Tab-Navigation der Gruppentabellen-Seite, die beiden Drucken-Buttons, und die komplett neue "Ergebnisse erfassen"-Seite für die Gruppenphase.
+
+**Wichtig — Absicherung:** Für diesen Task reicht es aus, dass die BESTEHENDEN `ManualPage.test.tsx`-Tests (inkl. der in diesem Task ergänzten neuen Tests für die neuen Abschnitte/Bilder) grün sind. Kein Playwright-e2e-Test für die Anleitungsseite nötig — die Screenshots selbst sind Dokumentation, keine testkritische Funktionalität.
+
+- [ ] **Step 1: Aktuelle Anleitungs-Struktur und bestehende Screenshot-Konvention lesen**
+
+Lies die vollständige aktuelle `src/pages/ManualPage.tsx` und `src/pages/ManualPage.test.tsx`. Notiere: die aktuelle höchste TOC-Nummerierung (Abschnitte 1-9, mit Unterabschnitten 3.1 und 5.1 aus dem vorherigen Feature), die aktuelle Anzahl referenzierter Screenshots (per `grep -c '<Screenshot' src/pages/ManualPage.tsx`), und das exakte `Screenshot`/`Callout`/`SubSection`-Komponentenmuster am Kopf der Datei.
+
+Run: `ls public/anleitung/ | sort | tail -5` — die nächste freie Nummer ist die höchste vorhandene + 1.
+
+- [ ] **Step 2: Screenshots per echtem Browser aufnehmen**
+
+Starte den Dev-Server (`npm run dev`) und nutze Playwright MCP (nicht Playwright-Testcode — ein echter interaktiver Browser, wie in Commit `b4b8116` vorgemacht), um folgende Zustände zu erzeugen und als PNG zu sichern (Dateinamen fortlaufend ab der in Step 1 ermittelten nächsten freien Nummer, Namensschema `<Nummer>-<kurzbeschreibung>.png`):
+
+1. Ein Mehrgruppen-Turnier aufbauen (z. B. 8-9 Teams, 2-3 Gruppen, Zeitplan generieren) und zur Gruppentabellen-Seite navigieren — Screenshot der Tab-Leiste mit den Gruppen-Buttons UND den beiden Drucken-Buttons sichtbar oben auf der Seite.
+2. Die neue "Ergebnisse erfassen"-Seite aufrufen — Screenshot mit sichtbaren Filtern (Status/Gruppe/Feld) und mindestens einer offenen Spielzeile mit Eingabefeldern.
+3. Optional (falls es den Sachverhalt klarer macht): ein Screenshot NACH dem Speichern eines Ergebnisses, der den Hinweis mit Link zur Gruppentabelle zeigt.
+
+Speichere die PNGs direkt unter `public/anleitung/` im Worktree (nicht im Hauptrepository-Root — falls der Playwright-MCP-Server relativ zu einem anderen Arbeitsverzeichnis speichert, wie es in einer früheren Session beobachtet wurde, die Dateien anschließend an die richtige Stelle kopieren, siehe Vorgehen in Commit `b4b8116`).
+
+Beende den Dev-Server nach Abschluss der Screenshots wieder (`pkill -f vite` oder gleichwertig), räume `.playwright-mcp`/Test-Artefakte auf, die während der Session entstanden sind.
+
+- [ ] **Step 3: Anleitung erweitern**
+
+Erweitere `src/pages/ManualPage.tsx`:
+- Im TOC-Array: Unterabschnitt zu 5.1 ergänzen (z. B. "5.1.1 Drucken" — je nachdem, wie es sich am natürlichsten in die bestehende Nummerierung einfügt) ODER bestehenden 5.1-Text um die Tab-/Druck-Beschreibung erweitern, plus einen neuen Hauptabschnitt (z. B. Abschnitt 4a oder als neuer Abschnitt zwischen 4 und 5, mit entsprechender Renummerierung ALLER nachfolgenden Abschnitte inkl. TOC und Kurzreferenz — lies die Datei vollständig, um die exakte, konsistente Umnummerierung durchzuführen, keine Lücken oder Dopplungen).
+- Textlich beschreiben: (a) dass die Gruppentabellen-Seite jetzt eine Gruppe nach der anderen per Tab zeigt statt aller Gruppen untereinander (kurze Ergänzung zu 5.1), (b) die beiden Drucken-Buttons ("Diese Gruppe drucken"/"Alle Gruppen drucken") mit Screenshot, (c) einen neuen Abschnitt zur "Ergebnisse erfassen"-Seite für die Gruppenphase (Filter Status/Gruppe/Feld, Speichern pro Spiel, Korrigieren, Link zur Gruppentabelle nach dem Speichern) mit Screenshot — im selben erklärenden, direkten Ton wie die bestehenden Abschnitte, mit `Callout`-Boxen für wichtige Hinweise (z. B. dass anders als beim Schweizer System JEDES Ergebnis sofort für sich gespeichert wird, kein Rundenabschluss nötig).
+- Binde die neuen Screenshots über die bestehende `<Screenshot src="..." alt="..." />`-Komponente ein.
+
+- [ ] **Step 4: `ManualPage.test.tsx` erweitern**
+
+Aktualisiere den bestehenden Test, der `images.length` auf eine feste Zahl prüft (`grep -n "images.length" src/pages/ManualPage.test.tsx` zur exakten Fundstelle) — neue Gesamtzahl = alte Zahl + Anzahl der in Step 2 tatsächlich hinzugefügten Screenshots.
+
+Ergänze neue Tests analog zum bestehenden Muster (siehe vorhandene Tests `'documents multi-group round-robin and double round-robin configuration'` und `'documents the group-standings overview page'` als Vorlage), die:
+- bestätigen, dass der neue Abschnitt zur Ergebniserfassung (Überschrift) im Dokument vorkommt,
+- bestätigen, dass die neuen Screenshot-Dateinamen tatsächlich referenziert werden (Muster wie im bestehenden Test `'renders screenshots for the new group-configuration and group-standings sections'`),
+- bestätigen, dass alle neuen/umnummerierten TOC-Einträge korrekt auf ihre Anker-IDs verlinken.
+
+- [ ] **Step 5: Tests ausführen, Erfolg verifizieren**
+
+Run: `npm test -- --run src/pages/ManualPage.test.tsx`
+Expected: alle Tests PASS.
+
+- [ ] **Step 6: Vollen Testlauf + Build**
+
+Run: `npm test -- --run && npm run build`
+Expected: alle grün. Kein e2e-Lauf für diesen Task nötig (siehe "Wichtig — Absicherung" oben) — die bestehende e2e-Suite bleibt unverändert, da an keiner funktionalen Seite (außer der reinen Doku-Seite `/anleitung`) etwas geändert wird.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add src/pages/ManualPage.tsx src/pages/ManualPage.test.tsx public/anleitung/
+git commit -m "docs: document tabbed group navigation, group printing, and the results-entry page"
+```
+
+- [ ] **Step 8**: Aufräumen — prüfe `git status --short`, dass keine Screenshot-Zwischendateien außerhalb von `public/anleitung/` oder Playwright-MCP-Artefakte (`.playwright-mcp/`, `test-results/`, `playwright-report/`) im Arbeitsverzeichnis verblieben sind. Falls doch, entfernen (diese Verzeichnisse sind bereits in `.gitignore`/etablierter Praxis nicht Teil des Commits).
