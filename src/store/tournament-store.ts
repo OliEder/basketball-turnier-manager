@@ -160,6 +160,84 @@ function reshapeFutureSwissRounds(games: Game[], afterRound: number, activeTeamC
   return [...untouched, ...reshaped]
 }
 
+function withdrawSwissTeam(
+  set: StoreApi<TournamentStore>['setState'],
+  get: StoreApi<TournamentStore>['getState'],
+  teamId: string,
+): void {
+  const { schedule, tournament } = get()
+  if (!schedule) return
+  const currentRound = getCurrentSwissRound(schedule.games)
+
+  const gamesAfterCancellation = schedule.games.map(g => {
+    if (g.round !== currentRound || g.stage !== 'swiss') return g
+    const involvesWithdrawing = g.homeTeamId === teamId || g.awayTeamId === teamId
+    if (involvesWithdrawing && g.periodScores.length === 0) {
+      return {
+        ...g,
+        cancelledReason: 'withdrawal' as const,
+        periodScores: [{ period: 1, homeScore: 0, awayScore: 0 }],
+      }
+    }
+    return g
+  })
+
+  const activeTeamCount = tournament.teams.filter(t => t.id !== teamId && !t.withdrawnAfterRound).length
+  const updatedGames = reshapeFutureSwissRounds(gamesAfterCancellation, currentRound, activeTeamCount)
+
+  const updatedTeams = tournament.teams.map(t =>
+    t.id === teamId ? { ...t, withdrawnAfterRound: currentRound } : t
+  )
+
+  const updatedSchedule = { ...schedule, games: updatedGames }
+  const updatedTournament = { ...tournament, teams: updatedTeams }
+  set({ schedule: updatedSchedule, tournament: updatedTournament })
+  saveSchedule(updatedSchedule)
+  saveTournament(updatedTournament)
+}
+
+/**
+ * Non-swiss withdrawal: cancels the team's remaining unplayed games (group-stage or, once already
+ * resolved into a placement cohort, placement-stage) as a walkover. Unlike swiss withdrawal, there
+ * is no future-round reshaping — both group-phase pairings and placement-cohort round-robins are
+ * fixed at schedule-generation time and never regenerated round-by-round.
+ */
+function withdrawNonSwissTeam(
+  set: StoreApi<TournamentStore>['setState'],
+  get: StoreApi<TournamentStore>['getState'],
+  teamId: string,
+): void {
+  const { schedule, tournament } = get()
+  if (!schedule) return
+
+  const wasInPlacementStage = schedule.games.some(
+    g => g.stage === 'placement' && (g.homeTeamId === teamId || g.awayTeamId === teamId)
+  )
+
+  const updatedGames = schedule.games.map(g => {
+    if (g.stage !== 'group' && g.stage !== 'placement') return g
+    const involvesWithdrawing = g.homeTeamId === teamId || g.awayTeamId === teamId
+    if (involvesWithdrawing && g.periodScores.length === 0) {
+      return {
+        ...g,
+        cancelledReason: 'withdrawal' as const,
+        periodScores: [{ period: 1, homeScore: 0, awayScore: 0 }],
+      }
+    }
+    return g
+  })
+
+  const updatedTeams = tournament.teams.map(t =>
+    t.id === teamId ? { ...t, withdrawnAfterStage: wasInPlacementStage ? 'finals' as const : 'group' as const } : t
+  )
+
+  const updatedSchedule = { ...schedule, games: updatedGames }
+  const updatedTournament = { ...tournament, teams: updatedTeams }
+  set({ schedule: updatedSchedule, tournament: updatedTournament })
+  saveSchedule(updatedSchedule)
+  saveTournament(updatedTournament)
+}
+
 /**
  * Fills in real team IDs on any 'placement' (Endrunde 4) game whose homeSourceRank/awaySourceRank
  * points at a group that is now fully scored. A group counts as "fully scored" when every one of
@@ -398,35 +476,12 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
   },
 
   withdrawTeam: (teamId) => {
-    const { schedule, tournament } = get()
-    if (!schedule) return
-    const currentRound = getCurrentSwissRound(schedule.games)
-
-    const gamesAfterCancellation = schedule.games.map(g => {
-      if (g.round !== currentRound || g.stage !== 'swiss') return g
-      const involvesWithdrawing = g.homeTeamId === teamId || g.awayTeamId === teamId
-      if (involvesWithdrawing && g.periodScores.length === 0) {
-        return {
-          ...g,
-          cancelledReason: 'withdrawal' as const,
-          periodScores: [{ period: 1, homeScore: 0, awayScore: 0 }],
-        }
-      }
-      return g
-    })
-
-    const activeTeamCount = tournament.teams.filter(t => t.id !== teamId && !t.withdrawnAfterRound).length
-    const updatedGames = reshapeFutureSwissRounds(gamesAfterCancellation, currentRound, activeTeamCount)
-
-    const updatedTeams = tournament.teams.map(t =>
-      t.id === teamId ? { ...t, withdrawnAfterRound: currentRound } : t
-    )
-
-    const updatedSchedule = { ...schedule, games: updatedGames }
-    const updatedTournament = { ...tournament, teams: updatedTeams }
-    set({ schedule: updatedSchedule, tournament: updatedTournament })
-    saveSchedule(updatedSchedule)
-    saveTournament(updatedTournament)
+    const { tournament } = get()
+    if (tournament.mode === 'swiss') {
+      withdrawSwissTeam(set, get, teamId)
+    } else {
+      withdrawNonSwissTeam(set, get, teamId)
+    }
   },
 
   correctGameResult: (gameId, periodScores) => {

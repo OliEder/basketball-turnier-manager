@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useTournamentStore, getCurrentSwissRound, isRoundFullyEvaluated } from './tournament-store'
 import { clearAll } from '@/lib/storage'
 import { computeStandings } from '@/lib/standings'
+import { computeGroupStandings } from '@/lib/group-standings'
 import type { TournamentConfig } from '@/types'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
@@ -543,5 +544,91 @@ describe('resetTournament', () => {
     expect(state.schedule).toBeNull()
     expect(localStorage.getItem('tm_tournament')).toBeNull()
     expect(localStorage.getItem('tm_schedule')).toBeNull()
+  })
+})
+
+describe('withdrawTeam (group stage)', () => {
+  it('cancels a withdrawing team\'s remaining unplayed group games as a walkover', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const playedGame = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1,
+      periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }], groupId: 'A',
+    }
+    const unplayedGame = {
+      id: 'gg2', homeTeamId: 't2', awayTeamId: 't3', stage: 'group' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 2, periodScores: [], groupId: 'A',
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [playedGame, unplayedGame], totalDurationMin: 90, estimatedEnd: '10:30',
+      },
+    })
+
+    useTournamentStore.getState().withdrawTeam('t2')
+
+    const cancelled = useTournamentStore.getState().schedule!.games.find(g => g.id === 'gg2')!
+    expect(cancelled.cancelledReason).toBe('withdrawal')
+    expect(cancelled.periodScores).toEqual([{ period: 1, homeScore: 0, awayScore: 0 }])
+    const untouched = useTournamentStore.getState().schedule!.games.find(g => g.id === 'gg1')!
+    expect(untouched.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 10 }])
+    expect(untouched.cancelledReason).toBeUndefined()
+
+    const withdrawnTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === 't2')!
+    expect(withdrawnTeam.withdrawnAfterStage).toBe('group')
+  })
+
+  it('does not touch swiss-mode withdrawal behavior', () => {
+    setupSwissTournament(4, 2)
+    const { schedule } = useTournamentStore.getState()
+    const game = schedule!.games.find(g => g.round === 1)!
+    useTournamentStore.getState().withdrawTeam(game.homeTeamId!)
+    const withdrawnTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === game.homeTeamId)!
+    expect(withdrawnTeam.withdrawnAfterRound).toBe(1)
+    expect(withdrawnTeam.withdrawnAfterStage).toBeUndefined()
+  })
+})
+
+describe('computeGroupStandings walkover scoring (via group-stage withdrawal)', () => {
+  it('awards the surviving team 2 walkover points when the opponent withdrew', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const unplayedGame = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [unplayedGame], totalDurationMin: 30, estimatedEnd: '09:30',
+      },
+    })
+
+    useTournamentStore.getState().withdrawTeam('t2')
+
+    const { tournament: updatedTournament, schedule: updatedSchedule } = useTournamentStore.getState()
+    const standings = computeGroupStandings(updatedTournament.teams, updatedSchedule!.games, 'A')
+    expect(standings.find(s => s.teamId === 't1')!.points).toBe(2)
+    expect(standings.find(s => s.teamId === 't1')!.pointsFor).toBe(0)
+    expect(standings.find(s => s.teamId === 't2')!.points).toBe(0)
   })
 })

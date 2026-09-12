@@ -48,6 +48,13 @@ export function computeGroupStandings(teams: Team[], games: Game[], groupId: str
   )
 
   for (const game of relevantGames) {
+    if (game.cancelledReason === 'withdrawal' && game.homeTeamId && game.awayTeamId) {
+      const homeWithdrawn = teams.find(t => t.id === game.homeTeamId)?.withdrawnAfterStage === 'group'
+      const survivorId = homeWithdrawn ? game.awayTeamId : game.homeTeamId
+      const survivor = standingsByTeamId.get(survivorId)
+      if (survivor) survivor.points += 2 // walkover win; no pointsFor/pointsAgainst — no game was actually played
+      continue
+    }
     if (!isScorableGame(game)) continue
     const { home, away } = computeFinalScore(game)
     const [homePoints, awayPoints] = pointsForResult(home, away)
