@@ -24,6 +24,7 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
   const showCapacityWarning = estimatedExtraGames >= 20
 
   const canUseEndrunde3 = groupCount === 4
+  const canUseEndrunde1 = [2, 4, 8, 16, 32].includes(groupCount)
 
   return (
     <div className="space-y-4 max-w-md">
@@ -33,7 +34,7 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
           id="finals-variant"
           className="border border-border rounded-sm px-2 py-1 text-sm w-full"
           value={tournament.finalsVariant ?? 'endrunde-4'}
-          onChange={e => setFinalsVariant(e.target.value as 'endrunde-3' | 'endrunde-4')}
+          onChange={e => setFinalsVariant(e.target.value as 'endrunde-1' | 'endrunde-3' | 'endrunde-4')}
           disabled={disabled}
         >
           <option value="endrunde-4">
@@ -42,10 +43,18 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
           <option value="endrunde-3" disabled={!canUseEndrunde3}>
             Endrunde 3 — Halbfinale, Finale, Spiel um Platz 3 (nur Gruppenerste)
           </option>
+          <option value="endrunde-1" disabled={!canUseEndrunde1}>
+            Endrunde 1 — K.-o.-Runden je Rangstufe (alle Gruppenersten, -zweiten, ...)
+          </option>
         </select>
         {!canUseEndrunde3 && (
           <p className="text-xs text-muted-foreground">
             Endrunde 3 benötigt genau 4 Gruppen (aktuell: {groupCount}).
+          </p>
+        )}
+        {!canUseEndrunde1 && (
+          <p className="text-xs text-muted-foreground">
+            Endrunde 1 benötigt 2, 4, 8, 16 oder 32 Gruppen (aktuell: {groupCount}).
           </p>
         )}
       </div>
