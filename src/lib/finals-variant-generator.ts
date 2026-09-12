@@ -95,9 +95,15 @@ export function buildPlacementGames(input: BuildPlacementGamesInput): Game[] {
   for (const cohort of cohorts) {
     // Use synthetic slot ids ("0", "1", "2", "3") for the round-robin pairing, then map back to
     // this cohort's real sourceRanks — generateRoundRobinRounds only deals in opaque string ids.
+    // Relies on generateRoundRobinRounds preserving input order/identity (positional indexing),
+    // not sorting ids lexicographically — true today, would need revisiting if that changed.
     const slotIds = cohort.sourceRanks.map((_, i) => String(i))
     const rounds = generateRoundRobinRounds(slotIds)
 
+    // No per-team clock is tracked (unlike generateSchedule's group-phase loop) — safe because
+    // (a) generateRoundRobinRounds guarantees a slot appears at most once within a single round,
+    // and (b) cohorts are disjoint (buildPlacementCohorts assigns each team to exactly one cohort),
+    // so no team can be double-booked across cohorts scheduled in the same pass either.
     rounds.forEach((round, roundIndex) => {
       for (const [homeSlot, awaySlot] of round) {
         let bestField = -1
@@ -111,6 +117,8 @@ export function buildPlacementGames(input: BuildPlacementGamesInput): Game[] {
           }
         }
         if (bestField === -1) {
+          // Throws (rather than schedule-generator.ts's group-phase warn-and-skip) because a
+          // dropped placement game would corrupt cohort standings — failing loudly is correct here.
           throw new Error('Kein Zeitfenster für die Endrunde verfügbar — Hallenzeit reicht nicht aus')
         }
         const slotEnd = addMinutes(bestSlotStart, gameDuration)
