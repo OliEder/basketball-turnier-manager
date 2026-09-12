@@ -233,11 +233,24 @@ export default function ManualPage() {
               in der es spielen soll. Neu angelegte Teams landen zunächst automatisch in Gruppe A.
             </li>
           </ul>
+          <Screenshot
+            src="24-konfiguration-gruppen.png"
+            alt="Abschnitt Gruppen mit Gruppenvorschlag, Rückspiel-Option und Team-Zuordnung"
+          />
           <Callout title="Wichtig: Gruppengröße">
             Eine Gruppe sollte praktisch nicht mehr als etwa 6, besser 3–4 Teams umfassen — sonst wird die
             Gruppenphase selbst sehr lang. Bei vielen Teams ist es sinnvoller, mehr, dafür kleinere Gruppen zu
             bilden (das schlägt das Tool auch automatisch so vor).
           </Callout>
+          <p>
+            Das funktioniert auch bei sehr großen Turnieren zuverlässig: bei 64 angemeldeten Teams schlägt das Tool
+            automatisch 16 Gruppen zu je 4 Teams vor (statt z. B. 2 riesiger Gruppen zu 32 Teams), damit die
+            Gruppenphase selbst überschaubar bleibt:
+          </p>
+          <Screenshot
+            src="27-konfiguration-gruppen-64-teams.png"
+            alt="Automatischer Gruppenvorschlag bei 64 Teams: 16 Gruppen à 4 Teams"
+          />
           <p>
             Sobald mehr als eine Gruppe existiert (also mindestens ein Team einer zweiten Gruppe zugewiesen wurde),
             erscheint nach dem Generieren des Zeitplans zusätzlich der Navigationspunkt{' '}
@@ -394,6 +407,10 @@ export default function ManualPage() {
             oben beschriebenen Turnierübersicht der Navigationspunkt <strong>„Gruppentabellen"</strong>. Dort wird
             für jede Gruppe eine eigene Tabelle sowie darunter der vollständige Gruppenphasen-Zeitplan angezeigt.
           </p>
+          <Screenshot
+            src="25-gruppentabellen-uebersicht.png"
+            alt="Gruppentabellen für Gruppe A und Gruppe B nebeneinander"
+          />
           <p>Jede Gruppentabelle ist sortiert nach:</p>
           <ol className="list-decimal pl-6 space-y-1">
             <li><strong>Punkte</strong> (Sieg = 2, Unentschieden = 1, Niederlage = 0)</li>
@@ -412,6 +429,14 @@ export default function ManualPage() {
             Vergleich — das ist die in Vereinsliga- und Gruppenturnieren übliche Konvention. Es gibt in der
             Gruppentabelle kein Buchholz-Kriterium.
           </p>
+          <p>
+            Diese Ansicht funktioniert unverändert auch bei sehr vielen Gruppen — bei 64 Teams in 16 Gruppen
+            erscheinen entsprechend 16 Tabellen nacheinander, jede mit ihren eigenen 4 Teams:
+          </p>
+          <Screenshot
+            src="26-gruppentabellen-64-teams.png"
+            alt="Gruppentabellen A, B, C bei einem 64-Teams-Turnier mit 16 Gruppen"
+          />
         </SubSection>
       </Section>
 

@@ -36,8 +36,18 @@ describe('ManualPage', () => {
   it('renders a screenshot image for each referenced screenshot', () => {
     render(<ManualPage />)
     const images = screen.getAllByRole('img')
-    expect(images.length).toBe(23)
+    expect(images.length).toBe(27)
     expect(images[0]).toHaveAttribute('src', expect.stringContaining('01-teams-leer.png'))
+  })
+
+  it('renders screenshots for the new group-configuration and group-standings sections', () => {
+    render(<ManualPage />)
+    const images = screen.getAllByRole('img')
+    const sources = images.map(img => img.getAttribute('src'))
+    expect(sources.some(src => src?.includes('24-konfiguration-gruppen.png'))).toBe(true)
+    expect(sources.some(src => src?.includes('25-gruppentabellen-uebersicht.png'))).toBe(true)
+    expect(sources.some(src => src?.includes('26-gruppentabellen-64-teams.png'))).toBe(true)
+    expect(sources.some(src => src?.includes('27-konfiguration-gruppen-64-teams.png'))).toBe(true)
   })
 
   it('documents multi-group round-robin and double round-robin configuration', () => {
