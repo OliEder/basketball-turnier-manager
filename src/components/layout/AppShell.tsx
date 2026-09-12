@@ -7,6 +7,7 @@ export default function AppShell() {
   const isSwiss = tournament.mode === 'swiss'
   const hasSchedule = !!schedule && schedule.games.length > 0
   const hasMultipleGroups = new Set(tournament.teams.map((t) => t.groupId ?? 'A')).size > 1
+  const hasFinalsVariant = tournament.mode === 'round-robin+finals' && !!tournament.finalsVariant
 
   const navItems = [
     { to: '/teams', label: 'Teams', gated: false },
@@ -21,6 +22,12 @@ export default function AppShell() {
           { to: '/group-results', label: 'Ergebnisse erfassen', gated: true },
           ...(hasMultipleGroups
             ? [{ to: '/group-overview', label: 'Gruppentabellen', gated: true }]
+            : []),
+          ...(hasFinalsVariant
+            ? [
+                { to: '/finals-results', label: 'Endrunde: Ergebnisse', gated: true },
+                { to: '/final-standings', label: 'Endstand', gated: true },
+              ]
             : []),
         ]),
     { to: '/export', label: 'Export', gated: false },
