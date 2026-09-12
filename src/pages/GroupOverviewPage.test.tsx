@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
 import GroupOverviewPage from './GroupOverviewPage'
@@ -44,23 +44,50 @@ describe('GroupOverviewPage', () => {
     expect(screen.getByText(/bitte zuerst einen zeitplan generieren/i)).toBeInTheDocument()
   })
 
-  it('renders one table per group with a heading', () => {
+  it('shows a tab per group and only renders the active group\'s table', () => {
     setupMultiGroupTournament()
     render(<GroupOverviewPage />)
-    expect(screen.getByRole('heading', { name: 'Gruppe A' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Gruppe B' })).toBeInTheDocument()
-    expect(screen.getAllByRole('table')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Gruppe A' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Gruppe B' })).toBeInTheDocument()
+    // Only one group's table/schedule is visible at a time.
+    expect(screen.getAllByRole('table')).toHaveLength(1)
+  })
+
+  it('defaults to the first group (A) being active', () => {
+    setupMultiGroupTournament()
+    render(<GroupOverviewPage />)
+    const teams = useTournamentStore.getState().tournament.teams
+    const groupATeamNames = teams.filter(t => t.groupId === 'A').map(t => t.name)
+    const table = screen.getByRole('table')
+    for (const name of groupATeamNames) {
+      expect(within(table).getByText(name)).toBeInTheDocument()
+    }
+  })
+
+  it('switches to another group\'s table and schedule when its tab is clicked', () => {
+    setupMultiGroupTournament()
+    render(<GroupOverviewPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Gruppe B' }))
+
+    const teams = useTournamentStore.getState().tournament.teams
+    const groupBTeamNames = teams.filter(t => t.groupId === 'B').map(t => t.name)
+    const table = screen.getByRole('table')
+    for (const name of groupBTeamNames) {
+      expect(within(table).getByText(name)).toBeInTheDocument()
+    }
+    const groupATeamNames = teams.filter(t => t.groupId === 'A').map(t => t.name)
+    for (const name of groupATeamNames) {
+      expect(within(table).queryByText(name)).not.toBeInTheDocument()
+    }
   })
 
   it('only lists a group\'s own teams in its table', () => {
     setupMultiGroupTournament()
     render(<GroupOverviewPage />)
-    const tables = screen.getAllByRole('table')
-    for (const table of tables) {
-      const rows = within(table).getAllByRole('row')
-      // header row + 4 team rows
-      expect(rows).toHaveLength(5)
-    }
+    const table = screen.getByRole('table')
+    const rows = within(table).getAllByRole('row')
+    // header row + 4 team rows
+    expect(rows).toHaveLength(5)
   })
 
   it('updates points after a group-stage result is submitted', () => {
@@ -71,7 +98,19 @@ describe('GroupOverviewPage', () => {
     const winner = tournament.teams.find(t => t.id === game.homeTeamId)!
 
     render(<GroupOverviewPage />)
-    const groupATable = screen.getByRole('heading', { name: 'Gruppe A' }).closest('div')!
-    expect(within(groupATable).getByText(winner.name)).toBeInTheDocument()
+    const table = screen.getByRole('table')
+    expect(within(table).getByText(winner.name)).toBeInTheDocument()
+  })
+
+  it('only shows the active group\'s schedule, filtered by round', () => {
+    setupMultiGroupTournament()
+    render(<GroupOverviewPage />)
+    const teams = useTournamentStore.getState().tournament.teams
+    const groupBTeamNames = teams.filter(t => t.groupId === 'B').map(t => t.name)
+    // Group A is active by default -- none of group B's team names should appear anywhere
+    // (neither in the table nor in the schedule section below it).
+    for (const name of groupBTeamNames) {
+      expect(screen.queryByText(name)).not.toBeInTheDocument()
+    }
   })
 })
