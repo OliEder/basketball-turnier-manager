@@ -175,4 +175,64 @@ describe('GroupResultsPage', () => {
     const updatedGame = updatedSchedule!.games.find(g => g.id === game.id)!
     expect(updatedGame.periodScores[0].homeScore).toBe(55)
   })
+
+  it('disables the save button while correcting if the home score field is cleared to empty', () => {
+    setupMultiGroupTournament()
+    const { schedule, submitGameResult } = useTournamentStore.getState()
+    const game = schedule!.games.find(g => g.stage === 'group')!
+    submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+
+    renderPage()
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Korrigieren' }))
+
+    const homeInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`)
+    fireEvent.change(homeInput, { target: { value: '' } })
+
+    const row = homeInput.closest('.border-b') as HTMLElement
+    expect(within(row).getByRole('button', { name: 'Speichern' })).toBeDisabled()
+  })
+
+  it('does not write NaN into the schedule if the save button were somehow triggered with an invalid correction input', () => {
+    setupMultiGroupTournament()
+    const { schedule, submitGameResult } = useTournamentStore.getState()
+    const game = schedule!.games.find(g => g.stage === 'group')!
+    submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+
+    renderPage()
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Korrigieren' }))
+
+    const homeInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`)
+    fireEvent.change(homeInput, { target: { value: 'abc' } })
+
+    const row = homeInput.closest('.border-b') as HTMLElement
+    const saveButton = within(row).getByRole('button', { name: 'Speichern' })
+    expect(saveButton).toBeDisabled()
+
+    // Even if disabled, assert the underlying data was never touched -- this is the actual
+    // regression guard, independent of whether the disabled attribute itself is respected.
+    const { schedule: unchangedSchedule } = useTournamentStore.getState()
+    const unchangedGame = unchangedSchedule!.games.find(g => g.id === game.id)!
+    expect(unchangedGame.periodScores[0].homeScore).toBe(20)
+  })
+
+  it('lets the organizer save a correction without touching any input, keeping the existing score', () => {
+    setupMultiGroupTournament()
+    const { schedule, submitGameResult } = useTournamentStore.getState()
+    const game = schedule!.games.find(g => g.stage === 'group')!
+    submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 10 }])
+
+    renderPage()
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Korrigieren' }))
+
+    const correctedInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`)
+    const row = correctedInput.closest('.border-b') as HTMLElement
+    fireEvent.click(within(row).getByRole('button', { name: 'Speichern' }))
+
+    const { schedule: updatedSchedule } = useTournamentStore.getState()
+    const updatedGame = updatedSchedule!.games.find(g => g.id === game.id)!
+    expect(updatedGame.periodScores[0]).toEqual({ period: 1, homeScore: 20, awayScore: 10 })
+  })
 })

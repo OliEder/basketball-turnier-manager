@@ -43,15 +43,35 @@ export default function GroupResultsPage() {
     .filter(g => fieldFilter === 'all' || g.field === Number(fieldFilter))
     .sort((a, b) => a.scheduledStart.localeCompare(b.scheduledStart))
 
-  const isScoreEntered = (gameId: string) => {
-    const entry = scores[gameId]
-    return !!entry && entry.home.trim() !== '' && entry.away.trim() !== '' && !Number.isNaN(Number(entry.home)) && !Number.isNaN(Number(entry.away))
+  // Resolves the value that would actually be submitted for a given side (home/away) of a
+  // game's score. If the field was never touched at all, an in-progress correction falls back
+  // to the game's existing (already-valid) score. But once the user has touched the field --
+  // even to clear it to an empty string -- that typed value (however invalid) is authoritative
+  // and must NOT silently fall back to the old score.
+  const resolvedHomeScore = (game: Game): number | undefined => {
+    const entry = scores[game.id]
+    if (entry?.home !== undefined) return entry.home.trim() === '' ? NaN : Number(entry.home)
+    if (game.periodScores.length > 0) return game.periodScores[0].homeScore
+    return undefined
+  }
+
+  const resolvedAwayScore = (game: Game): number | undefined => {
+    const entry = scores[game.id]
+    if (entry?.away !== undefined) return entry.away.trim() === '' ? NaN : Number(entry.away)
+    if (game.periodScores.length > 0) return game.periodScores[0].awayScore
+    return undefined
+  }
+
+  const canSave = (game: Game): boolean => {
+    const home = resolvedHomeScore(game)
+    const away = resolvedAwayScore(game)
+    return home !== undefined && away !== undefined && !Number.isNaN(home) && !Number.isNaN(away)
   }
 
   const handleSave = (game: Game) => {
-    const entry = scores[game.id]
-    const homeScore = entry ? Number(entry.home) : game.periodScores[0]?.homeScore
-    const awayScore = entry ? Number(entry.away) : game.periodScores[0]?.awayScore
+    if (!canSave(game)) return
+    const homeScore = resolvedHomeScore(game) as number
+    const awayScore = resolvedAwayScore(game) as number
     const hasResult = game.periodScores.length > 0
     if (hasResult) {
       correctGameResult(game.id, [{ period: 1, homeScore, awayScore }])
@@ -176,7 +196,7 @@ export default function GroupResultsPage() {
                   />
                   <Button
                     size="sm"
-                    disabled={!isCorrecting && !isScoreEntered(game.id)}
+                    disabled={!canSave(game)}
                     onClick={() => handleSave(game)}
                   >
                     Speichern
