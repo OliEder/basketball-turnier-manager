@@ -11,12 +11,17 @@ export interface PlayoffInput {
   fieldNextFree: string[]
   teamCount: number
   startGameNumber: number
+  // When provided (Endrunde 3: qualification restricted to each group's rank-1 team), seeds the
+  // semifinals' homeSourceRank/awaySourceRank in bracket order: [sf1.home, sf1.away, sf2.home,
+  // sf2.away] for a 4-bracket, [final.home, final.away] for a 2-bracket. Omitted for the
+  // pre-existing simple round-robin+finals feature, which has no group-phase qualification.
+  qualifierSourceRanks?: { groupId: string; rank: number }[]
 }
 
 export function generatePlayoffGames(input: PlayoffInput): Game[] {
   const {
     finalsBracketSize, fields, gameSettings, blackoutPeriods,
-    availabilityEnd, fieldNextFree, teamCount, startGameNumber,
+    availabilityEnd, fieldNextFree, teamCount, startGameNumber, qualifierSourceRanks,
   } = input
 
   if (teamCount < finalsBracketSize) {
@@ -53,6 +58,10 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       round: 2,
       gameNumber: gameNumber++,
       periodScores: [],
+      ...(qualifierSourceRanks && {
+        homeSourceRank: qualifierSourceRanks[0],
+        awaySourceRank: qualifierSourceRanks[1],
+      }),
     })
 
     let sf2Start: string
@@ -82,21 +91,69 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       round: 2,
       gameNumber: gameNumber++,
       periodScores: [],
+      ...(qualifierSourceRanks && {
+        homeSourceRank: qualifierSourceRanks[2],
+        awaySourceRank: qualifierSourceRanks[3],
+      }),
     })
 
     const latestAfterSemis = maxTime(
       addMinutes(sf1Start, slotDuration),
       addMinutes(sf2Start, slotDuration),
     )
-    const finalStart = findNextSlot(
+    const roundThreeStart = findNextSlot(
       addMinutes(latestAfterSemis, gameSettings.breakBetweenRoundsMin),
       gameDuration,
       blackoutPeriods,
       availabilityEnd,
     )
-    if (!finalStart) {
+    if (!roundThreeStart) {
       throw new Error('Kein Zeitfenster für Finale verfügbar — Hallenzeit reicht nicht aus')
     }
+    const roundThreeEnd = addMinutes(roundThreeStart, gameDuration)
+
+    let finalStart: string
+    let finalField: number
+    let thirdPlaceStart: string
+    let thirdPlaceField: number
+    if (fields >= 2) {
+      finalStart = roundThreeStart
+      finalField = 1
+      thirdPlaceStart = roundThreeStart
+      thirdPlaceField = 2
+    } else {
+      thirdPlaceStart = roundThreeStart
+      thirdPlaceField = 1
+      const finalSlotStart = findNextSlot(
+        addMinutes(roundThreeStart, slotDuration),
+        gameDuration,
+        blackoutPeriods,
+        availabilityEnd,
+      )
+      if (!finalSlotStart) {
+        throw new Error('Kein Zeitfenster für Finale verfügbar — Hallenzeit reicht nicht aus')
+      }
+      finalStart = finalSlotStart
+      finalField = 1
+    }
+
+    games.push({
+      id: uuidv4(),
+      homeTeamId: null,
+      awayTeamId: null,
+      homeLabel: 'Verlierer HF 1',
+      awayLabel: 'Verlierer HF 2',
+      stage: 'third-place',
+      field: thirdPlaceField,
+      scheduledStart: thirdPlaceStart,
+      scheduledEnd: thirdPlaceStart === roundThreeStart ? roundThreeEnd : addMinutes(thirdPlaceStart, gameDuration),
+      round: 3,
+      gameNumber: gameNumber++,
+      periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1, outcome: 'loser' },
+      awaySourceSemifinal: { semifinalIndex: 2, outcome: 'loser' },
+    })
+
     games.push({
       id: uuidv4(),
       homeTeamId: null,
@@ -104,12 +161,14 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       homeLabel: 'Sieger HF 1',
       awayLabel: 'Sieger HF 2',
       stage: 'final',
-      field: 1,
+      field: finalField,
       scheduledStart: finalStart,
       scheduledEnd: addMinutes(finalStart, gameDuration),
       round: 3,
       gameNumber: gameNumber++,
       periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1, outcome: 'winner' },
+      awaySourceSemifinal: { semifinalIndex: 2, outcome: 'winner' },
     })
   } else {
     const latest = clocks.reduce((max, t) => maxTime(max, t), clocks[0])

@@ -4,7 +4,7 @@ import type { TournamentConfig, Team, Schedule, GameSettings, Venue, PeriodScore
 import { saveTournament, loadTournament, saveSchedule, loadSchedule, clearSchedule, clearAll } from '@/lib/storage'
 import { generateSchedule } from '@/lib/schedule-generator'
 import { calcGameDurationMin, addMinutes } from '@/lib/game-duration'
-import { computeStandings } from '@/lib/standings'
+import { computeStandings, computeFinalScore } from '@/lib/standings'
 import { pairNextSwissRound } from '@/lib/swiss-pairing'
 import { computeGroupStandings } from '@/lib/group-standings'
 
@@ -244,16 +244,37 @@ function withdrawNonSwissTeam(
 }
 
 /**
- * Fills in real team IDs on any 'placement' (Endrunde 4) game whose homeSourceRank/awaySourceRank
- * points at a group that is now fully scored. A group counts as "fully scored" when every one of
- * its group-stage games has either a result or a cancellation reason (mirrors the existing
- * isRoundFullyEvaluated pattern, but per-group instead of per-swiss-round). Re-runs unconditionally
- * for every 'placement' game whose OWN periodScores are still empty, so a later group-phase
- * correction can flip the resolved team — homeSourceRank/awaySourceRank are never cleared, exactly
- * so this re-resolution can happen without needing separate bookkeeping. A placement game that has
- * already been scored itself is left untouched, regardless of what the group phase does afterward.
- * A withdrawn team is excluded from the qualifying ranks (see standingsByGroup below) — walkover
- * wins it banked before withdrawing must not let it occupy a placement-cohort slot.
+ * Determines the winner/loser team ID of a semifinal game, or undefined if it hasn't been scored
+ * yet or was cancelled (a cancelled semifinal has no meaningful winner/loser to feed forward).
+ */
+function semifinalOutcomeTeamId(semifinal: Game | undefined, outcome: 'winner' | 'loser'): string | undefined {
+  if (!semifinal || semifinal.cancelledReason || semifinal.periodScores.length === 0) return undefined
+  if (!semifinal.homeTeamId || !semifinal.awayTeamId) return undefined
+  const { home, away } = computeFinalScore(semifinal)
+  if (home === away) return undefined // no winner/loser on an unresolved draw
+  const winnerId = home > away ? semifinal.homeTeamId : semifinal.awayTeamId
+  const loserId = home > away ? semifinal.awayTeamId : semifinal.homeTeamId
+  return outcome === 'winner' ? winnerId : loserId
+}
+
+/**
+ * Fills in real team IDs on any 'placement' (Endrunde 4), 'semifinal' (Endrunde 3), 'final', or
+ * 'third-place' game whose source pointers can now be resolved:
+ *
+ * - 'placement' and 'semifinal' games resolve from homeSourceRank/awaySourceRank once the pointed-at
+ *   group is fully scored — a group counts as "fully scored" when every one of its group-stage
+ *   games has either a result or a cancellation reason (mirrors the existing isRoundFullyEvaluated
+ *   pattern, but per-group instead of per-swiss-round).
+ * - 'final' and 'third-place' games resolve from homeSourceSemifinal/awaySourceSemifinal once the
+ *   pointed-at semifinal has itself been scored (winner feeds the final, loser feeds third-place).
+ *
+ * Re-runs unconditionally for every such game whose OWN periodScores are still empty, so a later
+ * correction (of a group-stage OR semifinal result) can flip the resolved team — the source
+ * pointers are never cleared, exactly so this re-resolution can happen without needing separate
+ * bookkeeping. A game that has already been scored itself is left untouched, regardless of what its
+ * source stage does afterward. A withdrawn team is excluded from the qualifying ranks (see
+ * standingsByGroup below) — walkover wins it banked before withdrawing must not let it occupy a
+ * placement-cohort or semifinal slot.
  */
 function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
   const groupIds = [...new Set(teams.map(t => t.groupId ?? 'A'))]
@@ -272,10 +293,18 @@ function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
     groupIds.map(id => [id, computeGroupStandings(teams, games, id).filter(s => !s.withdrawn)]),
   )
 
+  const semifinalsByIndex = new Map<1 | 2, Game>()
+  const semifinals = games.filter(g => g.stage === 'semifinal')
+  if (semifinals[0]) semifinalsByIndex.set(1, semifinals[0])
+  if (semifinals[1]) semifinalsByIndex.set(2, semifinals[1])
+
   return games.map(g => {
-    if (g.stage !== 'placement' || g.periodScores.length > 0) return g
+    if (g.periodScores.length > 0) return g
+    if (g.stage !== 'placement' && g.stage !== 'semifinal' && g.stage !== 'final' && g.stage !== 'third-place') return g
+
     let { homeTeamId, awayTeamId } = g
-    const { homeSourceRank, awaySourceRank } = g
+    const { homeSourceRank, awaySourceRank, homeSourceSemifinal, awaySourceSemifinal } = g
+
     if (homeSourceRank && groupIsComplete.get(homeSourceRank.groupId)) {
       const standing = standingsByGroup.get(homeSourceRank.groupId)?.[homeSourceRank.rank - 1]
       if (standing) homeTeamId = standing.teamId
@@ -284,6 +313,15 @@ function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
       const standing = standingsByGroup.get(awaySourceRank.groupId)?.[awaySourceRank.rank - 1]
       if (standing) awayTeamId = standing.teamId
     }
+    if (homeSourceSemifinal) {
+      const teamId = semifinalOutcomeTeamId(semifinalsByIndex.get(homeSourceSemifinal.semifinalIndex), homeSourceSemifinal.outcome)
+      if (teamId) homeTeamId = teamId
+    }
+    if (awaySourceSemifinal) {
+      const teamId = semifinalOutcomeTeamId(semifinalsByIndex.get(awaySourceSemifinal.semifinalIndex), awaySourceSemifinal.outcome)
+      if (teamId) awayTeamId = teamId
+    }
+
     if (homeTeamId === g.homeTeamId && awayTeamId === g.awayTeamId) return g
     return { ...g, homeTeamId, awayTeamId }
   })

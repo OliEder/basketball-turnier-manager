@@ -23,6 +23,8 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
   const estimatedExtraGames = smallestGroupSize * gamesPerCohort
   const showCapacityWarning = estimatedExtraGames >= 20
 
+  const canUseEndrunde3 = groupCount === 4
+
   return (
     <div className="space-y-4 max-w-md">
       <div className="space-y-1">
@@ -31,13 +33,21 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
           id="finals-variant"
           className="border border-border rounded-sm px-2 py-1 text-sm w-full"
           value={tournament.finalsVariant ?? 'endrunde-4'}
-          onChange={e => setFinalsVariant(e.target.value as 'endrunde-4')}
+          onChange={e => setFinalsVariant(e.target.value as 'endrunde-3' | 'endrunde-4')}
           disabled={disabled}
         >
           <option value="endrunde-4">
             Endrunde 4 — Platzierungsgruppen (jeder gegen jeden je Rangstufe)
           </option>
+          <option value="endrunde-3" disabled={!canUseEndrunde3}>
+            Endrunde 3 — Halbfinale, Finale, Spiel um Platz 3 (nur Gruppenerste)
+          </option>
         </select>
+        {!canUseEndrunde3 && (
+          <p className="text-xs text-muted-foreground">
+            Endrunde 3 benötigt genau 4 Gruppen (aktuell: {groupCount}).
+          </p>
+        )}
       </div>
 
       {hasUnevenGroups && (
@@ -73,8 +83,8 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
           <option value="walkover">Gegner rückt kampflos vor (Walkover)</option>
         </select>
         <p className="text-xs text-muted-foreground">
-          Bei „Endrunde 4“ gibt es keine Nachrücker — ein Rückzug wird immer als Walkover gewertet.
-          Diese Einstellung wird erst für künftige KO-Endrunden-Varianten wirksam.
+          Ein Rückzug in der Endrunde wird aktuell immer als Walkover gewertet — Nachrücker-Logik
+          ist noch nicht implementiert.
         </p>
       </div>
     </div>

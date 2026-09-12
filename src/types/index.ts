@@ -53,9 +53,9 @@ export interface TournamentConfig {
   swissRounds?: number       // only relevant when mode === 'swiss'; number of swiss rounds to play
   groupCount?: number        // only relevant when mode === 'round-robin+finals'; number of parallel group-stage groups, default 1
   doubleRoundRobin?: boolean // if true, each group plays a return leg (home/away swapped), default false
-  finalsVariant?: 'endrunde-4'  // only relevant when mode === 'round-robin+finals' and groupCount > 1;
-    // more variants ('endrunde-1' | 'endrunde-2' | ...) are added in a later phase — see
-    // docs/superpowers/specs/2026-09-12-finals-variants-design.md
+  finalsVariant?: 'endrunde-3' | 'endrunde-4'  // only relevant when mode === 'round-robin+finals' and
+    // groupCount > 1; more variants ('endrunde-1' | 'endrunde-2' | ...) are added in a later phase —
+    // see docs/superpowers/specs/2026-09-12-finals-variants-design.md
   dropoutHandling?: 'walkover' | 'next-best-fills-in'  // default 'next-best-fills-in'; governs what
     // happens when a team withdraws after already qualifying for a finals cohort
   fields: number
@@ -70,9 +70,10 @@ export interface PeriodScore {
   awayScore: number
 }
 
-export type GameStage = 'group' | 'semifinal' | 'final' | 'swiss' | 'placement'
+export type GameStage = 'group' | 'semifinal' | 'final' | 'third-place' | 'swiss' | 'placement'
   // 'placement' = a round-robin placement-cohort game (Endrunde 4), e.g. "all group winners play
   // each other for places 1-4"
+  // 'third-place' = the losers of the two semifinals play each other for place 3
 
 export interface Game {
   id: string
@@ -95,8 +96,13 @@ export interface Game {
   placementFrom?: number  // the best (lowest-numbered) place this cohort is playing for, e.g. 1, 5, 9;
     // only set when stage === 'placement' — used to label/sort the final standings page
   homeSourceRank?: { groupId: string; rank: number }  // which group-phase rank feeds the home slot;
-    // stays set even after resolution, so a later group-phase correction can re-resolve this slot
+    // stays set even after resolution, so a later group-phase correction can re-resolve this slot.
+    // Also used on 'semifinal' games for Endrunde 3 (group-phase rank 1 of each qualifying group).
   awaySourceRank?: { groupId: string; rank: number }  // same for the away slot
+  homeSourceSemifinal?: { semifinalIndex: 1 | 2; outcome: 'winner' | 'loser' }  // which semifinal's
+    // winner/loser feeds the home slot of a 'final' or 'third-place' game; stays set even after
+    // resolution, so a later semifinal-result correction can re-resolve this slot
+  awaySourceSemifinal?: { semifinalIndex: 1 | 2; outcome: 'winner' | 'loser' }  // same for the away slot
 }
 
 export interface Schedule {

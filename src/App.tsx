@@ -9,6 +9,7 @@ import SwissOverviewPage from '@/pages/SwissOverviewPage'
 import GroupOverviewPage from '@/pages/GroupOverviewPage'
 import GroupResultsPage from '@/pages/GroupResultsPage'
 import FinalsResultsPage from '@/pages/FinalsResultsPage'
+import PlayoffResultsPage from '@/pages/PlayoffResultsPage'
 import FinalStandingsPage from '@/pages/FinalStandingsPage'
 import ManualPage from '@/pages/ManualPage'
 
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="group-overview" element={<GroupOverviewPage />} />
           <Route path="group-results" element={<GroupResultsPage />} />
           <Route path="finals-results" element={<FinalsResultsPage />} />
+          <Route path="playoff-results" element={<PlayoffResultsPage />} />
           <Route path="final-standings" element={<FinalStandingsPage />} />
           <Route path="export" element={<ExportPage />} />
           <Route path="anleitung" element={<ManualPage />} />

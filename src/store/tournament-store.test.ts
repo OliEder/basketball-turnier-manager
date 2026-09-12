@@ -573,6 +573,180 @@ describe('resolvePlaceholders (via submitGameResult)', () => {
     expect(untouched.awayTeamId).toBe('t2')
     expect(untouched.periodScores).toEqual([{ period: 1, homeScore: 15, awayScore: 12 }])
   })
+
+  it('resolves semifinal slots from group-phase rank 1 once each group is complete (Endrunde 3)', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 2,
+      finalsVariant: 'endrunde-3' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'B' },
+        { id: 't4', name: 'T4', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'B' },
+      ],
+    }
+    const groupGameA = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const groupGameB = {
+      id: 'gg2', homeTeamId: 't3', awayTeamId: 't4', stage: 'group' as const, field: 2,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 2, periodScores: [], groupId: 'B',
+    }
+    const sf1 = {
+      id: 'sf1', homeTeamId: null, awayTeamId: null, stage: 'semifinal' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 3, periodScores: [],
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'B', rank: 1 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [groupGameA, groupGameB, sf1], totalDurationMin: 90, estimatedEnd: '10:30',
+      },
+    })
+
+    useTournamentStore.getState().submitGameResult('gg1', [{ period: 1, homeScore: 20, awayScore: 10 }])
+    useTournamentStore.getState().submitGameResult('gg2', [{ period: 1, homeScore: 20, awayScore: 10 }])
+
+    const resolved = useTournamentStore.getState().schedule!.games.find(g => g.id === 'sf1')!
+    expect(resolved.homeTeamId).toBe('t1')
+    expect(resolved.awayTeamId).toBe('t3')
+  })
+
+  it('resolves the final and third-place game from semifinal results once both semifinals are scored', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [] },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [] },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [] },
+        { id: 't4', name: 'T4', logoUrl: '', color: '#000', contact: '', players: [] },
+      ],
+    }
+    const sf1 = {
+      id: 'sf1', homeTeamId: 't1', awayTeamId: 't4', stage: 'semifinal' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 1, periodScores: [],
+    }
+    const sf2 = {
+      id: 'sf2', homeTeamId: 't2', awayTeamId: 't3', stage: 'semifinal' as const, field: 2,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 2, periodScores: [],
+    }
+    const thirdPlace = {
+      id: 'tp1', homeTeamId: null, awayTeamId: null, stage: 'third-place' as const, field: 2,
+      scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 3, periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'loser' as const },
+      awaySourceSemifinal: { semifinalIndex: 2 as const, outcome: 'loser' as const },
+    }
+    const final = {
+      id: 'f1', homeTeamId: null, awayTeamId: null, stage: 'final' as const, field: 1,
+      scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 4, periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'winner' as const },
+      awaySourceSemifinal: { semifinalIndex: 2 as const, outcome: 'winner' as const },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [sf1, sf2, thirdPlace, final], totalDurationMin: 90, estimatedEnd: '11:30',
+      },
+    })
+
+    // t1 beats t4 in SF1 -> t1 wins, t4 loses
+    useTournamentStore.getState().submitGameResult('sf1', [{ period: 1, homeScore: 20, awayScore: 10 }])
+    // t3 beats t2 in SF2 -> t3 wins, t2 loses
+    useTournamentStore.getState().submitGameResult('sf2', [{ period: 1, homeScore: 8, awayScore: 15 }])
+
+    const resolvedFinal = useTournamentStore.getState().schedule!.games.find(g => g.id === 'f1')!
+    expect(resolvedFinal.homeTeamId).toBe('t1')
+    expect(resolvedFinal.awayTeamId).toBe('t3')
+
+    const resolvedThirdPlace = useTournamentStore.getState().schedule!.games.find(g => g.id === 'tp1')!
+    expect(resolvedThirdPlace.homeTeamId).toBe('t4')
+    expect(resolvedThirdPlace.awayTeamId).toBe('t2')
+  })
+
+  it('does not resolve the final/third-place game while only one semifinal has been scored', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [] },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [] },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [] },
+        { id: 't4', name: 'T4', logoUrl: '', color: '#000', contact: '', players: [] },
+      ],
+    }
+    const sf1 = {
+      id: 'sf1', homeTeamId: 't1', awayTeamId: 't4', stage: 'semifinal' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 1, periodScores: [],
+    }
+    const sf2 = {
+      id: 'sf2', homeTeamId: 't2', awayTeamId: 't3', stage: 'semifinal' as const, field: 2,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 2, periodScores: [],
+    }
+    const final = {
+      id: 'f1', homeTeamId: null, awayTeamId: null, stage: 'final' as const, field: 1,
+      scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 4, periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'winner' as const },
+      awaySourceSemifinal: { semifinalIndex: 2 as const, outcome: 'winner' as const },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [sf1, sf2, final], totalDurationMin: 90, estimatedEnd: '11:30',
+      },
+    })
+
+    useTournamentStore.getState().submitGameResult('sf1', [{ period: 1, homeScore: 20, awayScore: 10 }])
+
+    // Each side resolves independently, same as placement/semifinal games: SF1 is scored, so the
+    // final's home slot (fed by SF1's winner) fills in immediately, but SF2 is still unscored, so
+    // the away slot (fed by SF2's winner) stays a placeholder.
+    const partiallyResolved = useTournamentStore.getState().schedule!.games.find(g => g.id === 'f1')!
+    expect(partiallyResolved.homeTeamId).toBe('t1')
+    expect(partiallyResolved.awayTeamId).toBeNull()
+  })
+
+  it('re-resolves the final after a semifinal result correction flips the winner', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [] },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [] },
+      ],
+    }
+    const sf1 = {
+      id: 'sf1', homeTeamId: 't1', awayTeamId: 't2', stage: 'semifinal' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 1, periodScores: [],
+    }
+    const final = {
+      id: 'f1', homeTeamId: null, awayTeamId: null, stage: 'final' as const, field: 1,
+      scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 2, periodScores: [],
+      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'winner' as const },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [sf1, final], totalDurationMin: 60, estimatedEnd: '11:30',
+      },
+    })
+
+    useTournamentStore.getState().submitGameResult('sf1', [{ period: 1, homeScore: 20, awayScore: 10 }])
+    expect(useTournamentStore.getState().schedule!.games.find(g => g.id === 'f1')!.homeTeamId).toBe('t1')
+
+    useTournamentStore.getState().correctGameResult('sf1', [{ period: 1, homeScore: 10, awayScore: 20 }])
+    expect(useTournamentStore.getState().schedule!.games.find(g => g.id === 'f1')!.homeTeamId).toBe('t2')
+  })
 })
 
 describe('resetTournament', () => {

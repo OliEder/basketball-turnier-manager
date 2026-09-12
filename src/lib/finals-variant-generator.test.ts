@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeGroupPhaseBuchholz, buildPlacementCohorts, buildPlacementGames } from './finals-variant-generator'
+import { computeGroupPhaseBuchholz, buildPlacementCohorts, buildPlacementGames, buildQualifierSeeds } from './finals-variant-generator'
 import { computeGroupStandings } from './group-standings'
 import type { Game, GameSettings, Team } from '@/types'
 import type { GroupStanding } from './group-standings'
@@ -170,5 +170,33 @@ describe('buildPlacementGames', () => {
         startGameNumber: 1,
       })
     ).toThrow('Kein Zeitfenster für die Endrunde verfügbar')
+  })
+})
+
+describe('buildQualifierSeeds', () => {
+  it('seeds exactly 4 groups into semifinal order: [0]v[3], [1]v[2] by alphabetical groupId', () => {
+    const seeds = buildQualifierSeeds(['A', 'B', 'C', 'D'])
+    // sf1.home, sf1.away, sf2.home, sf2.away
+    expect(seeds).toEqual([
+      { groupId: 'A', rank: 1 },
+      { groupId: 'D', rank: 1 },
+      { groupId: 'B', rank: 1 },
+      { groupId: 'C', rank: 1 },
+    ])
+  })
+
+  it('sorts group IDs alphabetically regardless of input order', () => {
+    const seeds = buildQualifierSeeds(['D', 'A', 'C', 'B'])
+    expect(seeds).toEqual([
+      { groupId: 'A', rank: 1 },
+      { groupId: 'D', rank: 1 },
+      { groupId: 'B', rank: 1 },
+      { groupId: 'C', rank: 1 },
+    ])
+  })
+
+  it('throws when there are not exactly 4 groups', () => {
+    expect(() => buildQualifierSeeds(['A', 'B', 'C'])).toThrow('Endrunde 3 benötigt genau 4 Gruppen')
+    expect(() => buildQualifierSeeds(['A', 'B', 'C', 'D', 'E'])).toThrow('Endrunde 3 benötigt genau 4 Gruppen')
   })
 })
