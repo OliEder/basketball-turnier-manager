@@ -47,11 +47,11 @@ describe('FinalsVariantForm', () => {
     expect(screen.queryByText(/unterschiedlich groß/i)).not.toBeInTheDocument()
   })
 
-  it('lets the organizer choose the dropout-handling strategy', () => {
+  it('disables the dropout-handling select for Endrunde 4 and explains why, since it always uses walkover', () => {
     render(<FinalsVariantForm />)
     const select = screen.getByLabelText('Bei Rückzug in der Endrunde')
-    fireEvent.change(select, { target: { value: 'walkover' } })
-    expect(useTournamentStore.getState().tournament.dropoutHandling).toBe('walkover')
+    expect(select).toBeDisabled()
+    expect(screen.getByText(/keine Nachrücker/)).toBeInTheDocument()
   })
 
   it('shows a capacity warning when Endrunde 4 would generate many extra games', () => {
