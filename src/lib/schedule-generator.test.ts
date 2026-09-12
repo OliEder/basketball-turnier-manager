@@ -266,6 +266,60 @@ describe('generateSchedule with multiple groups', () => {
     const groupGames = schedule.games.filter(g => g.stage === 'group')
     expect(groupGames.every(g => g.groupId === 'A')).toBe(true)
   })
+
+  it('handles uneven group sizes without dropping or duplicating games', () => {
+    const unevenConfig: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+      fields: 4,
+      groupCount: 3,
+      teams: [
+        { ...makeTeam('t1', 'Team 1'), groupId: 'A' },
+        { ...makeTeam('t2', 'Team 2'), groupId: 'A' },
+        { ...makeTeam('t3', 'Team 3'), groupId: 'A' },
+        { ...makeTeam('t4', 'Team 4'), groupId: 'A' },
+        { ...makeTeam('t5', 'Team 5'), groupId: 'B' },
+        { ...makeTeam('t6', 'Team 6'), groupId: 'B' },
+        { ...makeTeam('t7', 'Team 7'), groupId: 'B' },
+        { ...makeTeam('t8', 'Team 8'), groupId: 'C' },
+        { ...makeTeam('t9', 'Team 9'), groupId: 'C' },
+        { ...makeTeam('t10', 'Team 10'), groupId: 'C' },
+        { ...makeTeam('t11', 'Team 11'), groupId: 'C' },
+        { ...makeTeam('t12', 'Team 12'), groupId: 'C' },
+        { ...makeTeam('t13', 'Team 13'), groupId: 'C' },
+      ],
+    }
+    const schedule = generateSchedule(unevenConfig)
+    const groupGames = schedule.games.filter(g => g.stage === 'group')
+    // Group A: 4 teams -> C(4,2) = 6 games. Group B: 3 teams -> C(3,2) = 3 games.
+    // Group C: 6 teams -> C(6,2) = 15 games. Total = 24.
+    expect(groupGames).toHaveLength(24)
+    expect(groupGames.filter(g => g.groupId === 'A')).toHaveLength(6)
+    expect(groupGames.filter(g => g.groupId === 'B')).toHaveLength(3)
+    expect(groupGames.filter(g => g.groupId === 'C')).toHaveLength(15)
+  })
+
+  it('gives a single-team group zero group-stage games without crashing', () => {
+    const soloGroupConfig: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      finalsBracketSize: 4,
+      fields: 4,
+      groupCount: 2,
+      teams: [
+        { ...makeTeam('t1', 'Team 1'), groupId: 'A' },
+        { ...makeTeam('t2', 'Team 2'), groupId: 'A' },
+        { ...makeTeam('t3', 'Team 3'), groupId: 'A' },
+        { ...makeTeam('t4', 'Team 4'), groupId: 'B' },
+      ],
+    }
+    expect(() => generateSchedule(soloGroupConfig)).not.toThrow()
+    const schedule = generateSchedule(soloGroupConfig)
+    const groupGames = schedule.games.filter(g => g.stage === 'group')
+    expect(groupGames.filter(g => g.groupId === 'B')).toHaveLength(0)
+    expect(groupGames.filter(g => g.groupId === 'A')).toHaveLength(3)
+  })
 })
 
 describe('generateRoundRobinRounds', () => {
