@@ -11,18 +11,19 @@ import { generateSchedule } from '../src/lib/schedule-generator.ts'
 import { pairFirstSwissRound, pairNextSwissRound } from '../src/lib/swiss-pairing.ts'
 import { computeStandings } from '../src/lib/standings.ts'
 import type { TournamentConfig, Team, Game, Schedule } from '../src/types/index.ts'
+import { REAL_CLUBS } from './fixtures/real-clubs.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'demos')
 
-const REAL_TEAM_NAMES = [
-  'Musterstadt Baskets', 'SG Nord', 'TV Süd', 'BC West', 'Rhein Kings',
-  'Main Eagles', 'Neckar Bulls', 'Alb Panthers', 'Donau Hawks', 'SV Ost',
-  'Baskets Mitte', 'HG Rhein-Main',
-]
-
-function makeTeam(id: string, name: string, groupId?: string): Team {
-  return { id, name, logoUrl: '', color: '#004174', contact: '', players: [], ...(groupId ? { groupId } : {}) }
+// Real Bavarian basketball clubs and their actual basketball-bund.net logo URLs (see
+// scripts/fixtures/real-clubs.ts) -- used instead of made-up names so the demo tournaments
+// exercise a real logoUrl end-to-end rather than leaving it '', which is otherwise essentially
+// untested. 144 entries is enough to give every demo (including the 64-team ones) distinct,
+// non-repeating real club names/logos.
+function makeTeam(id: string, index: number, groupId?: string): Team {
+  const { name, logoUrl } = REAL_CLUBS[index % REAL_CLUBS.length]
+  return { id, name, logoUrl, color: '#004174', contact: '', players: [], ...(groupId ? { groupId } : {}) }
 }
 
 const baseGameSettings = {
@@ -55,7 +56,7 @@ function playResult(game: Game, homeScore: number, awayScore: number): Game {
 
 // --- Demo 1: Jeder gegen Jeden, 9 Teams, teilweise gespielt ---
 function buildRoundRobinDemo() {
-  const teams = REAL_TEAM_NAMES.slice(0, 9).map((name, i) => makeTeam(`t${i + 1}`, name))
+  const teams = Array.from({ length: 9 }, (_, i) => makeTeam(`t${i + 1}`, i))
   const tournament: TournamentConfig = {
     id: 'demo-round-robin', name: 'Sommerturnier Musterstadt (Jeder gegen Jeden)',
     mode: 'round-robin', fields: 3, gameSettings: baseGameSettings, venue: baseVenue, teams,
@@ -72,8 +73,8 @@ function buildRoundRobinDemo() {
 
 // --- Demo 2: Gruppenphase + Endrunde, 9 Teams / 2 Gruppen, teilweise gespielt ---
 function buildGroupPhaseDemo() {
-  const groupATeams = REAL_TEAM_NAMES.slice(0, 5).map((name, i) => makeTeam(`t${i + 1}`, name, 'A'))
-  const groupBTeams = REAL_TEAM_NAMES.slice(5, 9).map((name, i) => makeTeam(`t${i + 6}`, name, 'B'))
+  const groupATeams = Array.from({ length: 5 }, (_, i) => makeTeam(`t${i + 1}`, i, 'A'))
+  const groupBTeams = Array.from({ length: 4 }, (_, i) => makeTeam(`t${i + 6}`, i + 5, 'B'))
   const teams = [...groupATeams, ...groupBTeams]
   const tournament: TournamentConfig = {
     id: 'demo-group-phase', name: 'Verbandsturnier Rhein-Main (Gruppenphase + Endrunde)',
@@ -91,7 +92,7 @@ function buildGroupPhaseDemo() {
 
 // --- Demo 3: Schweizer System, 9 Teams, Runde 1 gespielt + Runde 2 ausgelost ---
 function buildSwissDemo() {
-  const teams = REAL_TEAM_NAMES.slice(0, 9).map((name, i) => makeTeam(`t${i + 1}`, name))
+  const teams = Array.from({ length: 9 }, (_, i) => makeTeam(`t${i + 1}`, i))
   const tournament: TournamentConfig = {
     id: 'demo-swiss', name: 'Einstufungsturnier Bezirksliga (Schweizer System)',
     mode: 'swiss', swissRounds: 4, fields: 2, gameSettings: baseGameSettings, venue: baseVenue, teams,
@@ -135,7 +136,7 @@ function buildLarge64UnplayedDemo() {
   const teamCount = 64
   const groupCount = 16
   const teams = Array.from({ length: teamCount }, (_, i) =>
-    makeTeam(`t${i + 1}`, `Team ${i + 1}`, String.fromCharCode(65 + (i % groupCount)))
+    makeTeam(`t${i + 1}`, i, String.fromCharCode(65 + (i % groupCount)))
   )
   const tournament: TournamentConfig = {
     id: 'demo-large-64-unplayed', name: 'Verbandsturnier Süd (Großturnier, 64 Teams)',
@@ -151,7 +152,7 @@ function buildLarge64PlayedDemo() {
   const teamCount = 64
   const groupCount = 16
   const teams = Array.from({ length: teamCount }, (_, i) =>
-    makeTeam(`t${i + 1}`, `Team ${i + 1}`, String.fromCharCode(65 + (i % groupCount)))
+    makeTeam(`t${i + 1}`, i, String.fromCharCode(65 + (i % groupCount)))
   )
   const tournament: TournamentConfig = {
     id: 'demo-large-64-played', name: 'Verbandsturnier Süd (Großturnier, 64 Teams, laufend)',

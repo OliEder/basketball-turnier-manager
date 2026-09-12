@@ -15,7 +15,8 @@ export default function TeamCard({ team, onEdit, onDelete }: Props) {
         style={{ backgroundColor: team.color }}
       >
         {team.logoUrl && (
-          <img src={team.logoUrl} alt={team.name} className="w-full h-full object-contain rounded-full" />
+          // Decorative: the team name is already shown as adjacent text below.
+          <img src={team.logoUrl} alt="" className="w-full h-full object-contain rounded-full" />
         )}
       </div>
       <div className="flex-1 min-w-0">

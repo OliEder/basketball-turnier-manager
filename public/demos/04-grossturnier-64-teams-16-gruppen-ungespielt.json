@@ -30,8 +30,8 @@
     "teams": [
       {
         "id": "t1",
-        "name": "Team 1",
-        "logoUrl": "",
+        "name": "TV 1875 Burglengenfeld",
+        "logoUrl": "https://www.basketball-bund.net/media/team/313917/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -39,8 +39,8 @@
       },
       {
         "id": "t2",
-        "name": "Team 2",
-        "logoUrl": "",
+        "name": "Sportfreunde Friedberg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/163581/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -48,8 +48,8 @@
       },
       {
         "id": "t3",
-        "name": "Team 3",
-        "logoUrl": "",
+        "name": "TV 1904 Weismain",
+        "logoUrl": "https://www.basketball-bund.net/media/team/321847/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -57,8 +57,8 @@
       },
       {
         "id": "t4",
-        "name": "Team 4",
-        "logoUrl": "",
+        "name": "BC Hellenen München",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151025/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -66,8 +66,8 @@
       },
       {
         "id": "t5",
-        "name": "Team 5",
-        "logoUrl": "",
+        "name": "TV 1863 Miesbach",
+        "logoUrl": "https://www.basketball-bund.net/media/team/161484/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -75,8 +75,8 @@
       },
       {
         "id": "t6",
-        "name": "Team 6",
-        "logoUrl": "",
+        "name": "TSV Plattling",
+        "logoUrl": "https://www.basketball-bund.net/media/team/175057/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -84,8 +84,8 @@
       },
       {
         "id": "t7",
-        "name": "Team 7",
-        "logoUrl": "",
+        "name": "SC Vierkirchen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/165530/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -93,8 +93,8 @@
       },
       {
         "id": "t8",
-        "name": "Team 8",
-        "logoUrl": "",
+        "name": "SV 1928 Pettstadt",
+        "logoUrl": "https://www.basketball-bund.net/media/team/143021/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -102,8 +102,8 @@
       },
       {
         "id": "t9",
-        "name": "Team 9",
-        "logoUrl": "",
+        "name": "SV Oberdürrbach 1959",
+        "logoUrl": "https://www.basketball-bund.net/media/team/157368/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -111,8 +111,8 @@
       },
       {
         "id": "t10",
-        "name": "Team 10",
-        "logoUrl": "",
+        "name": "SV Waldbrunn",
+        "logoUrl": "https://www.basketball-bund.net/media/team/177373/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -120,8 +120,8 @@
       },
       {
         "id": "t11",
-        "name": "Team 11",
-        "logoUrl": "",
+        "name": "TV von 1895 Markt Schwaben",
+        "logoUrl": "https://www.basketball-bund.net/media/team/168498/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -129,8 +129,8 @@
       },
       {
         "id": "t12",
-        "name": "Team 12",
-        "logoUrl": "",
+        "name": "SV Wacker Burghausen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/154175/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -138,8 +138,8 @@
       },
       {
         "id": "t13",
-        "name": "Team 13",
-        "logoUrl": "",
+        "name": "TB Weiden",
+        "logoUrl": "https://www.basketball-bund.net/media/team/150995/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -147,8 +147,8 @@
       },
       {
         "id": "t14",
-        "name": "Team 14",
-        "logoUrl": "",
+        "name": "TuS Geretsried",
+        "logoUrl": "https://www.basketball-bund.net/media/team/313153/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -156,8 +156,8 @@
       },
       {
         "id": "t15",
-        "name": "Team 15",
-        "logoUrl": "",
+        "name": "TSV Amorbach 1863",
+        "logoUrl": "https://www.basketball-bund.net/media/team/157454/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -165,8 +165,8 @@
       },
       {
         "id": "t16",
-        "name": "Team 16",
-        "logoUrl": "",
+        "name": "TSV Diedorf",
+        "logoUrl": "https://www.basketball-bund.net/media/team/163556/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -174,8 +174,8 @@
       },
       {
         "id": "t17",
-        "name": "Team 17",
-        "logoUrl": "",
+        "name": "DJK Don Bosco Bamberg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/182918/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -183,8 +183,8 @@
       },
       {
         "id": "t18",
-        "name": "Team 18",
-        "logoUrl": "",
+        "name": "TSV Grombühl",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151002/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -192,8 +192,8 @@
       },
       {
         "id": "t19",
-        "name": "Team 19",
-        "logoUrl": "",
+        "name": "SpVgg Altenerding",
+        "logoUrl": "https://www.basketball-bund.net/media/team/162956/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -201,8 +201,8 @@
       },
       {
         "id": "t20",
-        "name": "Team 20",
-        "logoUrl": "",
+        "name": "FC Tegernheim",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151005/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -210,8 +210,8 @@
       },
       {
         "id": "t21",
-        "name": "Team 21",
-        "logoUrl": "",
+        "name": "ASV Rott am Inn",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151039/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -219,8 +219,8 @@
       },
       {
         "id": "t22",
-        "name": "Team 22",
-        "logoUrl": "",
+        "name": "TV 1897 Goldbach",
+        "logoUrl": "https://www.basketball-bund.net/media/team/167938/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -228,8 +228,8 @@
       },
       {
         "id": "t23",
-        "name": "Team 23",
-        "logoUrl": "",
+        "name": "SV Germania Erlenbach",
+        "logoUrl": "https://www.basketball-bund.net/media/team/157450/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -237,8 +237,8 @@
       },
       {
         "id": "t24",
-        "name": "Team 24",
-        "logoUrl": "",
+        "name": "MTV Pfaffenhofen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/165315/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -246,8 +246,8 @@
       },
       {
         "id": "t25",
-        "name": "Team 25",
-        "logoUrl": "",
+        "name": "TS Regensburg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151076/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -255,8 +255,8 @@
       },
       {
         "id": "t26",
-        "name": "Team 26",
-        "logoUrl": "",
+        "name": "TV Fürth 1860",
+        "logoUrl": "https://www.basketball-bund.net/media/team/195094/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -264,8 +264,8 @@
       },
       {
         "id": "t27",
-        "name": "Team 27",
-        "logoUrl": "",
+        "name": "BSC Wertingen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/165628/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -273,8 +273,8 @@
       },
       {
         "id": "t28",
-        "name": "Team 28",
-        "logoUrl": "",
+        "name": "ESV Ingolstadt-Ringsee",
+        "logoUrl": "https://www.basketball-bund.net/media/team/321267/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -282,8 +282,8 @@
       },
       {
         "id": "t29",
-        "name": "Team 29",
-        "logoUrl": "",
+        "name": "TSV Milbertshofen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151074/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -291,8 +291,8 @@
       },
       {
         "id": "t30",
-        "name": "Team 30",
-        "logoUrl": "",
+        "name": "SC Kemmern 1930",
+        "logoUrl": "https://www.basketball-bund.net/media/team/198063/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -300,8 +300,8 @@
       },
       {
         "id": "t31",
-        "name": "Team 31",
-        "logoUrl": "",
+        "name": "TSV Ottobeuren",
+        "logoUrl": "https://www.basketball-bund.net/media/team/198195/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -309,8 +309,8 @@
       },
       {
         "id": "t32",
-        "name": "Team 32",
-        "logoUrl": "",
+        "name": "SV Weidenberg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/198289/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -318,8 +318,8 @@
       },
       {
         "id": "t33",
-        "name": "Team 33",
-        "logoUrl": "",
+        "name": "TuS 1863 Aschaffenburg Damm",
+        "logoUrl": "https://www.basketball-bund.net/media/team/319335/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -327,8 +327,8 @@
       },
       {
         "id": "t34",
-        "name": "Team 34",
-        "logoUrl": "",
+        "name": "Slama Jama Gröbenzell",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151077/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -336,8 +336,8 @@
       },
       {
         "id": "t35",
-        "name": "Team 35",
-        "logoUrl": "",
+        "name": "SV Seeon",
+        "logoUrl": "https://www.basketball-bund.net/media/team/161826/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -345,8 +345,8 @@
       },
       {
         "id": "t36",
-        "name": "Team 36",
-        "logoUrl": "",
+        "name": "TSV Brannenburg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/200390/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -354,8 +354,8 @@
       },
       {
         "id": "t37",
-        "name": "Team 37",
-        "logoUrl": "",
+        "name": "SV Zapfendorf 1920",
+        "logoUrl": "https://www.basketball-bund.net/media/team/201014/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -363,8 +363,8 @@
       },
       {
         "id": "t38",
-        "name": "Team 38",
-        "logoUrl": "",
+        "name": "CVJM Erlangen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/157622/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -372,8 +372,8 @@
       },
       {
         "id": "t39",
-        "name": "Team 39",
-        "logoUrl": "",
+        "name": "RSC Concordia Oberhaid",
+        "logoUrl": "https://www.basketball-bund.net/media/team/143055/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -381,8 +381,8 @@
       },
       {
         "id": "t40",
-        "name": "Team 40",
-        "logoUrl": "",
+        "name": "TSV Grünwald",
+        "logoUrl": "https://www.basketball-bund.net/media/team/154127/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -390,8 +390,8 @@
       },
       {
         "id": "t41",
-        "name": "Team 41",
-        "logoUrl": "",
+        "name": "TB Arnstein",
+        "logoUrl": "https://www.basketball-bund.net/media/team/319336/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -399,8 +399,8 @@
       },
       {
         "id": "t42",
-        "name": "Team 42",
-        "logoUrl": "",
+        "name": "TSV Ottobrunn",
+        "logoUrl": "https://www.basketball-bund.net/media/team/321339/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -408,8 +408,8 @@
       },
       {
         "id": "t43",
-        "name": "Team 43",
-        "logoUrl": "",
+        "name": "DJK Sonnen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/167258/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -417,8 +417,8 @@
       },
       {
         "id": "t44",
-        "name": "Team 44",
-        "logoUrl": "",
+        "name": "TSV Partenkirchen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/163941/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -426,8 +426,8 @@
       },
       {
         "id": "t45",
-        "name": "Team 45",
-        "logoUrl": "",
+        "name": "TSV 1864 Grafing",
+        "logoUrl": "https://www.basketball-bund.net/media/team/154171/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -435,8 +435,8 @@
       },
       {
         "id": "t46",
-        "name": "Team 46",
-        "logoUrl": "",
+        "name": "WSV Glonn",
+        "logoUrl": "https://www.basketball-bund.net/media/team/164098/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -444,8 +444,8 @@
       },
       {
         "id": "t47",
-        "name": "Team 47",
-        "logoUrl": "",
+        "name": "TuS Bad Aibling 1861 e.V.",
+        "logoUrl": "https://www.basketball-bund.net/media/team/152000/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -453,8 +453,8 @@
       },
       {
         "id": "t48",
-        "name": "Team 48",
-        "logoUrl": "",
+        "name": "SV Bad Tölz",
+        "logoUrl": "https://www.basketball-bund.net/media/team/165439/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -462,8 +462,8 @@
       },
       {
         "id": "t49",
-        "name": "Team 49",
-        "logoUrl": "",
+        "name": "TSV Wasserburg/Günzburg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/163568/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -471,8 +471,8 @@
       },
       {
         "id": "t50",
-        "name": "Team 50",
-        "logoUrl": "",
+        "name": "TSV Olching",
+        "logoUrl": "https://www.basketball-bund.net/media/team/162979/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -480,8 +480,8 @@
       },
       {
         "id": "t51",
-        "name": "Team 51",
-        "logoUrl": "",
+        "name": "ASV Cham",
+        "logoUrl": "https://www.basketball-bund.net/media/team/167013/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -489,8 +489,8 @@
       },
       {
         "id": "t52",
-        "name": "Team 52",
-        "logoUrl": "",
+        "name": "TSV 1860 Rosenheim",
+        "logoUrl": "https://www.basketball-bund.net/media/team/154132/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -498,8 +498,8 @@
       },
       {
         "id": "t53",
-        "name": "Team 53",
-        "logoUrl": "",
+        "name": "TSV Karlstadt",
+        "logoUrl": "https://www.basketball-bund.net/media/team/157371/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -507,8 +507,8 @@
       },
       {
         "id": "t54",
-        "name": "Team 54",
-        "logoUrl": "",
+        "name": "MTV 1881 Ingolstadt",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151081/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -516,8 +516,8 @@
       },
       {
         "id": "t55",
-        "name": "Team 55",
-        "logoUrl": "",
+        "name": "TSV Neuötting",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151021/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -525,8 +525,8 @@
       },
       {
         "id": "t56",
-        "name": "Team 56",
-        "logoUrl": "",
+        "name": "DJK Schweinfurt",
+        "logoUrl": "https://www.basketball-bund.net/media/team/150998/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -534,8 +534,8 @@
       },
       {
         "id": "t57",
-        "name": "Team 57",
-        "logoUrl": "",
+        "name": "SpVgg Rattelsdorf",
+        "logoUrl": "https://www.basketball-bund.net/media/team/218210/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -543,8 +543,8 @@
       },
       {
         "id": "t58",
-        "name": "Team 58",
-        "logoUrl": "",
+        "name": "TSV Ebermannstadt",
+        "logoUrl": "https://www.basketball-bund.net/media/team/142991/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -552,8 +552,8 @@
       },
       {
         "id": "t59",
-        "name": "Team 59",
-        "logoUrl": "",
+        "name": "TSV 1909 Gersthofen e.V.",
+        "logoUrl": "https://www.basketball-bund.net/media/team/163557/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -561,8 +561,8 @@
       },
       {
         "id": "t60",
-        "name": "Team 60",
-        "logoUrl": "",
+        "name": "TSV Hof 1861",
+        "logoUrl": "https://www.basketball-bund.net/media/team/143096/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -570,8 +570,8 @@
       },
       {
         "id": "t61",
-        "name": "Team 61",
-        "logoUrl": "",
+        "name": "TSV 1898 Penzberg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/227312/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -579,8 +579,8 @@
       },
       {
         "id": "t62",
-        "name": "Team 62",
-        "logoUrl": "",
+        "name": "TSV Haunstetten",
+        "logoUrl": "https://www.basketball-bund.net/media/team/228768/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -588,8 +588,8 @@
       },
       {
         "id": "t63",
-        "name": "Team 63",
-        "logoUrl": "",
+        "name": "SPVGG Bruck",
+        "logoUrl": "https://www.basketball-bund.net/media/team/159014/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -597,8 +597,8 @@
       },
       {
         "id": "t64",
-        "name": "Team 64",
-        "logoUrl": "",
+        "name": "SSV Schrobenhausen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151072/logo",
         "color": "#004174",
         "contact": "",
         "players": [],
@@ -607,12 +607,12 @@
     ]
   },
   "schedule": {
-    "id": "01449c44-8272-4d3f-bff6-606b86dc8d65",
+    "id": "e5990352-167e-415d-9eee-2723a019891c",
     "tournamentId": "demo-large-64-unplayed",
-    "generatedAt": "2026-09-12T12:15:51.010Z",
+    "generatedAt": "2026-09-12T23:19:28.928Z",
     "games": [
       {
-        "id": "ef9c7de1-b341-49a9-9d9a-5efdc3c17639",
+        "id": "a128a9d2-4d83-4d97-bc2c-f2225fcf3203",
         "homeTeamId": "t1",
         "awayTeamId": "t49",
         "stage": "group",
@@ -625,7 +625,7 @@
         "groupId": "A"
       },
       {
-        "id": "ad85aeb4-32d4-4c6d-8395-b29f2cd0b25f",
+        "id": "6fda7733-f9b7-4751-9e2e-f00e162c432f",
         "homeTeamId": "t17",
         "awayTeamId": "t33",
         "stage": "group",
@@ -638,7 +638,7 @@
         "groupId": "A"
       },
       {
-        "id": "5190ff59-503e-4d04-8d27-5a586c1eb22e",
+        "id": "d4118cba-9b1b-4ab7-a089-04668e262cf2",
         "homeTeamId": "t2",
         "awayTeamId": "t50",
         "stage": "group",
@@ -651,7 +651,7 @@
         "groupId": "B"
       },
       {
-        "id": "ce923eff-e46e-418a-9b38-ebaf1627f231",
+        "id": "0df6e53a-0513-4e6e-8f17-d5ed7f5ca3ab",
         "homeTeamId": "t18",
         "awayTeamId": "t34",
         "stage": "group",
@@ -664,7 +664,7 @@
         "groupId": "B"
       },
       {
-        "id": "8e3d7a1c-b964-4420-9b87-8b7b5ca3d70a",
+        "id": "0ad34388-336f-4a68-9583-f594475686a9",
         "homeTeamId": "t3",
         "awayTeamId": "t51",
         "stage": "group",
@@ -677,7 +677,7 @@
         "groupId": "C"
       },
       {
-        "id": "9da6d082-f91e-4945-8ca6-ae31577dca1c",
+        "id": "62199ac5-2397-4a85-903f-8ae4edb01b98",
         "homeTeamId": "t19",
         "awayTeamId": "t35",
         "stage": "group",
@@ -690,7 +690,7 @@
         "groupId": "C"
       },
       {
-        "id": "b98c957d-6701-4a78-8739-4be01dd8f42f",
+        "id": "a7fa6465-434f-431a-b63d-a51229c39191",
         "homeTeamId": "t4",
         "awayTeamId": "t52",
         "stage": "group",
@@ -703,7 +703,7 @@
         "groupId": "D"
       },
       {
-        "id": "13c2a5d9-6d2f-42ea-aedc-5ed54f6272f4",
+        "id": "11ead3d5-5917-4a54-ba9d-f36640b743a0",
         "homeTeamId": "t20",
         "awayTeamId": "t36",
         "stage": "group",
@@ -716,7 +716,7 @@
         "groupId": "D"
       },
       {
-        "id": "7fe9e30d-5c9a-4805-834a-0f4eff5c4a96",
+        "id": "2fe6ab30-0a5b-416a-83fa-276c442987cf",
         "homeTeamId": "t5",
         "awayTeamId": "t53",
         "stage": "group",
@@ -729,7 +729,7 @@
         "groupId": "E"
       },
       {
-        "id": "aaf90b2f-efb1-4bb2-85ee-4cff27d42fcb",
+        "id": "94c3c91d-246a-4744-b5f9-77268f5a8945",
         "homeTeamId": "t21",
         "awayTeamId": "t37",
         "stage": "group",
@@ -742,7 +742,7 @@
         "groupId": "E"
       },
       {
-        "id": "8238f8c6-ca21-4019-856e-2ad3c6edad5b",
+        "id": "99caa8ee-ea20-47a1-b522-7dd68b6cf8b6",
         "homeTeamId": "t6",
         "awayTeamId": "t54",
         "stage": "group",
@@ -755,7 +755,7 @@
         "groupId": "F"
       },
       {
-        "id": "ac51238e-5c4e-4722-bc12-a6cc63ed17b6",
+        "id": "a432eea7-999a-41ae-9aa4-7ff3fdbadb9a",
         "homeTeamId": "t22",
         "awayTeamId": "t38",
         "stage": "group",
@@ -768,7 +768,7 @@
         "groupId": "F"
       },
       {
-        "id": "4f7f3b21-7a30-4659-a246-d10df236a9fd",
+        "id": "3878797c-c961-4072-80f8-3c208375492b",
         "homeTeamId": "t7",
         "awayTeamId": "t55",
         "stage": "group",
@@ -781,7 +781,7 @@
         "groupId": "G"
       },
       {
-        "id": "7cc661d3-0d9e-4021-b110-b3fa297cab2b",
+        "id": "54cb64e1-891e-4a9b-943b-a15fd2029eda",
         "homeTeamId": "t23",
         "awayTeamId": "t39",
         "stage": "group",
@@ -794,7 +794,7 @@
         "groupId": "G"
       },
       {
-        "id": "14308cec-3586-4013-addb-bace3d4b6e72",
+        "id": "2c8d7f5c-fa20-4cba-8615-a14f7b0b8010",
         "homeTeamId": "t8",
         "awayTeamId": "t56",
         "stage": "group",
@@ -807,7 +807,7 @@
         "groupId": "H"
       },
       {
-        "id": "d8fa681a-5606-4ed5-b7da-5da5c734bd14",
+        "id": "b4754042-f0f7-4fcb-abca-f93cba3c754e",
         "homeTeamId": "t24",
         "awayTeamId": "t40",
         "stage": "group",
@@ -820,7 +820,7 @@
         "groupId": "H"
       },
       {
-        "id": "8ad90b00-5f43-4db0-bcc3-33e31aefbf85",
+        "id": "11015250-8050-4e93-857b-bcb02e505c52",
         "homeTeamId": "t9",
         "awayTeamId": "t57",
         "stage": "group",
@@ -833,7 +833,7 @@
         "groupId": "I"
       },
       {
-        "id": "e9a7ec6d-fda4-463e-9cb7-af5afb90675c",
+        "id": "d6a93493-eeb8-43dd-b037-096140e86bea",
         "homeTeamId": "t25",
         "awayTeamId": "t41",
         "stage": "group",
@@ -846,7 +846,7 @@
         "groupId": "I"
       },
       {
-        "id": "f3524980-55c1-4537-80b2-f7d580c554ed",
+        "id": "fc8b74c6-45b0-4ef5-a306-ed7342197b95",
         "homeTeamId": "t10",
         "awayTeamId": "t58",
         "stage": "group",
@@ -859,7 +859,7 @@
         "groupId": "J"
       },
       {
-        "id": "407d1ec4-196d-482c-b78a-3b24ee43cf22",
+        "id": "035280e2-3e2b-42ba-b385-25eb7730793b",
         "homeTeamId": "t26",
         "awayTeamId": "t42",
         "stage": "group",
@@ -872,7 +872,7 @@
         "groupId": "J"
       },
       {
-        "id": "06def166-2b70-4cb7-8b6a-162fc7d05797",
+        "id": "b831ebfd-fb29-4dd7-8637-4fc2b9602fb7",
         "homeTeamId": "t11",
         "awayTeamId": "t59",
         "stage": "group",
@@ -885,7 +885,7 @@
         "groupId": "K"
       },
       {
-        "id": "3032db9b-eb78-4aef-b29d-45a9c318d6be",
+        "id": "67ac58b9-c851-4edf-b137-a43d70edb3d1",
         "homeTeamId": "t27",
         "awayTeamId": "t43",
         "stage": "group",
@@ -898,7 +898,7 @@
         "groupId": "K"
       },
       {
-        "id": "ba7b7a28-297a-448b-b68b-fd2ee87a9a2d",
+        "id": "ced5140d-ef6d-4f58-86bb-d8f2ae3cf5c5",
         "homeTeamId": "t12",
         "awayTeamId": "t60",
         "stage": "group",
@@ -911,7 +911,7 @@
         "groupId": "L"
       },
       {
-        "id": "eec8bf5f-05d8-49ef-8eb5-ab7036dfca13",
+        "id": "0ff340ab-026c-4d02-93ba-1457227486dd",
         "homeTeamId": "t28",
         "awayTeamId": "t44",
         "stage": "group",
@@ -924,7 +924,7 @@
         "groupId": "L"
       },
       {
-        "id": "fe04efda-d7bd-4caf-862c-1883e1f881e1",
+        "id": "79760654-6242-4f2c-bb6a-8ce69be47df3",
         "homeTeamId": "t13",
         "awayTeamId": "t61",
         "stage": "group",
@@ -937,7 +937,7 @@
         "groupId": "M"
       },
       {
-        "id": "591a36cb-589e-422a-a007-26d74cb0052d",
+        "id": "a49c53e5-9e65-4607-b5f6-ab94eeae372a",
         "homeTeamId": "t29",
         "awayTeamId": "t45",
         "stage": "group",
@@ -950,7 +950,7 @@
         "groupId": "M"
       },
       {
-        "id": "a52c85ab-ed3d-4f5a-a664-13d0d61a6e4c",
+        "id": "da9daa00-76e0-47da-b468-5349a9b14e94",
         "homeTeamId": "t14",
         "awayTeamId": "t62",
         "stage": "group",
@@ -963,7 +963,7 @@
         "groupId": "N"
       },
       {
-        "id": "7f35d52f-f764-436c-a911-f2ce1471dd30",
+        "id": "c4a75d3f-60ba-4900-979e-4aa0a72a720e",
         "homeTeamId": "t30",
         "awayTeamId": "t46",
         "stage": "group",
@@ -976,7 +976,7 @@
         "groupId": "N"
       },
       {
-        "id": "07965f96-89e9-420e-9fd9-9760802f894f",
+        "id": "832a7da0-5527-4211-9c52-56fbd18dc087",
         "homeTeamId": "t15",
         "awayTeamId": "t63",
         "stage": "group",
@@ -989,7 +989,7 @@
         "groupId": "O"
       },
       {
-        "id": "69a9c59d-ee2f-43b5-8faa-341a8cf5e6c1",
+        "id": "c4c63716-3bec-4794-b00f-fdd1cc4ff4f4",
         "homeTeamId": "t31",
         "awayTeamId": "t47",
         "stage": "group",
@@ -1002,7 +1002,7 @@
         "groupId": "O"
       },
       {
-        "id": "d6991951-1f63-4817-8bb0-595297250715",
+        "id": "32bade16-ef63-456b-834e-eed73fa0e3fe",
         "homeTeamId": "t16",
         "awayTeamId": "t64",
         "stage": "group",
@@ -1015,7 +1015,7 @@
         "groupId": "P"
       },
       {
-        "id": "a931e58c-2419-4f66-b846-649a5161d497",
+        "id": "a2c0aeef-5c34-4cb3-b849-72ed8603b6c2",
         "homeTeamId": "t32",
         "awayTeamId": "t48",
         "stage": "group",
@@ -1028,7 +1028,7 @@
         "groupId": "P"
       },
       {
-        "id": "c1fc1d3e-f39a-4668-837f-092d33d33a0e",
+        "id": "e75cef48-5658-4ec6-a4da-37444f638303",
         "homeTeamId": "t1",
         "awayTeamId": "t33",
         "stage": "group",
@@ -1041,7 +1041,7 @@
         "groupId": "A"
       },
       {
-        "id": "1e6761a8-2de2-4ec3-b71a-7faa127df362",
+        "id": "8e000993-06be-4581-ac5b-4e27c3434c12",
         "homeTeamId": "t49",
         "awayTeamId": "t17",
         "stage": "group",
@@ -1054,7 +1054,7 @@
         "groupId": "A"
       },
       {
-        "id": "c83b4756-2380-4ef1-9808-d43c924de1be",
+        "id": "165683a4-3842-430e-9859-c56dd3632118",
         "homeTeamId": "t2",
         "awayTeamId": "t34",
         "stage": "group",
@@ -1067,7 +1067,7 @@
         "groupId": "B"
       },
       {
-        "id": "2d631b5c-9279-4db3-a9c9-d71af796a2f6",
+        "id": "06a967bf-ddae-4fe5-8fb9-5e0e3cdcc89d",
         "homeTeamId": "t50",
         "awayTeamId": "t18",
         "stage": "group",
@@ -1080,7 +1080,7 @@
         "groupId": "B"
       },
       {
-        "id": "825cd4ae-a28f-46f1-80c0-69ea170bba04",
+        "id": "2ab25aa2-6c5a-4f0e-a9a9-1d883820dd61",
         "homeTeamId": "t3",
         "awayTeamId": "t35",
         "stage": "group",
@@ -1093,7 +1093,7 @@
         "groupId": "C"
       },
       {
-        "id": "a4b819a5-c932-4e86-ba98-5a17c92f31e4",
+        "id": "85dc8b3b-4ae1-4751-b2b3-cbcbce658f39",
         "homeTeamId": "t51",
         "awayTeamId": "t19",
         "stage": "group",
@@ -1106,7 +1106,7 @@
         "groupId": "C"
       },
       {
-        "id": "eb5bbb00-6dd4-4e67-95c5-f48de65b4624",
+        "id": "bdc5a3f0-4612-4374-982e-a32f3eb77067",
         "homeTeamId": "t4",
         "awayTeamId": "t36",
         "stage": "group",
@@ -1119,7 +1119,7 @@
         "groupId": "D"
       },
       {
-        "id": "f064c03f-edd2-48e5-8336-1e10a680006e",
+        "id": "72456a71-d234-46c9-9846-465b84fffd86",
         "homeTeamId": "t52",
         "awayTeamId": "t20",
         "stage": "group",
@@ -1132,7 +1132,7 @@
         "groupId": "D"
       },
       {
-        "id": "e32959b1-f242-4e5b-bb96-a37041063025",
+        "id": "0ad7e2ed-f010-4298-bca9-64ec8fe93906",
         "homeTeamId": "t5",
         "awayTeamId": "t37",
         "stage": "group",
@@ -1145,7 +1145,7 @@
         "groupId": "E"
       },
       {
-        "id": "717698ef-0c15-4832-b6d3-6a2b87194c10",
+        "id": "60b2c357-6488-4905-968f-f36f1bd7d5c3",
         "homeTeamId": "t53",
         "awayTeamId": "t21",
         "stage": "group",
@@ -1158,7 +1158,7 @@
         "groupId": "E"
       },
       {
-        "id": "5ae145ed-7122-44b1-ba30-d23e21557cc4",
+        "id": "ceaf7e64-94e7-4d67-a1f8-bce3a7fb85fd",
         "homeTeamId": "t6",
         "awayTeamId": "t38",
         "stage": "group",
@@ -1171,7 +1171,7 @@
         "groupId": "F"
       },
       {
-        "id": "2759243e-1deb-4c05-b7c8-6d74badd3c2b",
+        "id": "6204976f-7b5f-4dc9-b6b7-bf225cb7dc50",
         "homeTeamId": "t54",
         "awayTeamId": "t22",
         "stage": "group",
@@ -1184,7 +1184,7 @@
         "groupId": "F"
       },
       {
-        "id": "c8788e07-c7bc-4015-b454-6be178311947",
+        "id": "a6f0cc2d-a28e-43cb-ba2c-970f70f8b350",
         "homeTeamId": "t7",
         "awayTeamId": "t39",
         "stage": "group",
@@ -1197,7 +1197,7 @@
         "groupId": "G"
       },
       {
-        "id": "cc5735de-ec62-444a-89be-4934843241db",
+        "id": "593cd53e-b8b1-4dba-a867-454c5e6f98a4",
         "homeTeamId": "t55",
         "awayTeamId": "t23",
         "stage": "group",
@@ -1210,7 +1210,7 @@
         "groupId": "G"
       },
       {
-        "id": "0108072f-8cd3-48ea-807f-5986d7688c33",
+        "id": "6409f671-01e0-4450-b7e0-8b67bb9122f5",
         "homeTeamId": "t8",
         "awayTeamId": "t40",
         "stage": "group",
@@ -1223,7 +1223,7 @@
         "groupId": "H"
       },
       {
-        "id": "2da8f36b-1f73-48d0-a0c7-a1ce91872348",
+        "id": "2d099596-a590-45e8-ba89-c0719da1085d",
         "homeTeamId": "t56",
         "awayTeamId": "t24",
         "stage": "group",
@@ -1236,7 +1236,7 @@
         "groupId": "H"
       },
       {
-        "id": "29b2d398-15f0-4523-bc13-7a7bbde97b49",
+        "id": "eb523aef-faa8-4713-b115-3a81f6a0bdb9",
         "homeTeamId": "t9",
         "awayTeamId": "t41",
         "stage": "group",
@@ -1249,7 +1249,7 @@
         "groupId": "I"
       },
       {
-        "id": "078880d4-d50d-4978-93da-a1ec1cb5d9a5",
+        "id": "7571d4a9-8070-4b23-8042-6821cf058fd6",
         "homeTeamId": "t57",
         "awayTeamId": "t25",
         "stage": "group",
@@ -1262,7 +1262,7 @@
         "groupId": "I"
       },
       {
-        "id": "5ba08974-07e1-408a-87a5-d69d10fb8856",
+        "id": "400a4f7b-f07d-4537-a7d5-2c0b727af7b3",
         "homeTeamId": "t10",
         "awayTeamId": "t42",
         "stage": "group",
@@ -1275,7 +1275,7 @@
         "groupId": "J"
       },
       {
-        "id": "1577a835-61a4-4988-84bd-94bf6dc7b7c2",
+        "id": "0c3e034c-48b7-4cb8-a019-50a0b487dc06",
         "homeTeamId": "t58",
         "awayTeamId": "t26",
         "stage": "group",
@@ -1288,7 +1288,7 @@
         "groupId": "J"
       },
       {
-        "id": "f8603a58-e86f-4ca9-85a8-aa448bc3f9e3",
+        "id": "94ee5729-c711-4204-8fcb-e79bed9f8013",
         "homeTeamId": "t11",
         "awayTeamId": "t43",
         "stage": "group",
@@ -1301,7 +1301,7 @@
         "groupId": "K"
       },
       {
-        "id": "e7606672-f1aa-4150-92bd-91a56a7c21a4",
+        "id": "bb6b4de0-cb41-418e-a51a-0896f05763fb",
         "homeTeamId": "t59",
         "awayTeamId": "t27",
         "stage": "group",
@@ -1314,7 +1314,7 @@
         "groupId": "K"
       },
       {
-        "id": "af70f1a9-3c97-47c7-ae13-4547aba6b228",
+        "id": "9fd096a9-557d-4757-a21d-e8678b1a2621",
         "homeTeamId": "t12",
         "awayTeamId": "t44",
         "stage": "group",
@@ -1327,7 +1327,7 @@
         "groupId": "L"
       },
       {
-        "id": "13f79069-3ead-4909-9fae-c99eac436be4",
+        "id": "7e576b32-f947-45d3-a306-9aa9fd3f23a9",
         "homeTeamId": "t60",
         "awayTeamId": "t28",
         "stage": "group",
@@ -1340,7 +1340,7 @@
         "groupId": "L"
       },
       {
-        "id": "9b5bfe37-8d22-4497-b491-0bd5712e4532",
+        "id": "94a3daf3-40aa-4355-9635-8971dcec7836",
         "homeTeamId": "t13",
         "awayTeamId": "t45",
         "stage": "group",
@@ -1353,7 +1353,7 @@
         "groupId": "M"
       },
       {
-        "id": "fcb86d21-6d24-4793-992d-d96ad6193251",
+        "id": "4ec3ea1f-2b73-42b0-984c-9e08c0053368",
         "homeTeamId": "t61",
         "awayTeamId": "t29",
         "stage": "group",
@@ -1366,7 +1366,7 @@
         "groupId": "M"
       },
       {
-        "id": "fe478b89-67ef-40b1-b0e6-e5e87d962499",
+        "id": "ef87ce00-cd28-4495-a1f0-022ee033a52f",
         "homeTeamId": "t14",
         "awayTeamId": "t46",
         "stage": "group",
@@ -1379,7 +1379,7 @@
         "groupId": "N"
       },
       {
-        "id": "d318ff5a-6b0e-4a20-9f72-364068905331",
+        "id": "203587ef-8fc6-41aa-a331-fa52bbbae01a",
         "homeTeamId": "t62",
         "awayTeamId": "t30",
         "stage": "group",
@@ -1392,7 +1392,7 @@
         "groupId": "N"
       },
       {
-        "id": "fdb1e2a4-36c3-4af7-b042-3ce909ba434e",
+        "id": "ccc46e93-53f3-4b37-896e-aabc905f8fed",
         "homeTeamId": "t15",
         "awayTeamId": "t47",
         "stage": "group",
@@ -1405,7 +1405,7 @@
         "groupId": "O"
       },
       {
-        "id": "2685f6c0-4dc4-445f-b4cd-d6b380997290",
+        "id": "e2d96313-519e-4c67-bb29-f3b31f05d1d3",
         "homeTeamId": "t63",
         "awayTeamId": "t31",
         "stage": "group",
@@ -1418,7 +1418,7 @@
         "groupId": "O"
       },
       {
-        "id": "31dd8a59-3c7b-480f-b6ab-a91ea43e2915",
+        "id": "1974398d-74f1-4bd0-b153-ae0f44c07be4",
         "homeTeamId": "t16",
         "awayTeamId": "t48",
         "stage": "group",
@@ -1431,7 +1431,7 @@
         "groupId": "P"
       },
       {
-        "id": "97f116a9-0590-4ccf-abf7-8388c43d5149",
+        "id": "b9b3ede0-5185-4fdf-8ae9-2f04c6dca8a8",
         "homeTeamId": "t64",
         "awayTeamId": "t32",
         "stage": "group",
@@ -1444,7 +1444,7 @@
         "groupId": "P"
       },
       {
-        "id": "1e95a553-e10d-43b7-a6f3-614e1d5d2be5",
+        "id": "07b7b4b0-1d09-463a-8bf0-4a4adcb290ef",
         "homeTeamId": "t1",
         "awayTeamId": "t17",
         "stage": "group",
@@ -1457,7 +1457,7 @@
         "groupId": "A"
       },
       {
-        "id": "e887ece8-f3ce-41e0-aa5b-50f3c2ff088c",
+        "id": "c7db88c4-dbb8-43f2-b80d-512009d31dba",
         "homeTeamId": "t33",
         "awayTeamId": "t49",
         "stage": "group",
@@ -1470,7 +1470,7 @@
         "groupId": "A"
       },
       {
-        "id": "7bdb3616-5cc8-443d-874e-6d1858816b30",
+        "id": "0f5e3132-9c65-4480-8a62-43b311d990ec",
         "homeTeamId": "t2",
         "awayTeamId": "t18",
         "stage": "group",
@@ -1483,7 +1483,7 @@
         "groupId": "B"
       },
       {
-        "id": "efa85a97-cef0-4d01-9054-1981b9a3a6de",
+        "id": "ed52176f-2938-4dec-bfe7-d018ea5aa87a",
         "homeTeamId": "t34",
         "awayTeamId": "t50",
         "stage": "group",
@@ -1496,7 +1496,7 @@
         "groupId": "B"
       },
       {
-        "id": "301ce252-93ec-47ec-8f41-3c29270c579a",
+        "id": "541cd003-5c8a-41a3-ba5c-e529455f340c",
         "homeTeamId": "t3",
         "awayTeamId": "t19",
         "stage": "group",
@@ -1509,7 +1509,7 @@
         "groupId": "C"
       },
       {
-        "id": "0db4af06-c5da-4f48-973e-e45108a96922",
+        "id": "db8ca0ac-4649-4e24-8f34-6fb4236564d6",
         "homeTeamId": "t35",
         "awayTeamId": "t51",
         "stage": "group",
@@ -1522,7 +1522,7 @@
         "groupId": "C"
       },
       {
-        "id": "16f019c2-1582-4064-928b-9a6c8804070e",
+        "id": "dff8133b-b011-45a6-a116-496019f1d89a",
         "homeTeamId": "t4",
         "awayTeamId": "t20",
         "stage": "group",
@@ -1535,7 +1535,7 @@
         "groupId": "D"
       },
       {
-        "id": "7e4ac892-78ad-4ebf-8d10-502e514327ea",
+        "id": "02c2e692-eaae-4405-a4f4-cb2c51da6c95",
         "homeTeamId": "t36",
         "awayTeamId": "t52",
         "stage": "group",
@@ -1548,7 +1548,7 @@
         "groupId": "D"
       },
       {
-        "id": "7e952999-581f-43df-b5fa-93155679972e",
+        "id": "c53487c6-ac02-4355-9332-c9ef97df73d4",
         "homeTeamId": "t5",
         "awayTeamId": "t21",
         "stage": "group",
@@ -1561,7 +1561,7 @@
         "groupId": "E"
       },
       {
-        "id": "047d6d3d-ab8e-4608-962f-8133d1eb7262",
+        "id": "bd9c6c52-a29a-4f7a-ae1e-047970561ceb",
         "homeTeamId": "t37",
         "awayTeamId": "t53",
         "stage": "group",
@@ -1574,7 +1574,7 @@
         "groupId": "E"
       },
       {
-        "id": "47f79fae-c1b3-42d0-8272-cb01c96e2190",
+        "id": "3aa9ec6c-9520-4834-bf83-8ebcc2694e3c",
         "homeTeamId": "t6",
         "awayTeamId": "t22",
         "stage": "group",
@@ -1587,7 +1587,7 @@
         "groupId": "F"
       },
       {
-        "id": "2962efbd-0962-41be-8260-dcc3ac86152f",
+        "id": "2cbc7fa7-b03d-4808-ae48-eb29f61af8a3",
         "homeTeamId": "t38",
         "awayTeamId": "t54",
         "stage": "group",
@@ -1600,7 +1600,7 @@
         "groupId": "F"
       },
       {
-        "id": "af04db5c-501e-46b8-9987-e6987c90aa0c",
+        "id": "d53d4d94-7190-4d8f-82cf-338d056a26f0",
         "homeTeamId": "t7",
         "awayTeamId": "t23",
         "stage": "group",
@@ -1613,7 +1613,7 @@
         "groupId": "G"
       },
       {
-        "id": "a081a733-58cb-48da-8b2f-99da6f70f274",
+        "id": "45935b90-0ca8-4c0a-be3b-507689648dad",
         "homeTeamId": "t39",
         "awayTeamId": "t55",
         "stage": "group",
@@ -1626,7 +1626,7 @@
         "groupId": "G"
       },
       {
-        "id": "e3c19551-aea4-4d6d-aadc-cc4582aa86e3",
+        "id": "c6a45c66-80f2-448c-9790-67049807ccad",
         "homeTeamId": "t8",
         "awayTeamId": "t24",
         "stage": "group",
@@ -1639,7 +1639,7 @@
         "groupId": "H"
       },
       {
-        "id": "d3fe5595-1a44-421b-8f5c-cf5cab3fc83b",
+        "id": "4ac7708c-8aa7-453d-918b-f8e2c985d059",
         "homeTeamId": "t40",
         "awayTeamId": "t56",
         "stage": "group",
@@ -1652,7 +1652,7 @@
         "groupId": "H"
       },
       {
-        "id": "74eaafee-244e-4eca-a1a2-2df97b5dc444",
+        "id": "cdbc7853-d922-4c12-9870-ef0a5bdb83aa",
         "homeTeamId": "t9",
         "awayTeamId": "t25",
         "stage": "group",
@@ -1665,7 +1665,7 @@
         "groupId": "I"
       },
       {
-        "id": "c052ce08-ecb1-473f-9e1a-4a0a135c9a17",
+        "id": "b0a170a5-1db4-40e7-91d7-2bd068852ee9",
         "homeTeamId": "t41",
         "awayTeamId": "t57",
         "stage": "group",
@@ -1678,7 +1678,7 @@
         "groupId": "I"
       },
       {
-        "id": "264f5443-628a-4fac-aff1-2f00cd4f8cd2",
+        "id": "a7101bb3-a0fe-4122-b12e-d0457fe854e1",
         "homeTeamId": "t10",
         "awayTeamId": "t26",
         "stage": "group",
@@ -1691,7 +1691,7 @@
         "groupId": "J"
       },
       {
-        "id": "9ab205e2-5a5c-44f2-904b-329939754184",
+        "id": "f759b1be-f52c-443d-85f5-75c97cf1f86d",
         "homeTeamId": "t42",
         "awayTeamId": "t58",
         "stage": "group",
@@ -1704,7 +1704,7 @@
         "groupId": "J"
       },
       {
-        "id": "bb3a3092-159e-4c5f-af3a-b55764a2299e",
+        "id": "8af7f244-8d89-4168-a12c-351f5ac73792",
         "homeTeamId": "t11",
         "awayTeamId": "t27",
         "stage": "group",
@@ -1717,7 +1717,7 @@
         "groupId": "K"
       },
       {
-        "id": "66b295ed-d15e-4e90-883d-61cbbc5865dd",
+        "id": "169544ac-5a3c-4e7d-80ac-b8049b240c40",
         "homeTeamId": "t43",
         "awayTeamId": "t59",
         "stage": "group",
@@ -1730,7 +1730,7 @@
         "groupId": "K"
       },
       {
-        "id": "87af0166-9911-4176-a47d-5fdb2a82e6ff",
+        "id": "23f51c5e-7e35-44cd-9365-2244d85a3732",
         "homeTeamId": "t12",
         "awayTeamId": "t28",
         "stage": "group",
@@ -1743,7 +1743,7 @@
         "groupId": "L"
       },
       {
-        "id": "35bb031d-b988-403d-8988-494e07014fa1",
+        "id": "5aa74de5-93d5-46bf-832e-a0815e04a935",
         "homeTeamId": "t44",
         "awayTeamId": "t60",
         "stage": "group",
@@ -1756,7 +1756,7 @@
         "groupId": "L"
       },
       {
-        "id": "68de64d3-7218-4d42-a1f9-bbd1bff7e5cc",
+        "id": "54a0136f-367f-4609-891b-02e2b04b2dd5",
         "homeTeamId": "t13",
         "awayTeamId": "t29",
         "stage": "group",
@@ -1769,7 +1769,7 @@
         "groupId": "M"
       },
       {
-        "id": "7d11ca1f-d057-41ee-901f-fdefd37caada",
+        "id": "8314a8b2-3500-421a-a31f-00410e9a05aa",
         "homeTeamId": "t45",
         "awayTeamId": "t61",
         "stage": "group",
@@ -1782,7 +1782,7 @@
         "groupId": "M"
       },
       {
-        "id": "707a106b-bf06-4784-ac45-ad5d4dff6f13",
+        "id": "d77d71fa-2c24-4760-a0f9-d66ac3708299",
         "homeTeamId": "t14",
         "awayTeamId": "t30",
         "stage": "group",
@@ -1795,7 +1795,7 @@
         "groupId": "N"
       },
       {
-        "id": "b913b450-5d59-4e26-8536-59eec990ef7a",
+        "id": "981ae34a-efc4-4bd8-bf4c-fe734595e31d",
         "homeTeamId": "t46",
         "awayTeamId": "t62",
         "stage": "group",
@@ -1808,7 +1808,7 @@
         "groupId": "N"
       },
       {
-        "id": "b8afa7ff-2785-4b04-b785-f1ad2f5545d4",
+        "id": "72887fb1-cf8d-4ff6-b5b1-6202ddef592a",
         "homeTeamId": "t15",
         "awayTeamId": "t31",
         "stage": "group",
@@ -1821,7 +1821,7 @@
         "groupId": "O"
       },
       {
-        "id": "38b2b4e9-9c57-43cf-bd23-9911cefe5d40",
+        "id": "6f5a2963-c7c7-4503-8f30-f4353723808a",
         "homeTeamId": "t47",
         "awayTeamId": "t63",
         "stage": "group",
@@ -1834,7 +1834,7 @@
         "groupId": "O"
       },
       {
-        "id": "94e74c7f-a754-4253-9776-27e31e1bda25",
+        "id": "6b73586f-9590-4156-aee4-20452d0e0221",
         "homeTeamId": "t16",
         "awayTeamId": "t32",
         "stage": "group",
@@ -1847,7 +1847,7 @@
         "groupId": "P"
       },
       {
-        "id": "ce70abc2-f241-4963-b437-8a8c86c83e84",
+        "id": "302a5a74-1797-4603-9d24-247b0cc72aea",
         "homeTeamId": "t48",
         "awayTeamId": "t64",
         "stage": "group",
@@ -1860,7 +1860,7 @@
         "groupId": "P"
       },
       {
-        "id": "13efb57c-e864-422c-9d03-2e41f2d955b0",
+        "id": "023dba36-9a84-423c-a69f-7ede936c412a",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "1. der Vorrunde",
@@ -1874,7 +1874,7 @@
         "periodScores": []
       },
       {
-        "id": "4398d77b-2fa9-41d4-be9e-ad2ad7152fd5",
+        "id": "e0354654-f027-4f50-8466-effa8bd5dd71",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "2. der Vorrunde",
@@ -1888,7 +1888,29 @@
         "periodScores": []
       },
       {
-        "id": "07a2918c-4a86-4ae0-85b6-332d38f4963c",
+        "id": "7621c6f8-0125-41ca-9646-99fdab4bfdfc",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Verlierer HF 1",
+        "awayLabel": "Verlierer HF 2",
+        "stage": "third-place",
+        "field": 2,
+        "scheduledStart": "14:51",
+        "scheduledEnd": "15:30",
+        "round": 3,
+        "gameNumber": 99,
+        "periodScores": [],
+        "homeSourceSemifinal": {
+          "semifinalIndex": 1,
+          "outcome": "loser"
+        },
+        "awaySourceSemifinal": {
+          "semifinalIndex": 2,
+          "outcome": "loser"
+        }
+      },
+      {
+        "id": "5c93b6eb-0080-412a-81a5-79a070a43317",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Sieger HF 1",
@@ -1898,13 +1920,21 @@
         "scheduledStart": "14:51",
         "scheduledEnd": "15:30",
         "round": 3,
-        "gameNumber": 99,
-        "periodScores": []
+        "gameNumber": 100,
+        "periodScores": [],
+        "homeSourceSemifinal": {
+          "semifinalIndex": 1,
+          "outcome": "winner"
+        },
+        "awaySourceSemifinal": {
+          "semifinalIndex": 2,
+          "outcome": "winner"
+        }
       }
     ],
     "totalDurationMin": 450,
     "estimatedEnd": "15:30",
     "awardCeremonyEstimate": "15:45"
   },
-  "exportedAt": "2026-09-12T12:15:51.010Z"
+  "exportedAt": "2026-09-12T23:19:28.928Z"
 }

@@ -35,72 +35,72 @@
     "teams": [
       {
         "id": "t1",
-        "name": "Musterstadt Baskets",
-        "logoUrl": "",
+        "name": "TV 1875 Burglengenfeld",
+        "logoUrl": "https://www.basketball-bund.net/media/team/313917/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t2",
-        "name": "SG Nord",
-        "logoUrl": "",
+        "name": "Sportfreunde Friedberg",
+        "logoUrl": "https://www.basketball-bund.net/media/team/163581/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t3",
-        "name": "TV Süd",
-        "logoUrl": "",
+        "name": "TV 1904 Weismain",
+        "logoUrl": "https://www.basketball-bund.net/media/team/321847/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t4",
-        "name": "BC West",
-        "logoUrl": "",
+        "name": "BC Hellenen München",
+        "logoUrl": "https://www.basketball-bund.net/media/team/151025/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t5",
-        "name": "Rhein Kings",
-        "logoUrl": "",
+        "name": "TV 1863 Miesbach",
+        "logoUrl": "https://www.basketball-bund.net/media/team/161484/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t6",
-        "name": "Main Eagles",
-        "logoUrl": "",
+        "name": "TSV Plattling",
+        "logoUrl": "https://www.basketball-bund.net/media/team/175057/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t7",
-        "name": "Neckar Bulls",
-        "logoUrl": "",
+        "name": "SC Vierkirchen",
+        "logoUrl": "https://www.basketball-bund.net/media/team/165530/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t8",
-        "name": "Alb Panthers",
-        "logoUrl": "",
+        "name": "SV 1928 Pettstadt",
+        "logoUrl": "https://www.basketball-bund.net/media/team/143021/logo",
         "color": "#004174",
         "contact": "",
         "players": []
       },
       {
         "id": "t9",
-        "name": "Donau Hawks",
-        "logoUrl": "",
+        "name": "SV Oberdürrbach 1959",
+        "logoUrl": "https://www.basketball-bund.net/media/team/157368/logo",
         "color": "#004174",
         "contact": "",
         "players": []
@@ -108,14 +108,14 @@
     ]
   },
   "schedule": {
-    "id": "6a6f2652-27a5-4295-9812-48503e87b7b6",
+    "id": "4cf551d0-f216-4807-b25c-6e2bdf8cf7cf",
     "tournamentId": "demo-swiss",
-    "generatedAt": "2026-09-12T12:15:50.993Z",
+    "generatedAt": "2026-09-12T23:19:28.924Z",
     "games": [
       {
-        "id": "70b30cd5-0294-4da3-81e5-04e75b415edc",
-        "homeTeamId": "t8",
-        "awayTeamId": "t5",
+        "id": "e0bb4330-c8d3-4ca4-ba0d-90760fdd500e",
+        "homeTeamId": "t2",
+        "awayTeamId": "t8",
         "stage": "swiss",
         "field": 1,
         "scheduledStart": "09:30",
@@ -125,15 +125,15 @@
         "periodScores": [
           {
             "period": 1,
-            "homeScore": 21,
-            "awayScore": 13
+            "homeScore": 30,
+            "awayScore": 20
           }
         ]
       },
       {
-        "id": "187b7764-bfc8-42eb-b25f-f09001a9d9ff",
-        "homeTeamId": "t4",
-        "awayTeamId": "t2",
+        "id": "550ff857-3f8d-492e-9c68-aa56477c62ec",
+        "homeTeamId": "t5",
+        "awayTeamId": "t7",
         "stage": "swiss",
         "field": 2,
         "scheduledStart": "09:30",
@@ -143,15 +143,15 @@
         "periodScores": [
           {
             "period": 1,
-            "homeScore": 22,
-            "awayScore": 14
+            "homeScore": 24,
+            "awayScore": 18
           }
         ]
       },
       {
-        "id": "9b0fbaf8-bcc2-41f5-849b-88eed06395ad",
-        "homeTeamId": "t3",
-        "awayTeamId": "t7",
+        "id": "e55383cf-f2a3-4609-888a-6a182c2e45c2",
+        "homeTeamId": "t9",
+        "awayTeamId": "t4",
         "stage": "swiss",
         "field": 1,
         "scheduledStart": "10:14",
@@ -161,15 +161,15 @@
         "periodScores": [
           {
             "period": 1,
-            "homeScore": 27,
-            "awayScore": 12
+            "homeScore": 26,
+            "awayScore": 25
           }
         ]
       },
       {
-        "id": "5bb567e1-6df8-4d53-8505-e353fad2edf9",
+        "id": "2a6b8f0b-4e70-4518-a854-594a14a9878e",
         "homeTeamId": "t1",
-        "awayTeamId": "t6",
+        "awayTeamId": "t3",
         "stage": "swiss",
         "field": 2,
         "scheduledStart": "10:14",
@@ -180,15 +180,15 @@
           {
             "period": 1,
             "homeScore": 29,
-            "awayScore": 22
+            "awayScore": 12
           }
         ]
       },
       {
-        "id": "48d691ad-6d90-4e3a-9ea7-45a0ce792d4e",
+        "id": "14c55d0b-0799-46ed-9c02-44e8e5d599e5",
         "homeTeamId": null,
         "awayTeamId": null,
-        "byeTeamId": "t9",
+        "byeTeamId": "t6",
         "stage": "swiss",
         "field": 0,
         "scheduledStart": "09:30",
@@ -198,9 +198,9 @@
         "periodScores": []
       },
       {
-        "id": "73d3f7a5-1645-46e7-938d-103276c7f330",
-        "homeTeamId": "t9",
-        "awayTeamId": "t3",
+        "id": "fb5f3788-04d5-4b9b-ab40-2065d1a8a1c9",
+        "homeTeamId": "t6",
+        "awayTeamId": "t1",
         "stage": "swiss",
         "field": 1,
         "scheduledStart": "11:13",
@@ -210,9 +210,9 @@
         "periodScores": []
       },
       {
-        "id": "0eafaa04-5036-4acf-b3e9-9ac74a2d2c0a",
-        "homeTeamId": "t4",
-        "awayTeamId": "t8",
+        "id": "bbee6af1-b1e1-49c6-9d52-5eb37ceb1b0a",
+        "homeTeamId": "t2",
+        "awayTeamId": "t5",
         "stage": "swiss",
         "field": 2,
         "scheduledStart": "11:13",
@@ -222,9 +222,9 @@
         "periodScores": []
       },
       {
-        "id": "74c5f2be-ed36-4971-8f62-656d50163a45",
-        "homeTeamId": "t1",
-        "awayTeamId": "t2",
+        "id": "8e2f2475-6641-493a-b725-82873c2d7422",
+        "homeTeamId": "t9",
+        "awayTeamId": "t7",
         "stage": "swiss",
         "field": 1,
         "scheduledStart": "13:30",
@@ -234,9 +234,9 @@
         "periodScores": []
       },
       {
-        "id": "43e35a65-79cd-424a-a8c6-3956a6b5d89b",
-        "homeTeamId": "t5",
-        "awayTeamId": "t7",
+        "id": "5005b6c5-9b86-4e78-a9c0-98ef8a43b80f",
+        "homeTeamId": "t8",
+        "awayTeamId": "t3",
         "stage": "swiss",
         "field": 2,
         "scheduledStart": "13:30",
@@ -246,7 +246,7 @@
         "periodScores": []
       },
       {
-        "id": "b85e10e7-23fa-49f7-9b88-c78271dfdef6",
+        "id": "8fa7093a-ec4b-4e0e-bfc5-6f5d8480e05c",
         "homeTeamId": null,
         "awayTeamId": null,
         "stage": "swiss",
@@ -256,10 +256,10 @@
         "round": 2,
         "gameNumber": 10,
         "periodScores": [],
-        "byeTeamId": "t6"
+        "byeTeamId": "t4"
       },
       {
-        "id": "61b14875-4b89-47ba-8786-7d038770a943",
+        "id": "544e18b1-4d8a-4822-83d3-d5b832865083",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 3 – Spiel 1 (Heim)",
@@ -273,7 +273,7 @@
         "periodScores": []
       },
       {
-        "id": "554f668f-832f-48ba-9ead-6730d4043c71",
+        "id": "3b60cff6-f3d4-4d39-bca6-235f63c2869d",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 3 – Spiel 2 (Heim)",
@@ -287,7 +287,7 @@
         "periodScores": []
       },
       {
-        "id": "01b8b7fe-38ad-45ff-ade1-38bd2aafb486",
+        "id": "797596df-8d81-40b4-b808-63edbd7a07bf",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 3 – Spiel 3 (Heim)",
@@ -301,7 +301,7 @@
         "periodScores": []
       },
       {
-        "id": "2e93e0e1-cec6-41e8-a34f-b45fcd10151b",
+        "id": "f0c97c40-4f78-444b-8015-7c2e99b6533e",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 3 – Spiel 4 (Heim)",
@@ -315,7 +315,7 @@
         "periodScores": []
       },
       {
-        "id": "b2fd00fe-3d15-4f1a-aaa5-dab19a656b1e",
+        "id": "881bb067-8c0d-423b-9034-144a7b3dec2c",
         "homeTeamId": null,
         "awayTeamId": null,
         "stage": "swiss",
@@ -327,7 +327,7 @@
         "periodScores": []
       },
       {
-        "id": "3c4b90d0-e0f2-455c-833b-d2b5e1f0c09e",
+        "id": "3d6e5725-ff91-4da0-83e7-b47c6e140088",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 4 – Spiel 1 (Heim)",
@@ -341,7 +341,7 @@
         "periodScores": []
       },
       {
-        "id": "03974933-56f4-4c2c-a486-fe78c1078721",
+        "id": "edde79c2-1d58-4810-99f0-c5c42033a8a7",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 4 – Spiel 2 (Heim)",
@@ -355,7 +355,7 @@
         "periodScores": []
       },
       {
-        "id": "f7b559a0-6550-423e-862f-f0503ba11893",
+        "id": "1fe14847-8c37-4202-b18d-29dcfa9ffdc6",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 4 – Spiel 3 (Heim)",
@@ -369,7 +369,7 @@
         "periodScores": []
       },
       {
-        "id": "b5faae71-e63a-40f7-a45c-dd849aa1b334",
+        "id": "3e09c1ff-9118-4bca-a4f1-ad2b830cf868",
         "homeTeamId": null,
         "awayTeamId": null,
         "homeLabel": "Runde 4 – Spiel 4 (Heim)",
@@ -383,7 +383,7 @@
         "periodScores": []
       },
       {
-        "id": "7d8cc327-387e-4fb8-820f-682b17ed3c44",
+        "id": "ea4d1641-cfa0-4e54-bfe2-0ddb3197add5",
         "homeTeamId": null,
         "awayTeamId": null,
         "stage": "swiss",
@@ -398,5 +398,5 @@
     "totalDurationMin": 485,
     "estimatedEnd": "17:35"
   },
-  "exportedAt": "2026-09-12T12:15:50.994Z"
+  "exportedAt": "2026-09-12T23:19:28.925Z"
 }
