@@ -14,5 +14,14 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', './e2e/**', '**/.worktrees/**'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/lib/**', 'src/store/**'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test-setup.ts', 'src/lib/export/**'],
+      thresholds: {
+        branches: 80,
+        perFile: true,
+      },
+    },
   },
 })

@@ -40,6 +40,28 @@ describe('computeGroupPhaseBuchholz', () => {
     const standingsByTeamId = new Map([['t1', standing('t1', 0)], ['t2', standing('t2', 0)]])
     expect(computeGroupPhaseBuchholz('t1', games, standingsByTeamId)).toBe(0)
   })
+
+  it('also counts games where the queried team played as the away side', () => {
+    const games = [
+      makeGame({ groupId: 'A', homeTeamId: 't2', awayTeamId: 't1', periodScores: [{ period: 1, homeScore: 10, awayScore: 20 }] }),
+    ]
+    const standingsByTeamId = new Map([
+      ['t1', standing('t1', 2)],
+      ['t2', standing('t2', 5)],
+    ])
+    // t1 played as away side against t2 (5 pts) -> buchholz = 5
+    expect(computeGroupPhaseBuchholz('t1', games, standingsByTeamId)).toBe(5)
+  })
+
+  it('treats a missing opponent standing as 0 points, for both home and away sides', () => {
+    const games = [
+      makeGame({ id: 'g1', groupId: 'A', homeTeamId: 't1', awayTeamId: 'ghost1', periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }] }),
+      makeGame({ id: 'g2', groupId: 'A', homeTeamId: 'ghost2', awayTeamId: 't1', periodScores: [{ period: 1, homeScore: 10, awayScore: 20 }] }),
+    ]
+    // Neither "ghost1" nor "ghost2" has a standings entry (e.g. withdrawn/filtered out elsewhere).
+    const standingsByTeamId = new Map([['t1', standing('t1', 4)]])
+    expect(computeGroupPhaseBuchholz('t1', games, standingsByTeamId)).toBe(0)
+  })
 })
 
 describe('buildPlacementCohorts', () => {
