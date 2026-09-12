@@ -1,0 +1,402 @@
+{
+  "tournament": {
+    "id": "demo-swiss",
+    "name": "Einstufungsturnier Bezirksliga (Schweizer System)",
+    "mode": "swiss",
+    "swissRounds": 4,
+    "fields": 2,
+    "gameSettings": {
+      "periodsCount": 4,
+      "periodDurationMin": 8,
+      "breakBetweenPeriodsMin": 1,
+      "halfTimeBreakMin": 5,
+      "bufferBetweenGamesMin": 5,
+      "breakBetweenRoundsMin": 15,
+      "awardCeremonyMin": 15
+    },
+    "venue": {
+      "name": "Sporthalle am Ring",
+      "availabilityWindows": [
+        {
+          "start": "09:00",
+          "end": "20:00"
+        }
+      ],
+      "blackoutPeriods": [
+        {
+          "start": "12:30",
+          "end": "13:30",
+          "reason": "Mittagspause"
+        }
+      ],
+      "setupBufferMin": 30,
+      "teardownBufferMin": 30
+    },
+    "teams": [
+      {
+        "id": "t1",
+        "name": "Musterstadt Baskets",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t2",
+        "name": "SG Nord",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t3",
+        "name": "TV Süd",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t4",
+        "name": "BC West",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t5",
+        "name": "Rhein Kings",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t6",
+        "name": "Main Eagles",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t7",
+        "name": "Neckar Bulls",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t8",
+        "name": "Alb Panthers",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      },
+      {
+        "id": "t9",
+        "name": "Donau Hawks",
+        "logoUrl": "",
+        "color": "#004174",
+        "contact": "",
+        "players": []
+      }
+    ]
+  },
+  "schedule": {
+    "id": "6a6f2652-27a5-4295-9812-48503e87b7b6",
+    "tournamentId": "demo-swiss",
+    "generatedAt": "2026-09-12T12:15:50.993Z",
+    "games": [
+      {
+        "id": "70b30cd5-0294-4da3-81e5-04e75b415edc",
+        "homeTeamId": "t8",
+        "awayTeamId": "t5",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "09:30",
+        "scheduledEnd": "10:09",
+        "round": 1,
+        "gameNumber": 1,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 21,
+            "awayScore": 13
+          }
+        ]
+      },
+      {
+        "id": "187b7764-bfc8-42eb-b25f-f09001a9d9ff",
+        "homeTeamId": "t4",
+        "awayTeamId": "t2",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "09:30",
+        "scheduledEnd": "10:09",
+        "round": 1,
+        "gameNumber": 2,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 22,
+            "awayScore": 14
+          }
+        ]
+      },
+      {
+        "id": "9b0fbaf8-bcc2-41f5-849b-88eed06395ad",
+        "homeTeamId": "t3",
+        "awayTeamId": "t7",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "10:14",
+        "scheduledEnd": "10:53",
+        "round": 1,
+        "gameNumber": 3,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 27,
+            "awayScore": 12
+          }
+        ]
+      },
+      {
+        "id": "5bb567e1-6df8-4d53-8505-e353fad2edf9",
+        "homeTeamId": "t1",
+        "awayTeamId": "t6",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "10:14",
+        "scheduledEnd": "10:53",
+        "round": 1,
+        "gameNumber": 4,
+        "periodScores": [
+          {
+            "period": 1,
+            "homeScore": 29,
+            "awayScore": 22
+          }
+        ]
+      },
+      {
+        "id": "48d691ad-6d90-4e3a-9ea7-45a0ce792d4e",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "byeTeamId": "t9",
+        "stage": "swiss",
+        "field": 0,
+        "scheduledStart": "09:30",
+        "scheduledEnd": "09:30",
+        "round": 1,
+        "gameNumber": 5,
+        "periodScores": []
+      },
+      {
+        "id": "73d3f7a5-1645-46e7-938d-103276c7f330",
+        "homeTeamId": "t9",
+        "awayTeamId": "t3",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "11:13",
+        "scheduledEnd": "11:52",
+        "round": 2,
+        "gameNumber": 6,
+        "periodScores": []
+      },
+      {
+        "id": "0eafaa04-5036-4acf-b3e9-9ac74a2d2c0a",
+        "homeTeamId": "t4",
+        "awayTeamId": "t8",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "11:13",
+        "scheduledEnd": "11:52",
+        "round": 2,
+        "gameNumber": 7,
+        "periodScores": []
+      },
+      {
+        "id": "74c5f2be-ed36-4971-8f62-656d50163a45",
+        "homeTeamId": "t1",
+        "awayTeamId": "t2",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "13:30",
+        "scheduledEnd": "14:09",
+        "round": 2,
+        "gameNumber": 8,
+        "periodScores": []
+      },
+      {
+        "id": "43e35a65-79cd-424a-a8c6-3956a6b5d89b",
+        "homeTeamId": "t5",
+        "awayTeamId": "t7",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "13:30",
+        "scheduledEnd": "14:09",
+        "round": 2,
+        "gameNumber": 9,
+        "periodScores": []
+      },
+      {
+        "id": "b85e10e7-23fa-49f7-9b88-c78271dfdef6",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "stage": "swiss",
+        "field": 0,
+        "scheduledStart": "11:13",
+        "scheduledEnd": "11:13",
+        "round": 2,
+        "gameNumber": 10,
+        "periodScores": [],
+        "byeTeamId": "t6"
+      },
+      {
+        "id": "61b14875-4b89-47ba-8786-7d038770a943",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 3 – Spiel 1 (Heim)",
+        "awayLabel": "Runde 3 – Spiel 1 (Auswärts)",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "14:29",
+        "scheduledEnd": "15:08",
+        "round": 3,
+        "gameNumber": 11,
+        "periodScores": []
+      },
+      {
+        "id": "554f668f-832f-48ba-9ead-6730d4043c71",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 3 – Spiel 2 (Heim)",
+        "awayLabel": "Runde 3 – Spiel 2 (Auswärts)",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "14:29",
+        "scheduledEnd": "15:08",
+        "round": 3,
+        "gameNumber": 12,
+        "periodScores": []
+      },
+      {
+        "id": "01b8b7fe-38ad-45ff-ade1-38bd2aafb486",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 3 – Spiel 3 (Heim)",
+        "awayLabel": "Runde 3 – Spiel 3 (Auswärts)",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "15:13",
+        "scheduledEnd": "15:52",
+        "round": 3,
+        "gameNumber": 13,
+        "periodScores": []
+      },
+      {
+        "id": "2e93e0e1-cec6-41e8-a34f-b45fcd10151b",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 3 – Spiel 4 (Heim)",
+        "awayLabel": "Runde 3 – Spiel 4 (Auswärts)",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "15:13",
+        "scheduledEnd": "15:52",
+        "round": 3,
+        "gameNumber": 14,
+        "periodScores": []
+      },
+      {
+        "id": "b2fd00fe-3d15-4f1a-aaa5-dab19a656b1e",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "stage": "swiss",
+        "field": 0,
+        "scheduledStart": "14:29",
+        "scheduledEnd": "14:29",
+        "round": 3,
+        "gameNumber": 15,
+        "periodScores": []
+      },
+      {
+        "id": "3c4b90d0-e0f2-455c-833b-d2b5e1f0c09e",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 4 – Spiel 1 (Heim)",
+        "awayLabel": "Runde 4 – Spiel 1 (Auswärts)",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "16:12",
+        "scheduledEnd": "16:51",
+        "round": 4,
+        "gameNumber": 16,
+        "periodScores": []
+      },
+      {
+        "id": "03974933-56f4-4c2c-a486-fe78c1078721",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 4 – Spiel 2 (Heim)",
+        "awayLabel": "Runde 4 – Spiel 2 (Auswärts)",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "16:12",
+        "scheduledEnd": "16:51",
+        "round": 4,
+        "gameNumber": 17,
+        "periodScores": []
+      },
+      {
+        "id": "f7b559a0-6550-423e-862f-f0503ba11893",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 4 – Spiel 3 (Heim)",
+        "awayLabel": "Runde 4 – Spiel 3 (Auswärts)",
+        "stage": "swiss",
+        "field": 1,
+        "scheduledStart": "16:56",
+        "scheduledEnd": "17:35",
+        "round": 4,
+        "gameNumber": 18,
+        "periodScores": []
+      },
+      {
+        "id": "b5faae71-e63a-40f7-a45c-dd849aa1b334",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "homeLabel": "Runde 4 – Spiel 4 (Heim)",
+        "awayLabel": "Runde 4 – Spiel 4 (Auswärts)",
+        "stage": "swiss",
+        "field": 2,
+        "scheduledStart": "16:56",
+        "scheduledEnd": "17:35",
+        "round": 4,
+        "gameNumber": 19,
+        "periodScores": []
+      },
+      {
+        "id": "7d8cc327-387e-4fb8-820f-682b17ed3c44",
+        "homeTeamId": null,
+        "awayTeamId": null,
+        "stage": "swiss",
+        "field": 0,
+        "scheduledStart": "16:12",
+        "scheduledEnd": "16:12",
+        "round": 4,
+        "gameNumber": 20,
+        "periodScores": []
+      }
+    ],
+    "totalDurationMin": 485,
+    "estimatedEnd": "17:35"
+  },
+  "exportedAt": "2026-09-12T12:15:50.994Z"
+}
