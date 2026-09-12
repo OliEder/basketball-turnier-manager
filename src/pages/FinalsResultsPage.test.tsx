@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import FinalsResultsPage from './FinalsResultsPage'
@@ -58,5 +58,26 @@ describe('FinalsResultsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
     const saved = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
     expect(saved.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 15 }])
+  })
+
+  it('lets the organizer withdraw a team from a resolved placement game', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    render(<FinalsResultsPage />, { wrapper: MemoryRouter })
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Team Eins zurückziehen' }))
+
+    const withdrawnTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === 't1')!
+    expect(withdrawnTeam.withdrawnAfterStage).toBe('finals')
+    expect(screen.queryByRole('button', { name: 'Team Eins zurückziehen' })).not.toBeInTheDocument()
+    expect(screen.getByText('Team Eins zurückgezogen')).toBeInTheDocument()
+  })
+
+  it('does not offer a withdraw button for a still-unresolved placeholder slot', () => {
+    render(<FinalsResultsPage />, { wrapper: MemoryRouter })
+    // Only the two resolved-slot teams (Team Eins, Team Zwei) may offer a withdraw button;
+    // the unresolved pg2 slots (rank 2 of group A/B) must not.
+    const withdrawButtons = screen.getAllByRole('button', { name: /zurückziehen$/ })
+    expect(withdrawButtons).toHaveLength(2)
   })
 })

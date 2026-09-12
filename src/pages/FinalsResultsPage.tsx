@@ -7,12 +7,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalScore } from '@/lib/standings'
-import type { Game } from '@/types'
+import type { Game, Team } from '@/types'
 
 type StatusFilter = 'open' | 'played' | 'all'
 
 export default function FinalsResultsPage() {
-  const { tournament, schedule, submitGameResult, correctGameResult } = useTournamentStore()
+  const { tournament, schedule, submitGameResult, correctGameResult, withdrawTeam } = useTournamentStore()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('open')
   const [scores, setScores] = useState<Record<string, { home: string; away: string }>>({})
   const [correctingGameId, setCorrectingGameId] = useState<string | null>(null)
@@ -71,6 +71,30 @@ export default function FinalsResultsPage() {
     setSaved(true)
   }
 
+  const renderWithdrawControl = (team: Team | undefined) => {
+    if (!team) return null
+    if (team.withdrawnAfterStage) {
+      return (
+        <span className="text-xs font-semibold uppercase tracking-wide rounded-sm bg-destructive text-destructive-foreground px-2 py-0.5">
+          {team.name} zurückgezogen
+        </span>
+      )
+    }
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="text-xs text-muted-foreground border-dashed border-destructive"
+        title={`${team.name} zurückziehen`}
+        onClick={() => {
+          if (confirm(`${team.name} als zurückgezogen markieren?`)) withdrawTeam(team.id)
+        }}
+      >
+        {team.name} zurückziehen
+      </Button>
+    )
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl text-brand-primary">Endrunde: Ergebnisse erfassen</h1>
@@ -124,8 +148,10 @@ export default function FinalsResultsPage() {
               </span>
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 {homeTeam ? <TeamNameDisplay team={homeTeam} /> : <span>{`Platz ${game.homeSourceRank?.rank} der Gruppe ${game.homeSourceRank?.groupId}`}</span>}
+                {renderWithdrawControl(homeTeam)}
                 <span className="text-muted-foreground text-sm">vs</span>
                 {awayTeam ? <TeamNameDisplay team={awayTeam} /> : <span>{`Platz ${game.awaySourceRank?.rank} der Gruppe ${game.awaySourceRank?.groupId}`}</span>}
+                {renderWithdrawControl(awayTeam)}
               </div>
 
               {isUnresolved ? (
