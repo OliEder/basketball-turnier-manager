@@ -1,5 +1,8 @@
-import type { Game } from '@/types'
+import { v4 as uuidv4 } from 'uuid'
+import type { Game, GameSettings, TimeWindow } from '@/types'
 import type { GroupStanding } from './group-standings'
+import { generateRoundRobinRounds } from './schedule-generator'
+import { calcGameDurationMin, addMinutes, findNextSlot, timeToMinutes } from './game-duration'
 
 function isScorableGame(game: Game): game is Game & { homeTeamId: string; awayTeamId: string } {
   return !game.cancelledReason && !!game.homeTeamId && !!game.awayTeamId && game.periodScores.length > 0
@@ -58,4 +61,81 @@ export function buildPlacementCohorts(
     cohorts.push({ rankTier: rankIndex + 1, placementFrom: rankIndex * groupIds.length + 1, teamIds })
   }
   return cohorts
+}
+
+export interface PlacementCohortInput {
+  rankTier: number
+  placementFrom: number
+  sourceRanks: { groupId: string; rank: number }[]  // one per slot in this cohort, in seed order
+}
+
+export interface BuildPlacementGamesInput {
+  cohorts: PlacementCohortInput[]
+  fields: number
+  gameSettings: GameSettings
+  blackoutPeriods: TimeWindow[]
+  availabilityEnd: string
+  fieldNextFree: string[]
+  startGameNumber: number
+}
+
+/**
+ * Generates the round-robin games for every Endrunde-4 placement cohort. Teams are not yet known
+ * at generation time (the group phase hasn't been played) — each game only carries the
+ * group/rank pair that will later resolve to a real team, via placeholder resolution in the store.
+ */
+export function buildPlacementGames(input: BuildPlacementGamesInput): Game[] {
+  const { cohorts, fields, gameSettings, blackoutPeriods, availabilityEnd, startGameNumber } = input
+  const gameDuration = calcGameDurationMin(gameSettings)
+  const slotDuration = gameDuration + gameSettings.bufferBetweenGamesMin
+  const fieldClocks = [...input.fieldNextFree]
+  const games: Game[] = []
+  let gameNumber = startGameNumber
+
+  for (const cohort of cohorts) {
+    // Use synthetic slot ids ("0", "1", "2", "3") for the round-robin pairing, then map back to
+    // this cohort's real sourceRanks — generateRoundRobinRounds only deals in opaque string ids.
+    const slotIds = cohort.sourceRanks.map((_, i) => String(i))
+    const rounds = generateRoundRobinRounds(slotIds)
+
+    rounds.forEach((round, roundIndex) => {
+      for (const [homeSlot, awaySlot] of round) {
+        let bestField = -1
+        let bestSlotStart = ''
+        for (let f = 0; f < fields; f++) {
+          const slotStart = findNextSlot(fieldClocks[f], gameDuration, blackoutPeriods, availabilityEnd)
+          if (!slotStart) continue
+          if (bestField === -1 || timeToMinutes(slotStart) < timeToMinutes(bestSlotStart)) {
+            bestField = f
+            bestSlotStart = slotStart
+          }
+        }
+        if (bestField === -1) {
+          throw new Error('Kein Zeitfenster für die Endrunde verfügbar — Hallenzeit reicht nicht aus')
+        }
+        const slotEnd = addMinutes(bestSlotStart, gameDuration)
+
+        games.push({
+          id: uuidv4(),
+          homeTeamId: null,
+          awayTeamId: null,
+          homeSourceRank: cohort.sourceRanks[Number(homeSlot)],
+          awaySourceRank: cohort.sourceRanks[Number(awaySlot)],
+          stage: 'placement',
+          rankTier: cohort.rankTier,
+          placementFrom: cohort.placementFrom,
+          field: bestField + 1,
+          scheduledStart: bestSlotStart,
+          scheduledEnd: slotEnd,
+          round: roundIndex + 1,
+          gameNumber: gameNumber++,
+          periodScores: [],
+        })
+
+        fieldClocks[bestField] = addMinutes(bestSlotStart, slotDuration)
+      }
+    })
+  }
+
+  return games
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { computeGroupPhaseBuchholz, buildPlacementCohorts } from './finals-variant-generator'
+import { computeGroupPhaseBuchholz, buildPlacementCohorts, buildPlacementGames } from './finals-variant-generator'
 import { computeGroupStandings } from './group-standings'
-import type { Game, Team } from '@/types'
+import type { Game, GameSettings, Team } from '@/types'
 import type { GroupStanding } from './group-standings'
 
 const makeGame = (overrides: Partial<Game>): Game => ({
@@ -105,5 +105,69 @@ describe('buildPlacementCohorts', () => {
     // group A's 3rd-place team (a3) is excluded from any cohort.
     expect(cohorts).toHaveLength(2)
     expect(cohorts.every(c => !c.teamIds.includes('a3'))).toBe(true)
+  })
+})
+
+const gameSettings: GameSettings = {
+  periodsCount: 4, periodDurationMin: 5, breakBetweenPeriodsMin: 1,
+  halfTimeBreakMin: 5, bufferBetweenGamesMin: 5, breakBetweenRoundsMin: 15, awardCeremonyMin: 15,
+}
+
+describe('buildPlacementGames', () => {
+  it('generates a full round-robin per cohort with placeholder source ranks, no real team IDs', () => {
+    const cohorts = [
+      { rankTier: 1, placementFrom: 1, sourceRanks: [{ groupId: 'A', rank: 1 }, { groupId: 'B', rank: 1 }, { groupId: 'C', rank: 1 }, { groupId: 'D', rank: 1 }] },
+    ]
+    const games = buildPlacementGames({
+      cohorts,
+      fields: 2,
+      gameSettings,
+      blackoutPeriods: [],
+      availabilityEnd: '19:30',
+      fieldNextFree: ['15:00', '15:00'],
+      startGameNumber: 20,
+    })
+    // 4 teams round-robin = 6 games (3 rounds x 2 games/round)
+    expect(games).toHaveLength(6)
+    expect(games.every(g => g.stage === 'placement')).toBe(true)
+    expect(games.every(g => g.rankTier === 1)).toBe(true)
+    expect(games.every(g => g.placementFrom === 1)).toBe(true)
+    expect(games.every(g => g.homeTeamId === null && g.awayTeamId === null)).toBe(true)
+    expect(games.every(g => g.homeSourceRank && g.awaySourceRank)).toBe(true)
+    expect(games[0].gameNumber).toBe(20)
+  })
+
+  it('assigns each cohort its own games and keeps gameNumber sequential across cohorts', () => {
+    const cohorts = [
+      { rankTier: 1, placementFrom: 1, sourceRanks: [{ groupId: 'A', rank: 1 }, { groupId: 'B', rank: 1 }, { groupId: 'C', rank: 1 }, { groupId: 'D', rank: 1 }] },
+      { rankTier: 2, placementFrom: 5, sourceRanks: [{ groupId: 'A', rank: 2 }, { groupId: 'B', rank: 2 }, { groupId: 'C', rank: 2 }, { groupId: 'D', rank: 2 }] },
+    ]
+    const games = buildPlacementGames({
+      cohorts,
+      fields: 2,
+      gameSettings,
+      blackoutPeriods: [],
+      availabilityEnd: '19:30',
+      fieldNextFree: ['15:00', '15:00'],
+      startGameNumber: 1,
+    })
+    expect(games).toHaveLength(12)
+    const gameNumbers = games.map(g => g.gameNumber)
+    expect(new Set(gameNumbers).size).toBe(12) // all unique
+    expect(games.filter(g => g.rankTier === 2)).toHaveLength(6)
+  })
+
+  it('throws when the venue is too short to fit all placement games', () => {
+    expect(() =>
+      buildPlacementGames({
+        cohorts: [{ rankTier: 1, placementFrom: 1, sourceRanks: [{ groupId: 'A', rank: 1 }, { groupId: 'B', rank: 1 }, { groupId: 'C', rank: 1 }, { groupId: 'D', rank: 1 }] }],
+        fields: 1,
+        gameSettings,
+        blackoutPeriods: [],
+        availabilityEnd: '15:10',
+        fieldNextFree: ['15:00'],
+        startGameNumber: 1,
+      })
+    ).toThrow('Kein Zeitfenster für die Endrunde verfügbar')
   })
 })
