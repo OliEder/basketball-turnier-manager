@@ -59,6 +59,8 @@ interface TournamentStore {
   setTournamentName: (name: string) => void
   setMode: (mode: TournamentConfig['mode']) => void
   setFinalsBracketSize: (size: 2 | 4) => void
+  setGroupCount: (count: number) => void
+  setDoubleRoundRobin: (enabled: boolean) => void
   setSwissRounds: (rounds: number) => void
   setFields: (fields: number) => void
   updateGameSettings: (settings: Partial<GameSettings>) => void
@@ -66,6 +68,7 @@ interface TournamentStore {
   // Team actions
   addTeam: (team: Omit<Team, 'id' | 'players'>) => void
   updateTeam: (id: string, updates: Partial<Omit<Team, 'id'>>) => void
+  setTeamGroup: (id: string, groupId: string) => void
   removeTeam: (id: string) => void
   // Schedule actions
   generateAndSaveSchedule: () => void
@@ -187,6 +190,16 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
     saveTournament(get().tournament)
   },
 
+  setGroupCount: (count) => {
+    set(s => ({ tournament: { ...s.tournament, groupCount: count } }))
+    saveTournament(get().tournament)
+  },
+
+  setDoubleRoundRobin: (enabled) => {
+    set(s => ({ tournament: { ...s.tournament, doubleRoundRobin: enabled } }))
+    saveTournament(get().tournament)
+  },
+
   setSwissRounds: (rounds) => {
     set(s => ({ tournament: { ...s.tournament, swissRounds: rounds } }))
     saveTournament(get().tournament)
@@ -230,6 +243,16 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
       tournament: {
         ...s.tournament,
         teams: s.tournament.teams.map(t => t.id === id ? { ...t, ...updates } : t),
+      },
+    }))
+    saveTournament(get().tournament)
+  },
+
+  setTeamGroup: (id, groupId) => {
+    set(s => ({
+      tournament: {
+        ...s.tournament,
+        teams: s.tournament.teams.map(t => t.id === id ? { ...t, groupId } : t),
       },
     }))
     saveTournament(get().tournament)
