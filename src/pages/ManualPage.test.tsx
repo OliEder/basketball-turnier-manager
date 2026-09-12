@@ -3,12 +3,15 @@ import { render, screen, within } from '@testing-library/react'
 import ManualPage from './ManualPage'
 
 describe('ManualPage', () => {
-  it('renders the manual heading and all numbered sections', () => {
+  it('renders the manual heading and all numbered sections, with the Kurzreferenz first', () => {
     render(<ManualPage />)
     expect(screen.getByText(/Nutzeranleitung: Basketball Turnier-Manager/i)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '1. Überblick' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '4. Ergebnisse erfassen' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '9. Kurzreferenz: Typischer Ablauf' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '1. Kurzreferenz: Typischer Ablauf' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '2. Überblick' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '5. Ergebnisse erfassen' })).toBeInTheDocument()
+
+    const headings = screen.getAllByRole('heading', { level: 2 }).map(h => h.textContent)
+    expect(headings[0]).toBe('1. Kurzreferenz: Typischer Ablauf')
   })
 
   it('links to all five demo tournament files', () => {
@@ -76,7 +79,7 @@ describe('ManualPage', () => {
   it('documents the results-entry page for the group stage', () => {
     render(<ManualPage />)
     expect(
-      screen.getByRole('heading', { name: '3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' }),
+      screen.getByRole('heading', { name: '4.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' }),
     ).toBeInTheDocument()
     expect(screen.getAllByText(/Status/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Korrigieren/).length).toBeGreaterThan(0)
@@ -86,14 +89,14 @@ describe('ManualPage', () => {
     render(<ManualPage />)
     const toc = screen.getByRole('navigation', { name: /inhalt/i })
     expect(
-      within(toc).getByRole('link', { name: '3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' }),
+      within(toc).getByRole('link', { name: '4.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' }),
     ).toHaveAttribute('href', '#konfiguration-gruppenergebnisse')
   })
 
   it('documents multi-group round-robin and double round-robin configuration', () => {
     render(<ManualPage />)
     expect(
-      screen.getByRole('heading', { name: '3.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde' }),
+      screen.getByRole('heading', { name: '4.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde' }),
     ).toBeInTheDocument()
     expect(screen.getAllByText(/Anzahl Gruppen/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Mit Rückspiel \(Hin- und Rückrunde\)/).length).toBeGreaterThan(0)
@@ -102,7 +105,7 @@ describe('ManualPage', () => {
   it('documents the group-standings overview page', () => {
     render(<ManualPage />)
     expect(
-      screen.getByRole('heading', { name: '5.1 Gruppentabellen (bei mehreren Gruppen)' }),
+      screen.getByRole('heading', { name: '6.1 Gruppentabellen (bei mehreren Gruppen)' }),
     ).toBeInTheDocument()
     expect(screen.getByText(/Direkter Vergleich/)).toBeInTheDocument()
   })

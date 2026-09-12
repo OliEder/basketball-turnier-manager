@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AppShell from '@/components/layout/AppShell'
 import TeamsPage from '@/pages/TeamsPage'
 import ConfigPage from '@/pages/ConfigPage'
@@ -17,7 +17,7 @@ export default function App() {
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<AppShell />}>
-          <Route index element={<Navigate to="/teams" replace />} />
+          <Route index element={<ManualPage />} />
           <Route path="teams" element={<TeamsPage />} />
           <Route path="config" element={<ConfigPage />} />
           <Route path="schedule" element={<SchedulePage />} />

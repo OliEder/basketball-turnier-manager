@@ -39,36 +39,36 @@ function SubSection({ id, title, children }: { id?: string; title: string; child
 }
 
 const TOC_ITEMS = [
-  { id: 'ueberblick', title: '1. Überblick' },
-  { id: 'teams', title: '2. Teams anlegen' },
+  { id: 'kurzreferenz', title: '1. Kurzreferenz: Typischer Ablauf' },
+  { id: 'ueberblick', title: '2. Überblick' },
+  { id: 'teams', title: '3. Teams anlegen' },
   {
     id: 'konfiguration',
-    title: '3. Turnier konfigurieren',
+    title: '4. Turnier konfigurieren',
     children: [
-      { id: 'konfiguration-gruppen', title: '3.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde' },
-      { id: 'konfiguration-gruppenergebnisse', title: '3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' },
+      { id: 'konfiguration-gruppen', title: '4.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde' },
+      { id: 'konfiguration-gruppenergebnisse', title: '4.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' },
     ],
   },
   {
     id: 'ergebnisse',
-    title: '4. Ergebnisse erfassen',
+    title: '5. Ergebnisse erfassen',
     children: [
-      { id: 'ergebnisse-zurueckziehen', title: '4.1 Sonderfall: Ein Team zieht sich zurück' },
-      { id: 'ergebnisse-korrigieren', title: '4.2 Vergangene Runden ansehen und Ergebnisse korrigieren' },
-      { id: 'ergebnisse-manuelle-paarung', title: '4.3 Automatische Paarung nicht möglich' },
+      { id: 'ergebnisse-zurueckziehen', title: '5.1 Sonderfall: Ein Team zieht sich zurück' },
+      { id: 'ergebnisse-korrigieren', title: '5.2 Vergangene Runden ansehen und Ergebnisse korrigieren' },
+      { id: 'ergebnisse-manuelle-paarung', title: '5.3 Automatische Paarung nicht möglich' },
     ],
   },
   {
     id: 'turnieruebersicht',
-    title: '5. Turnierübersicht',
+    title: '6. Turnierübersicht',
     children: [
-      { id: 'turnieruebersicht-gruppentabellen', title: '5.1 Gruppentabellen (bei mehreren Gruppen)' },
+      { id: 'turnieruebersicht-gruppentabellen', title: '6.1 Gruppentabellen (bei mehreren Gruppen)' },
     ],
   },
-  { id: 'aenderungsschutz', title: '6. Turnier läuft bereits: Änderungsschutz' },
-  { id: 'export', title: '7. Export' },
-  { id: 'import', title: '8. Turnier importieren (JSON)' },
-  { id: 'kurzreferenz', title: '9. Kurzreferenz: Typischer Ablauf' },
+  { id: 'aenderungsschutz', title: '7. Turnier läuft bereits: Änderungsschutz' },
+  { id: 'export', title: '8. Export' },
+  { id: 'import', title: '9. Turnier importieren (JSON)' },
 ]
 
 function TableOfContents() {
@@ -123,7 +123,18 @@ export default function ManualPage() {
       <TableOfContents />
 
       <div id="manual-content" className="space-y-10">
-      <Section id="ueberblick" title="1. Überblick">
+      <Section id="kurzreferenz" title="1. Kurzreferenz: Typischer Ablauf">
+        <ol className="list-decimal pl-6 space-y-1">
+          <li><strong>Teams</strong> → alle teilnehmenden Teams anlegen</li>
+          <li><strong>Konfiguration</strong> → Modus „Einstufungsturnier" wählen, Rundenzahl/Felder/Halle festlegen, Zeitplan generieren</li>
+          <li><strong>Ergebnisse erfassen</strong> → Runde für Runde Ergebnisse eintragen, auf „Nächste Runde auslosen" bzw. „Turnier abschließen" klicken</li>
+          <li>Bei Bedarf: Team zurückziehen, vergangene Ergebnisse korrigieren</li>
+          <li><strong>Turnierübersicht</strong> → laufende Tabelle verfolgen, am Ende ausdrucken</li>
+          <li><strong>Export</strong> → Turnier als PDF/ZIP/JSON sichern</li>
+        </ol>
+      </Section>
+
+      <Section id="ueberblick" title="2. Überblick">
         <p>Der Basketball Turnier-Manager unterstützt drei Turnierformen:</p>
         <ul className="list-disc pl-6 space-y-1">
           <li>
@@ -142,18 +153,19 @@ export default function ManualPage() {
         </ul>
         <p>
           Diese Anleitung führt einmal komplett durch ein Einstufungsturnier (Schweizer System), da es die meisten
-          Funktionen des Tools nutzt. Die Schritte 1–3 (Teams, Grundkonfiguration, Zeitplan generieren) gelten für
+          Funktionen des Tools nutzt. Die Abschnitte 2–4 (Teams, Grundkonfiguration, Zeitplan generieren) gelten für
           alle drei Turnierformen gleichermaßen. Die Besonderheiten von „Jeder gegen Jeden" und „Gruppenphase +
-          Endrunde" (Gruppenaufteilung, Rückrunde) sind in Abschnitt 3.1 gesondert beschrieben.
+          Endrunde" (Gruppenaufteilung, Rückrunde) sind in Abschnitt 4.1 gesondert beschrieben.
         </p>
         <p>
           Alle Daten werden ausschließlich lokal im Browser gespeichert (kein Server, kein Konto nötig). Über den
-          JSON-Export/-Import (Abschnitt 9) lässt sich ein Turnier auf ein anderes Gerät übertragen oder sichern.
+          JSON-Export/-Import (Abschnitt 8/9) lässt sich ein Turnier auf ein anderes Gerät übertragen oder sichern.
         </p>
         <Callout title="Zum Ausprobieren: Demo-Turniere">
           Wer das Tool erst einmal unverbindlich testen möchte, muss nicht bei null anfangen — fünf vorbereitete,
           bereits laufende Beispielturniere stehen zum Herunterladen bereit (Liste darunter). Eine heruntergeladene
-          Datei lässt sich über „Turnier importieren" auf der Konfigurationsseite (Abschnitt 8) direkt laden.
+          Datei lässt sich über „Turnier importieren" auf der Konfigurationsseite (Abschnitt 9) direkt laden. Der
+          typische Ablauf ist auch in der Kurzreferenz (Abschnitt 1) zusammengefasst.
         </Callout>
         <p>
           Je eines pro Turnierform (mit ca. 9 Teams, einige Ergebnisse bereits eingetragen) sowie zwei
@@ -189,7 +201,7 @@ export default function ManualPage() {
         </ul>
       </Section>
 
-      <Section id="teams" title="2. Teams anlegen">
+      <Section id="teams" title="3. Teams anlegen">
         <Screenshot src="01-teams-leer.png" alt="Leere Teamübersicht" />
         <p>
           Auf der Startseite <strong>Teams</strong> beginnt jedes Turnier. Über den Button
@@ -217,7 +229,7 @@ export default function ManualPage() {
         </p>
       </Section>
 
-      <Section id="konfiguration" title="3. Turnier konfigurieren">
+      <Section id="konfiguration" title="4. Turnier konfigurieren">
         <p>
           Auf der Seite <strong>Konfiguration</strong> werden Turniermodus, Spieleinstellungen, Hallendaten
           festgelegt und am Ende der Zeitplan generiert.
@@ -235,7 +247,7 @@ export default function ManualPage() {
           Anzahl der Felder.
         </p>
 
-        <SubSection id="konfiguration-gruppen" title="3.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde">
+        <SubSection id="konfiguration-gruppen" title="4.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde">
           <p>
             Bei den Modi <strong>„Jeder gegen Jeden"</strong> und <strong>„Gruppenphase + Endrunde"</strong> plant
             das Tool die Begegnungen nach der klassischen <strong>Rundensystem-Methode</strong> (Circle-Method): alle
@@ -292,17 +304,17 @@ export default function ManualPage() {
           <p>
             Sobald mehr als eine Gruppe existiert (also mindestens ein Team einer zweiten Gruppe zugewiesen wurde),
             erscheint nach dem Generieren des Zeitplans zusätzlich der Navigationspunkt{' '}
-            <strong>„Gruppentabellen"</strong> (siehe Abschnitt 5.1) — bei nur einer Gruppe reicht weiterhin die
+            <strong>„Gruppentabellen"</strong> (siehe Abschnitt 6.1) — bei nur einer Gruppe reicht weiterhin die
             normale Zeitplan-Ansicht.
           </p>
           <Callout title="Hinweis: kein Freilos in der Gruppenphase">
-            Anders als beim Schweizer System (Abschnitt 4) gibt es in der Gruppenphase kein Freilos. Ist eine Gruppe
+            Anders als beim Schweizer System (Abschnitt 5) gibt es in der Gruppenphase kein Freilos. Ist eine Gruppe
             ungerade groß, setzt in jeder Runde einfach das jeweils passende Team aus — ohne Spiel und ohne
             Punktgutschrift für diese Runde.
           </Callout>
         </SubSection>
 
-        <SubSection id="konfiguration-gruppenergebnisse" title="3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen">
+        <SubSection id="konfiguration-gruppenergebnisse" title="4.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen">
           <p>
             Sobald ein Zeitplan generiert wurde, steht für die Modi „Jeder gegen Jeden" und „Gruppenphase + Endrunde"
             der Navigationspunkt <strong>„Ergebnisse erfassen"</strong> zur Verfügung. Dort erscheinen alle Spiele
@@ -332,7 +344,7 @@ export default function ManualPage() {
             alt="Bestätigung nach dem Speichern eines Ergebnisses mit Link zur Gruppentabelle"
           />
           <Callout title="Wichtig: jedes Ergebnis wird sofort für sich gespeichert">
-            Anders als beim Schweizer System (Abschnitt 4) gibt es hier keinen Rundenabschluss-Schritt — jedes
+            Anders als beim Schweizer System (Abschnitt 5) gibt es hier keinen Rundenabschluss-Schritt — jedes
             Ergebnis wird unabhängig von allen anderen Spielen direkt beim Klick auf „Speichern" übernommen. Mehrere
             Gruppen können dadurch völlig unabhängig voneinander und in beliebiger Reihenfolge bearbeitet werden.
           </Callout>
@@ -371,7 +383,7 @@ export default function ManualPage() {
         </p>
       </Section>
 
-      <Section id="ergebnisse" title="4. Ergebnisse erfassen">
+      <Section id="ergebnisse" title="5. Ergebnisse erfassen">
         <p>Auf der Seite <strong>Ergebnisse erfassen</strong> werden die Ergebnisse rundenweise eingetragen.</p>
         <Screenshot src="10-ergebnisse-runde1-leer.png" alt="Leere Ergebniserfassung für Runde 1" />
         <p>
@@ -399,7 +411,7 @@ export default function ManualPage() {
           und automatisch mit 2 Punkten gewertet.
         </p>
 
-        <SubSection id="ergebnisse-zurueckziehen" title="4.1 Sonderfall: Ein Team zieht sich zurück">
+        <SubSection id="ergebnisse-zurueckziehen" title="5.1 Sonderfall: Ein Team zieht sich zurück">
           <p>
             Muss ein Team während des Turniers aussteigen (z. B. Verletzung, kein Erscheinen), lässt sich das direkt
             in der Ergebniszeile über den Button <strong>„… zurückziehen"</strong> neben dem Teamnamen erledigen —
@@ -416,7 +428,7 @@ export default function ManualPage() {
           </p>
         </SubSection>
 
-        <SubSection id="ergebnisse-korrigieren" title="4.2 Vergangene Runden ansehen und Ergebnisse korrigieren">
+        <SubSection id="ergebnisse-korrigieren" title="5.2 Vergangene Runden ansehen und Ergebnisse korrigieren">
           <p>
             Über die Rundenbuttons oben auf der Seite lässt sich jederzeit zu einer bereits abgeschlossenen Runde
             zurückspringen:
@@ -438,7 +450,7 @@ export default function ManualPage() {
           </Callout>
         </SubSection>
 
-        <SubSection id="ergebnisse-manuelle-paarung" title="4.3 Automatische Paarung nicht möglich">
+        <SubSection id="ergebnisse-manuelle-paarung" title="5.3 Automatische Paarung nicht möglich">
           <p>
             In seltenen Fällen (meist bei kleinen Teamzahlen und vielen Runden) findet der Algorithmus keine
             gültige Paarung mehr, die alle bisherigen Begegnungen vermeidet. In diesem Fall erscheint ein Hinweis
@@ -448,7 +460,7 @@ export default function ManualPage() {
         </SubSection>
       </Section>
 
-      <Section id="turnieruebersicht" title="5. Turnierübersicht">
+      <Section id="turnieruebersicht" title="6. Turnierübersicht">
         <p>
           Auf der Seite <strong>Turnierübersicht</strong> erscheinen die laufende Tabelle und der komplette
           Zeitplan mit Ergebnissen.
@@ -482,9 +494,9 @@ export default function ManualPage() {
           Zeitplan) als druckfertige Seite öffnen — praktisch für einen Aushang vor Ort.
         </p>
 
-        <SubSection id="turnieruebersicht-gruppentabellen" title="5.1 Gruppentabellen (bei mehreren Gruppen)">
+        <SubSection id="turnieruebersicht-gruppentabellen" title="6.1 Gruppentabellen (bei mehreren Gruppen)">
           <p>
-            Im Modus „Gruppenphase + Endrunde" erscheint bei mehr als einer Gruppe (siehe Abschnitt 3.1) statt der
+            Im Modus „Gruppenphase + Endrunde" erscheint bei mehr als einer Gruppe (siehe Abschnitt 4.1) statt der
             oben beschriebenen Turnierübersicht der Navigationspunkt <strong>„Gruppentabellen"</strong>. Über die
             Reiter oben (<strong>„Gruppe A"</strong>, <strong>„Gruppe B"</strong>, …) lässt sich zwischen den
             Gruppen wechseln — es wird immer nur eine Gruppe gleichzeitig angezeigt (Tabelle plus der vollständige
@@ -508,7 +520,7 @@ export default function ManualPage() {
           </ol>
           <p>
             Diese Sortierung unterscheidet sich bewusst von der Turnierübersicht des Schweizer Systems: dort wird
-            als Kriterium die Buchholz-Zahl verwendet (Abschnitt 5), in der Gruppenphase dagegen der direkte
+            als Kriterium die Buchholz-Zahl verwendet (Abschnitt 6), in der Gruppenphase dagegen der direkte
             Vergleich — das ist die in Vereinsliga- und Gruppenturnieren übliche Konvention. Es gibt in der
             Gruppentabelle kein Buchholz-Kriterium.
           </p>
@@ -529,7 +541,7 @@ export default function ManualPage() {
         </SubSection>
       </Section>
 
-      <Section id="aenderungsschutz" title="6. Turnier läuft bereits: Änderungsschutz">
+      <Section id="aenderungsschutz" title="7. Turnier läuft bereits: Änderungsschutz">
         <p>
           Sobald das erste Ergebnis eines Turniers erfasst wurde, gilt das Turnier als „laufend". Ab diesem
           Zeitpunkt sind kritische Konfigurationsänderungen nur noch nach einer bewussten Bestätigung möglich — das
@@ -550,7 +562,7 @@ export default function ManualPage() {
         </p>
       </Section>
 
-      <Section id="export" title="7. Export">
+      <Section id="export" title="8. Export">
         <p>
           Auf der Seite <strong>Export</strong> lässt sich der aktuelle Turnierstand in drei Formaten herunterladen:
         </p>
@@ -565,7 +577,7 @@ export default function ManualPage() {
         </ul>
       </Section>
 
-      <Section id="import" title="8. Turnier importieren (JSON)">
+      <Section id="import" title="9. Turnier importieren (JSON)">
         <p>
           Auf der Konfigurationsseite, im Abschnitt <strong>„Turnier importieren"</strong>, lässt sich eine zuvor
           exportierte JSON-Datei wieder einlesen:
@@ -582,7 +594,7 @@ export default function ManualPage() {
           <li>Ist das aktuelle Turnier noch <strong>nicht</strong> gestartet (keine Ergebnisse vorhanden), wird sofort ohne Rückfrage ersetzt.</li>
           <li>
             Ist das aktuelle Turnier bereits <strong>gestartet</strong>, erscheint derselbe Bestätigungsdialog wie
-            in Abschnitt 6 — der Import ersetzt das komplette aktuelle Turnier, das muss bewusst bestätigt werden.
+            in Abschnitt 7 — der Import ersetzt das komplette aktuelle Turnier, das muss bewusst bestätigt werden.
           </li>
           <li>Ist die ausgewählte Datei beschädigt oder kein gültiges Turnier-JSON, erscheint eine klare Fehlermeldung, und am aktuellen Turnier ändert sich nichts.</li>
         </ul>
@@ -590,17 +602,6 @@ export default function ManualPage() {
           Aktuell verwaltet das Tool immer genau ein Turnier. Ein Import ersetzt dieses vollständig — es gibt (noch)
           keine Möglichkeit, mehrere Turniere parallel zu speichern und zwischen ihnen zu wechseln.
         </Callout>
-      </Section>
-
-      <Section id="kurzreferenz" title="9. Kurzreferenz: Typischer Ablauf">
-        <ol className="list-decimal pl-6 space-y-1">
-          <li><strong>Teams</strong> → alle teilnehmenden Teams anlegen</li>
-          <li><strong>Konfiguration</strong> → Modus „Einstufungsturnier" wählen, Rundenzahl/Felder/Halle festlegen, Zeitplan generieren</li>
-          <li><strong>Ergebnisse erfassen</strong> → Runde für Runde Ergebnisse eintragen, auf „Nächste Runde auslosen" bzw. „Turnier abschließen" klicken</li>
-          <li>Bei Bedarf: Team zurückziehen, vergangene Ergebnisse korrigieren</li>
-          <li><strong>Turnierübersicht</strong> → laufende Tabelle verfolgen, am Ende ausdrucken</li>
-          <li><strong>Export</strong> → Turnier als PDF/ZIP/JSON sichern</li>
-        </ol>
       </Section>
       </div>
     </div>
