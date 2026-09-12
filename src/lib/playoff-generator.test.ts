@@ -52,7 +52,7 @@ describe('generatePlayoffGames', () => {
     expect(final.scheduledStart).toBe('11:15')
   })
 
-  it('bracket size 4 with 2 fields runs semifinals in parallel on separate fields', () => {
+  it('bracket size 4 with 2 fields runs semifinals in parallel on separate fields, plus a third-place game', () => {
     const games = generatePlayoffGames({
       finalsBracketSize: 4,
       fields: 2,
@@ -63,8 +63,8 @@ describe('generatePlayoffGames', () => {
       teamCount: 4,
       startGameNumber: 7,
     })
-    expect(games).toHaveLength(3)
-    const [sf1, sf2, final] = games
+    expect(games).toHaveLength(4)
+    const [sf1, sf2, thirdPlace, final] = games
     expect(sf1.stage).toBe('semifinal')
     expect(sf2.stage).toBe('semifinal')
     expect(sf1.homeLabel).toBe('1. der Vorrunde')
@@ -76,14 +76,19 @@ describe('generatePlayoffGames', () => {
     expect(sf2.scheduledStart).toBe('11:00')
     expect(sf1.field).toBe(1)
     expect(sf2.field).toBe(2)
+
+    expect(thirdPlace.stage).toBe('third-place')
+    expect(thirdPlace.homeLabel).toBe('Verlierer HF 1')
+    expect(thirdPlace.awayLabel).toBe('Verlierer HF 2')
+
     expect(final.stage).toBe('final')
     expect(final.homeLabel).toBe('Sieger HF 1')
     expect(final.awayLabel).toBe('Sieger HF 2')
     expect(final.field).toBe(1)
-    expect(final.gameNumber).toBe(9)
+    expect(final.gameNumber).toBe(10)
   })
 
-  it('bracket size 4 with 1 field runs semifinals sequentially on field 1', () => {
+  it('bracket size 4 with 1 field runs semifinals, third-place game and final sequentially on field 1', () => {
     const games = generatePlayoffGames({
       finalsBracketSize: 4,
       fields: 1,
@@ -94,13 +99,17 @@ describe('generatePlayoffGames', () => {
       teamCount: 4,
       startGameNumber: 7,
     })
-    const [sf1, sf2] = games
+    const [sf1, sf2, thirdPlace, final] = games
     expect(sf1.field).toBe(1)
     expect(sf2.field).toBe(1)
     expect(sf2.scheduledStart >= sf1.scheduledEnd).toBe(true)
+    expect(thirdPlace.field).toBe(1)
+    expect(final.field).toBe(1)
+    expect(thirdPlace.scheduledStart >= sf2.scheduledEnd).toBe(true)
+    expect(final.scheduledStart >= thirdPlace.scheduledEnd).toBe(true)
   })
 
-  it('final start respects breakBetweenRoundsMin after the later semifinal ends', () => {
+  it('final and third-place game respect breakBetweenRoundsMin after the later semifinal ends, running in parallel on separate fields', () => {
     const games = generatePlayoffGames({
       finalsBracketSize: 4,
       fields: 2,
@@ -111,7 +120,7 @@ describe('generatePlayoffGames', () => {
       teamCount: 4,
       startGameNumber: 1,
     })
-    const final = games[2]
+    const [, , thirdPlace, final] = games
     const sfEnd = games[0].scheduledEnd // both semis end at same time here
     const expectedStart = new Date(0)
     // sfEnd + bufferBetweenGamesMin (5) + breakBetweenRoundsMin (15) = +20min from sfEnd
@@ -119,6 +128,9 @@ describe('generatePlayoffGames', () => {
     expectedStart.setHours(h, m + 5 + 15)
     const expectedStr = `${String(expectedStart.getHours()).padStart(2, '0')}:${String(expectedStart.getMinutes()).padStart(2, '0')}`
     expect(final.scheduledStart).toBe(expectedStr)
+    expect(thirdPlace.scheduledStart).toBe(expectedStr)
+    expect(final.field).toBe(1)
+    expect(thirdPlace.field).toBe(2)
   })
 
   it('throws instead of producing an invalid slot when the venue is too short for the semifinals', () => {

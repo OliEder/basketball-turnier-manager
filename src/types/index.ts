@@ -70,9 +70,10 @@ export interface PeriodScore {
   awayScore: number
 }
 
-export type GameStage = 'group' | 'semifinal' | 'final' | 'swiss' | 'placement'
+export type GameStage = 'group' | 'semifinal' | 'final' | 'third-place' | 'swiss' | 'placement'
   // 'placement' = a round-robin placement-cohort game (Endrunde 4), e.g. "all group winners play
   // each other for places 1-4"
+  // 'third-place' = the losers of the two semifinals play each other for place 3
 
 export interface Game {
   id: string

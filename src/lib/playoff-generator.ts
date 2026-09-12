@@ -88,15 +88,57 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       addMinutes(sf1Start, slotDuration),
       addMinutes(sf2Start, slotDuration),
     )
-    const finalStart = findNextSlot(
+    const roundThreeStart = findNextSlot(
       addMinutes(latestAfterSemis, gameSettings.breakBetweenRoundsMin),
       gameDuration,
       blackoutPeriods,
       availabilityEnd,
     )
-    if (!finalStart) {
+    if (!roundThreeStart) {
       throw new Error('Kein Zeitfenster für Finale verfügbar — Hallenzeit reicht nicht aus')
     }
+    const roundThreeEnd = addMinutes(roundThreeStart, gameDuration)
+
+    let finalStart: string
+    let finalField: number
+    let thirdPlaceStart: string
+    let thirdPlaceField: number
+    if (fields >= 2) {
+      finalStart = roundThreeStart
+      finalField = 1
+      thirdPlaceStart = roundThreeStart
+      thirdPlaceField = 2
+    } else {
+      thirdPlaceStart = roundThreeStart
+      thirdPlaceField = 1
+      const finalSlotStart = findNextSlot(
+        addMinutes(roundThreeStart, slotDuration),
+        gameDuration,
+        blackoutPeriods,
+        availabilityEnd,
+      )
+      if (!finalSlotStart) {
+        throw new Error('Kein Zeitfenster für Finale verfügbar — Hallenzeit reicht nicht aus')
+      }
+      finalStart = finalSlotStart
+      finalField = 1
+    }
+
+    games.push({
+      id: uuidv4(),
+      homeTeamId: null,
+      awayTeamId: null,
+      homeLabel: 'Verlierer HF 1',
+      awayLabel: 'Verlierer HF 2',
+      stage: 'third-place',
+      field: thirdPlaceField,
+      scheduledStart: thirdPlaceStart,
+      scheduledEnd: thirdPlaceStart === roundThreeStart ? roundThreeEnd : addMinutes(thirdPlaceStart, gameDuration),
+      round: 3,
+      gameNumber: gameNumber++,
+      periodScores: [],
+    })
+
     games.push({
       id: uuidv4(),
       homeTeamId: null,
@@ -104,7 +146,7 @@ export function generatePlayoffGames(input: PlayoffInput): Game[] {
       homeLabel: 'Sieger HF 1',
       awayLabel: 'Sieger HF 2',
       stage: 'final',
-      field: 1,
+      field: finalField,
       scheduledStart: finalStart,
       scheduledEnd: addMinutes(finalStart, gameDuration),
       round: 3,

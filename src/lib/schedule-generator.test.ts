@@ -208,11 +208,12 @@ describe('generateSchedule with round-robin+finals mode', () => {
       finalsBracketSize: 4,
     }
     const schedule = generateSchedule(config)
-    // 6 group games + 2 semis + 1 final = 9
-    expect(schedule.games).toHaveLength(9)
+    // 6 group games + 2 semis + 1 third-place + 1 final = 10
+    expect(schedule.games).toHaveLength(10)
     const stages = schedule.games.map(g => g.stage)
     expect(stages.filter(s => s === 'group')).toHaveLength(6)
     expect(stages.filter(s => s === 'semifinal')).toHaveLength(2)
+    expect(stages.filter(s => s === 'third-place')).toHaveLength(1)
     expect(stages.filter(s => s === 'final')).toHaveLength(1)
   })
 
