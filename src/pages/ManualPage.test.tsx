@@ -39,4 +39,34 @@ describe('ManualPage', () => {
     expect(images.length).toBe(23)
     expect(images[0]).toHaveAttribute('src', expect.stringContaining('01-teams-leer.png'))
   })
+
+  it('documents multi-group round-robin and double round-robin configuration', () => {
+    render(<ManualPage />)
+    expect(
+      screen.getByRole('heading', { name: '3.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde' }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByText(/Anzahl Gruppen/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Mit Rückspiel \(Hin- und Rückrunde\)/).length).toBeGreaterThan(0)
+  })
+
+  it('documents the group-standings overview page', () => {
+    render(<ManualPage />)
+    expect(
+      screen.getByRole('heading', { name: '5.1 Gruppentabellen (bei mehreren Gruppen)' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Direkter Vergleich/)).toBeInTheDocument()
+  })
+
+  it('links to the new sub-sections from the table of contents', () => {
+    render(<ManualPage />)
+    const toc = screen.getByRole('navigation', { name: /inhalt/i })
+    expect(within(toc).getByRole('link', { name: /Gruppen & Rückrunde/i })).toHaveAttribute(
+      'href',
+      '#konfiguration-gruppen',
+    )
+    expect(within(toc).getByRole('link', { name: /Gruppentabellen/i })).toHaveAttribute(
+      'href',
+      '#turnieruebersicht-gruppentabellen',
+    )
+  })
 })
