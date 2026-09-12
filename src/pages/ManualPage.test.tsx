@@ -11,6 +11,21 @@ describe('ManualPage', () => {
     expect(screen.getByRole('heading', { name: '9. Kurzreferenz: Typischer Ablauf' })).toBeInTheDocument()
   })
 
+  it('links to all five demo tournament files', () => {
+    render(<ManualPage />)
+    const demoFiles = [
+      '01-jeder-gegen-jeden-9-teams-laufend.json',
+      '02-gruppenphase-endrunde-9-teams-laufend.json',
+      '03-schweizer-system-9-teams-laufend.json',
+      '04-grossturnier-64-teams-16-gruppen-ungespielt.json',
+      '05-grossturnier-64-teams-16-gruppen-laufend.json',
+    ]
+    const links = screen.getAllByRole('link').map(link => link.getAttribute('href'))
+    for (const file of demoFiles) {
+      expect(links.some(href => href?.includes(file))).toBe(true)
+    }
+  })
+
   it('renders a table of contents with anchor links to every section', () => {
     render(<ManualPage />)
     const toc = screen.getByRole('navigation', { name: /inhalt/i })
