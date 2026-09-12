@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { useTournamentStore } from '@/store/tournament-store'
@@ -234,5 +234,37 @@ describe('GroupResultsPage', () => {
     const { schedule: updatedSchedule } = useTournamentStore.getState()
     const updatedGame = updatedSchedule!.games.find(g => g.id === game.id)!
     expect(updatedGame.periodScores[0]).toEqual({ period: 1, homeScore: 20, awayScore: 10 })
+  })
+
+  it('lets the organizer withdraw a team from the group phase via a per-team button', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    setupMultiGroupTournament()
+    renderPage()
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
+
+    const { tournament, schedule } = useTournamentStore.getState()
+    const game = schedule!.games.filter(g => g.stage === 'group').sort((a, b) => a.scheduledStart.localeCompare(b.scheduledStart))[0]
+    const team = tournament.teams.find(t => t.id === game.homeTeamId)!
+
+    fireEvent.click(screen.getAllByRole('button', { name: `${team.name} zurückziehen` })[0])
+
+    const withdrawnTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === team.id)!
+    expect(withdrawnTeam.withdrawnAfterStage).toBe('group')
+  })
+
+  it('shows a withdrawn badge instead of the withdraw button once a team has withdrawn', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    setupMultiGroupTournament()
+    renderPage()
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'all' } })
+
+    const { tournament, schedule } = useTournamentStore.getState()
+    const game = schedule!.games.filter(g => g.stage === 'group').sort((a, b) => a.scheduledStart.localeCompare(b.scheduledStart))[0]
+    const team = tournament.teams.find(t => t.id === game.homeTeamId)!
+
+    fireEvent.click(screen.getAllByRole('button', { name: `${team.name} zurückziehen` })[0])
+
+    expect(screen.queryByRole('button', { name: `${team.name} zurückziehen` })).not.toBeInTheDocument()
+    expect(screen.getAllByText(`${team.name} zurückgezogen`).length).toBeGreaterThan(0)
   })
 })
