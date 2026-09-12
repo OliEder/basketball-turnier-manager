@@ -70,9 +70,13 @@ export interface PeriodScore {
   awayScore: number
 }
 
-export type GameStage = 'group' | 'semifinal' | 'final' | 'third-place' | 'swiss' | 'placement'
+export type GameStage =
+  | 'group' | 'swiss' | 'placement'
+  | 'round-of-32' | 'round-of-16' | 'quarterfinal' | 'semifinal' | 'final' | 'third-place'
   // 'placement' = a round-robin placement-cohort game (Endrunde 4), e.g. "all group winners play
   // each other for places 1-4"
+  // 'round-of-32' | 'round-of-16' | 'quarterfinal' | 'semifinal' = named KO-bracket rounds,
+  // supporting bracket sizes up to 32 (Endrunde 1 and 3)
   // 'third-place' = the losers of the two semifinals play each other for place 3
 
 export interface Game {
@@ -91,18 +95,24 @@ export interface Game {
   byeTeamId?: string      // set instead of home/awayTeamId when this "game" is a bye
   cancelledReason?: 'withdrawal'  // set when the game was cancelled due to a team withdrawing
   groupId?: string        // which group this game belongs to (only stage === 'group' with multiple groups)
-  rankTier?: number  // which placement cohort this game belongs to (1 = group winners' cohort playing
-    // for places 1-4, 2 = runners-up cohort playing for places 5-8, ...); only set when stage === 'placement'
-  placementFrom?: number  // the best (lowest-numbered) place this cohort is playing for, e.g. 1, 5, 9;
-    // only set when stage === 'placement' — used to label/sort the final standings page
+  rankTier?: number  // which placement cohort or KO bracket this game belongs to (1 = group
+    // winners, 2 = runners-up, ...); set for stage === 'placement' (Endrunde 4) AND for all KO
+    // bracket stages (Endrunde 1/3) — a KO game's rankTier + stage + matchIndex together identify
+    // it uniquely, since multiple rank tiers can each have their own quarterfinal running at once.
+  placementFrom?: number  // the best (lowest-numbered) place this cohort/bracket is playing for,
+    // e.g. 1, 5, 9; used to label/sort the final standings page
+  matchIndex?: number  // 0-based index of this game among all games sharing the same {rankTier,
+    // stage} — e.g. a rankTier-1 bracket's 4 quarterfinal games have matchIndex 0-3, its 2
+    // semifinal games have matchIndex 0-1. Only set for KO bracket stages.
   homeSourceRank?: { groupId: string; rank: number }  // which group-phase rank feeds the home slot;
     // stays set even after resolution, so a later group-phase correction can re-resolve this slot.
-    // Also used on 'semifinal' games for Endrunde 3 (group-phase rank 1 of each qualifying group).
+    // Only set on a bracket's FIRST round (its qualifying round) and on 'placement' games.
   awaySourceRank?: { groupId: string; rank: number }  // same for the away slot
-  homeSourceSemifinal?: { semifinalIndex: 1 | 2; outcome: 'winner' | 'loser' }  // which semifinal's
-    // winner/loser feeds the home slot of a 'final' or 'third-place' game; stays set even after
-    // resolution, so a later semifinal-result correction can re-resolve this slot
-  awaySourceSemifinal?: { semifinalIndex: 1 | 2; outcome: 'winner' | 'loser' }  // same for the away slot
+  homeSourceMatch?: { stage: GameStage; matchIndex: number; outcome: 'winner' | 'loser' }  // which
+    // earlier-round match's winner/loser feeds the home slot; stays set even after resolution, so
+    // a later result correction can re-resolve this slot. Only set on bracket rounds AFTER the
+    // first (semifinal onward for a 4-bracket, quarterfinal onward for an 8-bracket, etc.).
+  awaySourceMatch?: { stage: GameStage; matchIndex: number; outcome: 'winner' | 'loser' }  // same for the away slot
 }
 
 export interface Schedule {
