@@ -11,6 +11,8 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
     groupSizes.set(groupId, (groupSizes.get(groupId) ?? 0) + 1)
   }
   const sizes = [...groupSizes.values()]
+  // More than one distinct group size (among groups that actually have teams) means the groups
+  // aren't all equal; a single group never counts as "uneven".
   const hasUnevenGroups = sizes.length > 1 && new Set(sizes).size > 1
 
   return (
