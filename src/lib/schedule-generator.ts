@@ -88,53 +88,55 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     }
   }
 
-  const pairs = generateRoundRobinPairs(teams.map(t => t.id))
+  const rounds = generateRoundRobinRounds(teams.map(t => t.id))
   const games: Game[] = []
   let gameNumber = 1
 
-  for (const [homeTeamId, awayTeamId] of pairs) {
-    const teamsEarliest = maxTime(
-      teamNextFree.get(homeTeamId) ?? firstGameStart,
-      teamNextFree.get(awayTeamId) ?? firstGameStart,
-    )
+  for (let roundIndex = 0; roundIndex < rounds.length; roundIndex++) {
+    for (const [homeTeamId, awayTeamId] of rounds[roundIndex]) {
+      const teamsEarliest = maxTime(
+        teamNextFree.get(homeTeamId) ?? firstGameStart,
+        teamNextFree.get(awayTeamId) ?? firstGameStart,
+      )
 
-    // Pick the field that yields the earliest actual start time for this pair,
-    // once both the field's and both teams' availability are taken into account.
-    let bestField = -1
-    let bestSlotStart = ''
-    for (let f = 0; f < fields; f++) {
-      const earliestForField = maxTime(fieldNextFree[f], teamsEarliest)
-      const slotStart = findNextSlot(earliestForField, gameDuration, venue.blackoutPeriods, availabilityEnd)
-      if (!slotStart) continue
-      if (bestField === -1 || timeToMinutes(slotStart) < timeToMinutes(bestSlotStart)) {
-        bestField = f
-        bestSlotStart = slotStart
+      // Pick the field that yields the earliest actual start time for this pair,
+      // once both the field's and both teams' availability are taken into account.
+      let bestField = -1
+      let bestSlotStart = ''
+      for (let f = 0; f < fields; f++) {
+        const earliestForField = maxTime(fieldNextFree[f], teamsEarliest)
+        const slotStart = findNextSlot(earliestForField, gameDuration, venue.blackoutPeriods, availabilityEnd)
+        if (!slotStart) continue
+        if (bestField === -1 || timeToMinutes(slotStart) < timeToMinutes(bestSlotStart)) {
+          bestField = f
+          bestSlotStart = slotStart
+        }
       }
+
+      if (bestField === -1) {
+        console.warn(`No available slot for game ${gameNumber} — venue too short`)
+        continue
+      }
+
+      const slotEnd = addMinutes(bestSlotStart, gameDuration)
+
+      games.push({
+        id: uuidv4(),
+        homeTeamId,
+        awayTeamId,
+        stage: 'group',
+        field: bestField + 1,
+        scheduledStart: bestSlotStart,
+        scheduledEnd: slotEnd,
+        round: roundIndex + 1,
+        gameNumber: gameNumber++,
+        periodScores: [],
+      })
+
+      fieldNextFree[bestField] = addMinutes(bestSlotStart, slotDuration)
+      teamNextFree.set(homeTeamId, addMinutes(bestSlotStart, slotDuration))
+      teamNextFree.set(awayTeamId, addMinutes(bestSlotStart, slotDuration))
     }
-
-    if (bestField === -1) {
-      console.warn(`No available slot for game ${gameNumber} — venue too short`)
-      continue
-    }
-
-    const slotEnd = addMinutes(bestSlotStart, gameDuration)
-
-    games.push({
-      id: uuidv4(),
-      homeTeamId,
-      awayTeamId,
-      stage: 'group',
-      field: bestField + 1,
-      scheduledStart: bestSlotStart,
-      scheduledEnd: slotEnd,
-      round: 1,
-      gameNumber: gameNumber++,
-      periodScores: [],
-    })
-
-    fieldNextFree[bestField] = addMinutes(bestSlotStart, slotDuration)
-    teamNextFree.set(homeTeamId, addMinutes(bestSlotStart, slotDuration))
-    teamNextFree.set(awayTeamId, addMinutes(bestSlotStart, slotDuration))
   }
 
   if (config.mode === 'round-robin+finals') {

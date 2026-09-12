@@ -121,6 +121,38 @@ describe('generateSchedule', () => {
       }
     }
   })
+
+  it('utilizes all available fields simultaneously when enough teams exist', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      fields: 3,
+      teams: [
+        makeTeam('t1', 'Team 1'), makeTeam('t2', 'Team 2'),
+        makeTeam('t3', 'Team 3'), makeTeam('t4', 'Team 4'),
+        makeTeam('t5', 'Team 5'), makeTeam('t6', 'Team 6'),
+        makeTeam('t7', 'Team 7'), makeTeam('t8', 'Team 8'),
+      ],
+    }
+    const schedule = generateSchedule(config)
+    const byStart = new Map<string, number>()
+    for (const game of schedule.games) {
+      byStart.set(game.scheduledStart, (byStart.get(game.scheduledStart) ?? 0) + 1)
+    }
+    // With 8 teams and 3 fields, the very first wave of games must use all 3 fields at once —
+    // this is exactly the bug that was reported and reproduced (only 1 field used at the start).
+    const firstStart = schedule.games[0].scheduledStart
+    expect(byStart.get(firstStart)).toBe(3)
+  })
+
+  it('assigns increasing round numbers to round-robin games matching the circle-method structure', () => {
+    const schedule = generateSchedule(baseConfig)
+    // 4 teams -> 3 rounds, 2 games per round
+    const rounds = new Set(schedule.games.map(g => g.round))
+    expect(rounds).toEqual(new Set([1, 2, 3]))
+    for (const round of rounds) {
+      expect(schedule.games.filter(g => g.round === round)).toHaveLength(2)
+    }
+  })
 })
 
 describe('generateSchedule with round-robin+finals mode', () => {
