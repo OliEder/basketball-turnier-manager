@@ -33,4 +33,27 @@ describe('computeFinalStandings', () => {
     const standings = computeFinalStandings(teams, games)
     expect(standings.every(s => s.pending)).toBe(true)
   })
+
+  it('represents every team in a 4-team cohort as a pending row, even when most of the cohort games are still unresolved placeholders', () => {
+    // Regression: cohortTeamIds used to be built only from resolved (non-null) homeTeamId/awayTeamId
+    // values, so a cohort with only 1 of 6 games resolved+played silently dropped the other teams
+    // from the standings instead of showing them as pending.
+    const teams = [makeTeam('a1'), makeTeam('a2'), makeTeam('a3'), makeTeam('a4')]
+    const games = [
+      makePlacementGame({
+        id: 'g1', rankTier: 1, placementFrom: 1, homeTeamId: 'a1', awayTeamId: 'a2',
+        periodScores: [{ period: 1, homeScore: 20, awayScore: 10 }],
+      }),
+      // the other 5 round-robin games in this 4-team cohort are still unresolved placeholders
+      makePlacementGame({ id: 'g2', rankTier: 1, placementFrom: 1, homeTeamId: null, awayTeamId: null, homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 3 } }),
+      makePlacementGame({ id: 'g3', rankTier: 1, placementFrom: 1, homeTeamId: null, awayTeamId: null, homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 4 } }),
+      makePlacementGame({ id: 'g4', rankTier: 1, placementFrom: 1, homeTeamId: null, awayTeamId: null, homeSourceRank: { groupId: 'A', rank: 2 }, awaySourceRank: { groupId: 'A', rank: 3 } }),
+      makePlacementGame({ id: 'g5', rankTier: 1, placementFrom: 1, homeTeamId: null, awayTeamId: null, homeSourceRank: { groupId: 'A', rank: 2 }, awaySourceRank: { groupId: 'A', rank: 4 } }),
+      makePlacementGame({ id: 'g6', rankTier: 1, placementFrom: 1, homeTeamId: null, awayTeamId: null, homeSourceRank: { groupId: 'A', rank: 3 }, awaySourceRank: { groupId: 'A', rank: 4 } }),
+    ]
+    const standings = computeFinalStandings(teams, games)
+    expect(standings).toHaveLength(4)
+    expect(standings.map(s => s.place).sort()).toEqual([1, 2, 3, 4])
+    expect(standings.every(s => s.pending)).toBe(true)
+  })
 })
