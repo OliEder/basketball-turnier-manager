@@ -46,6 +46,7 @@ const TOC_ITEMS = [
     title: '3. Turnier konfigurieren',
     children: [
       { id: 'konfiguration-gruppen', title: '3.1 Jeder gegen Jeden und Gruppenphase: Gruppen & Rückrunde' },
+      { id: 'konfiguration-gruppenergebnisse', title: '3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen' },
     ],
   },
   {
@@ -264,6 +265,49 @@ export default function ManualPage() {
           </Callout>
         </SubSection>
 
+        <SubSection id="konfiguration-gruppenergebnisse" title="3.2 Jeder gegen Jeden und Gruppenphase: Ergebnisse erfassen">
+          <p>
+            Sobald ein Zeitplan generiert wurde, steht für die Modi „Jeder gegen Jeden" und „Gruppenphase + Endrunde"
+            der Navigationspunkt <strong>„Ergebnisse erfassen"</strong> zur Verfügung. Dort erscheinen alle Spiele
+            der Gruppenphase chronologisch nach Uhrzeit sortiert — unabhängig davon, aus welcher Gruppe oder von
+            welchem Feld sie stammen:
+          </p>
+          <Screenshot
+            src="29-ergebnisse-erfassen-gruppenphase.png"
+            alt="Ergebnisse erfassen mit Status-, Gruppen- und Feld-Filter"
+          />
+          <p>Drei Filter lassen sich beliebig miteinander kombinieren:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>
+              <strong>Status</strong> — „Offen" (Standardeinstellung, zeigt nur noch nicht gespielte Partien),
+              „Erfasst" (nur bereits eingetragene Ergebnisse) oder „Alle".
+            </li>
+            <li><strong>Gruppe</strong> — auf eine einzelne Gruppe eingrenzen, oder „Alle Gruppen" (Standard).</li>
+            <li><strong>Feld</strong> — auf ein einzelnes Feld eingrenzen, oder „Alle Felder" (Standard).</li>
+          </ul>
+          <p>
+            Bei jeder Zeile lässt sich das Ergebnis direkt eintragen: Heim- und Auswärtspunkte eingeben, auf{' '}
+            <strong>„Speichern"</strong> klicken — fertig. Nach dem Speichern erscheint ein Hinweis mit einem Link
+            direkt zur aktualisierten Tabelle der betroffenen Gruppe:
+          </p>
+          <Screenshot
+            src="30-ergebnis-gespeichert-link-gruppentabelle.png"
+            alt="Bestätigung nach dem Speichern eines Ergebnisses mit Link zur Gruppentabelle"
+          />
+          <Callout title="Wichtig: jedes Ergebnis wird sofort für sich gespeichert">
+            Anders als beim Schweizer System (Abschnitt 4) gibt es hier keinen Rundenabschluss-Schritt — jedes
+            Ergebnis wird unabhängig von allen anderen Spielen direkt beim Klick auf „Speichern" übernommen. Mehrere
+            Gruppen können dadurch völlig unabhängig voneinander und in beliebiger Reihenfolge bearbeitet werden.
+          </Callout>
+          <p>
+            Bereits erfasste Ergebnisse lassen sich jederzeit korrigieren: über den Status-Filter „Alle" oder
+            „Erfasst" anzeigen lassen, dann bei der betreffenden Zeile auf <strong>„Korrigieren"</strong> klicken —
+            die Eingabefelder erscheinen mit dem bisherigen Ergebnis vorausgefüllt, erneutes „Speichern" übernimmt
+            die Änderung. Eine Korrektur ist — anders als beim Schweizer System — zu jedem Zeitpunkt möglich, auch
+            wenn bereits weitere Spiele dieser oder anderer Gruppen gespielt wurden.
+          </p>
+        </SubSection>
+
         <p>
           Im Abschnitt <strong>Spieleinstellungen</strong> werden Anzahl und Dauer der Spielabschnitte, Pausen und
           Wechselzeiten festgelegt:
@@ -404,12 +448,14 @@ export default function ManualPage() {
         <SubSection id="turnieruebersicht-gruppentabellen" title="5.1 Gruppentabellen (bei mehreren Gruppen)">
           <p>
             Im Modus „Gruppenphase + Endrunde" erscheint bei mehr als einer Gruppe (siehe Abschnitt 3.1) statt der
-            oben beschriebenen Turnierübersicht der Navigationspunkt <strong>„Gruppentabellen"</strong>. Dort wird
-            für jede Gruppe eine eigene Tabelle sowie darunter der vollständige Gruppenphasen-Zeitplan angezeigt.
+            oben beschriebenen Turnierübersicht der Navigationspunkt <strong>„Gruppentabellen"</strong>. Über die
+            Reiter oben (<strong>„Gruppe A"</strong>, <strong>„Gruppe B"</strong>, …) lässt sich zwischen den
+            Gruppen wechseln — es wird immer nur eine Gruppe gleichzeitig angezeigt (Tabelle plus der vollständige
+            Zeitplan dieser Gruppe), damit die Seite auch bei vielen Gruppen übersichtlich bleibt:
           </p>
           <Screenshot
-            src="25-gruppentabellen-uebersicht.png"
-            alt="Gruppentabellen für Gruppe A und Gruppe B nebeneinander"
+            src="28-gruppentabellen-tabs-drucken.png"
+            alt="Gruppentabellen-Seite mit Gruppen-Reitern und Drucken-Buttons"
           />
           <p>Jede Gruppentabelle ist sortiert nach:</p>
           <ol className="list-decimal pl-6 space-y-1">
@@ -431,12 +477,18 @@ export default function ManualPage() {
           </p>
           <p>
             Diese Ansicht funktioniert unverändert auch bei sehr vielen Gruppen — bei 64 Teams in 16 Gruppen
-            erscheinen entsprechend 16 Tabellen nacheinander, jede mit ihren eigenen 4 Teams:
+            erscheinen entsprechend 16 Reiter, jeder mit seinen eigenen 4 Teams:
           </p>
           <Screenshot
             src="26-gruppentabellen-64-teams.png"
             alt="Gruppentabellen A, B, C bei einem 64-Teams-Turnier mit 16 Gruppen"
           />
+          <p>
+            Über die Buttons <strong>„Diese Gruppe drucken"</strong> und <strong>„Alle Gruppen drucken"</strong>{' '}
+            oben rechts lässt sich entweder nur die gerade angezeigte Gruppe oder das komplette Turnier als
+            druckfertige Seite öffnen. Beim Drucken aller Gruppen beginnt jede Gruppe automatisch auf einer neuen
+            Seite, sodass sich einzelne Gruppen problemlos getrennt aushängen lassen.
+          </p>
         </SubSection>
       </Section>
 
