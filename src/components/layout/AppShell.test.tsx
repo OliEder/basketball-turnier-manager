@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
@@ -134,5 +134,42 @@ describe('AppShell', () => {
     expect(useTournamentStore.getState().tournament.groupCount).toBeUndefined()
     renderShell()
     expect(screen.getByText('Gruppentabellen')).toBeInTheDocument()
+  })
+
+  describe('mobile navigation toggle', () => {
+    it('renders a menu toggle button for small screens', () => {
+      renderShell()
+      expect(screen.getByRole('button', { name: /menü/i })).toBeInTheDocument()
+    })
+
+    it('hides the nav panel until the menu toggle is opened, then shows it', () => {
+      renderShell()
+      const nav = screen.getByRole('navigation', { name: /haupt/i })
+      expect(nav).toHaveClass('hidden')
+
+      fireEvent.click(screen.getByRole('button', { name: /menü/i }))
+      expect(nav).not.toHaveClass('hidden')
+    })
+
+    it('closes the nav panel again after navigating to a page', () => {
+      renderShell()
+      fireEvent.click(screen.getByRole('button', { name: /menü/i }))
+      const nav = screen.getByRole('navigation', { name: /haupt/i })
+      expect(nav).not.toHaveClass('hidden')
+
+      fireEvent.click(screen.getByRole('link', { name: 'Teams' }))
+      expect(nav).toHaveClass('hidden')
+    })
+
+    it('toggles the panel open and closed on repeated clicks of the menu button', () => {
+      renderShell()
+      const toggle = screen.getByRole('button', { name: /menü/i })
+      const nav = screen.getByRole('navigation', { name: /haupt/i })
+
+      fireEvent.click(toggle)
+      expect(nav).not.toHaveClass('hidden')
+      fireEvent.click(toggle)
+      expect(nav).toHaveClass('hidden')
+    })
   })
 })
