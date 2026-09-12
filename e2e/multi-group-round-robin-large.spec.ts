@@ -81,19 +81,19 @@ test('imports a 64-team, 16-group tournament and generates a correct schedule', 
     expect(gameCount).toBeGreaterThanOrEqual(96)
 
     await page.getByRole('link', { name: 'Gruppentabellen' }).click()
-    const tables = page.getByRole('table')
-    await expect(tables).toHaveCount(groupCount)
+    // Groups are shown one at a time via tabs; there is one tab button per group.
+    await expect(page.getByRole('button', { name: /^Gruppe [A-P]$/ })).toHaveCount(groupCount)
+    await expect(page.getByRole('table')).toHaveCount(1)
 
     // Spot-check a handful of groups across the range (first, middle, last) rather than all 16,
     // to keep the assertion count proportionate while still catching an off-by-one in group
     // derivation (e.g. only the first N-1 groups rendering, or the last group being dropped).
     for (const letter of ['A', 'H', 'P']) {
+      await page.getByRole('button', { name: `Gruppe ${letter}` }).click()
       await expect(page.getByRole('heading', { name: `Gruppe ${letter}` })).toBeVisible()
+      // Every group table should list exactly its own 4 teams (header row + 4 team rows = 5).
+      await expect(page.getByRole('table').getByRole('row')).toHaveCount(5)
     }
-
-    // Every group table should list exactly its own 4 teams (header row + 4 team rows = 5).
-    const firstTable = tables.first()
-    await expect(firstTable.getByRole('row')).toHaveCount(5)
   } finally {
     fs.unlinkSync(filePath)
   }

@@ -113,4 +113,11 @@ describe('GroupOverviewPage', () => {
       expect(screen.queryByText(name)).not.toBeInTheDocument()
     }
   })
+
+  it('renders "Diese Gruppe drucken" and "Alle Gruppen drucken" buttons', () => {
+    setupMultiGroupTournament()
+    render(<GroupOverviewPage />)
+    expect(screen.getByRole('button', { name: 'Diese Gruppe drucken' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Alle Gruppen drucken' })).toBeInTheDocument()
+  })
 })

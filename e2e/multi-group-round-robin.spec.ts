@@ -27,11 +27,9 @@ test('organizer sets up a multi-group round-robin tournament and sees per-group 
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
   await page.getByRole('link', { name: 'Gruppentabellen' }).click()
+  // Groups are shown one at a time via tabs; group A is active by default.
   await expect(page.getByRole('heading', { name: 'Gruppe A' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Gruppe B' })).toBeVisible()
-
-  const tables = page.getByRole('table')
-  await expect(tables).toHaveCount(2)
+  await expect(page.getByRole('table')).toHaveCount(1)
 
   // Each 4-team single round-robin group plays 6 games; group stage games should
   // be spread across more than one round, confirming the circle-method fix is in effect
@@ -39,6 +37,11 @@ test('organizer sets up a multi-group round-robin tournament and sees per-group 
   await expect(page.getByText(/Runde 1/)).toBeVisible()
   await expect(page.getByText(/Runde 2/)).toBeVisible()
   await expect(page.getByText(/Runde 3/)).toBeVisible()
+
+  // Switch to group B via its tab and confirm its table replaces group A's.
+  await page.getByRole('button', { name: 'Gruppe B' }).click()
+  await expect(page.getByRole('heading', { name: 'Gruppe B' })).toBeVisible()
+  await expect(page.getByRole('table')).toHaveCount(1)
 })
 
 test('a single-group round-robin+finals tournament does not show the group-overview nav link', async ({ page }) => {

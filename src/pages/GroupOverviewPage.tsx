@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { computeGroupStandings } from '@/lib/group-standings'
+import { renderGroupOverviewHtml } from '@/lib/export/group-overview-export'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import GameRow from '@/components/schedule/GameRow'
@@ -25,19 +26,51 @@ export default function GroupOverviewPage() {
   const groupGames = schedule.games.filter(g => g.stage === 'group' && (g.groupId ?? 'A') === currentGroupId)
   const rounds = [...new Set(groupGames.map(g => g.round))].sort((a, b) => a - b)
 
+  const openPrintWindow = (html: string) => {
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const printWindow = window.open(url, '_blank')
+    if (printWindow) {
+      printWindow.addEventListener('load', () => {
+        printWindow.print()
+        URL.revokeObjectURL(url)
+      })
+    } else {
+      URL.revokeObjectURL(url)
+    }
+  }
+
+  const handlePrintCurrentGroup = () => {
+    openPrintWindow(renderGroupOverviewHtml(tournament, schedule, [{ groupId: currentGroupId, standings }]))
+  }
+
+  const handlePrintAllGroups = () => {
+    const sections = groupIds.map(groupId => ({
+      groupId,
+      standings: computeGroupStandings(tournament.teams, schedule.games, groupId),
+    }))
+    openPrintWindow(renderGroupOverviewHtml(tournament, schedule, sections))
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex gap-1 flex-wrap">
-        {groupIds.map(groupId => (
-          <Button
-            key={groupId}
-            variant={groupId === currentGroupId ? undefined : 'outline'}
-            size="sm"
-            onClick={() => setActiveGroupId(groupId)}
-          >
-            Gruppe {groupId}
-          </Button>
-        ))}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex gap-1 flex-wrap">
+          {groupIds.map(groupId => (
+            <Button
+              key={groupId}
+              variant={groupId === currentGroupId ? undefined : 'outline'}
+              size="sm"
+              onClick={() => setActiveGroupId(groupId)}
+            >
+              Gruppe {groupId}
+            </Button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handlePrintCurrentGroup}>Diese Gruppe drucken</Button>
+          <Button variant="outline" size="sm" onClick={handlePrintAllGroups}>Alle Gruppen drucken</Button>
+        </div>
       </div>
 
       <div>

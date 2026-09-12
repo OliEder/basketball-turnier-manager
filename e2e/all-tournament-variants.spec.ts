@@ -78,9 +78,14 @@ test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) =>
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
   await page.getByRole('link', { name: 'Gruppentabellen' }).click()
+  // Groups are shown one at a time via tabs; group A is active by default.
   await expect(page.getByRole('heading', { name: 'Gruppe A' })).toBeVisible()
+  await expect(page.getByRole('table')).toHaveCount(1)
+
+  // Switch to group B via its tab and confirm its table replaces group A's.
+  await page.getByRole('button', { name: 'Gruppe B' }).click()
   await expect(page.getByRole('heading', { name: 'Gruppe B' })).toBeVisible()
-  await expect(page.getByRole('table')).toHaveCount(2)
+  await expect(page.getByRole('table')).toHaveCount(1)
 
   // There is currently no UI to enter a round-robin group-stage result (GameRow only offers
   // a start-time input, or, with showResult, a read-only final score -- confirmed pre-existing,
@@ -99,7 +104,9 @@ test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) =>
   })
 
   await page.reload()
-  const groupATable = page.getByRole('heading', { name: 'Gruppe A' }).locator('..')
+  // Group A is active by default again after reload.
+  await expect(page.getByRole('heading', { name: 'Gruppe A' })).toBeVisible()
+  const groupATable = page.getByRole('table')
   await expect(groupATable.getByText(winnerName)).toBeVisible()
   // 2 points for the win puts the winner ahead of every team still on 0 points -- check the
   // first data row (rank #1) actually shows that team's name.
