@@ -15,6 +15,8 @@ export interface Team {
   abbreviation?: string  // optional, max. 4 Zeichen; wird in platzbeschränkten Ansichten anstelle des vollen Namens angezeigt
   withdrawnAfterRound?: number  // set when the team withdrew mid-tournament; value = last round played normally
   groupId?: string  // Gruppenzuordnung in der Mehrgruppen-Vorrunde; fehlt = Standardgruppe "A"
+  withdrawnAfterStage?: 'group' | 'finals'  // set when the team withdrew during the group phase or
+    // during the finals stage; distinct from the swiss-only withdrawnAfterRound above
 }
 
 export interface TimeWindow {
@@ -51,6 +53,11 @@ export interface TournamentConfig {
   swissRounds?: number       // only relevant when mode === 'swiss'; number of swiss rounds to play
   groupCount?: number        // only relevant when mode === 'round-robin+finals'; number of parallel group-stage groups, default 1
   doubleRoundRobin?: boolean // if true, each group plays a return leg (home/away swapped), default false
+  finalsVariant?: 'endrunde-4'  // only relevant when mode === 'round-robin+finals' and groupCount > 1;
+    // more variants ('endrunde-1' | 'endrunde-2' | ...) are added in a later phase — see
+    // docs/superpowers/specs/2026-09-12-finals-variants-design.md
+  dropoutHandling?: 'walkover' | 'next-best-fills-in'  // default 'next-best-fills-in'; governs what
+    // happens when a team withdraws after already qualifying for a finals cohort
   fields: number
   gameSettings: GameSettings
   venue: Venue
@@ -63,7 +70,9 @@ export interface PeriodScore {
   awayScore: number
 }
 
-export type GameStage = 'group' | 'semifinal' | 'final' | 'swiss'
+export type GameStage = 'group' | 'semifinal' | 'final' | 'swiss' | 'placement'
+  // 'placement' = a round-robin placement-cohort game (Endrunde 4), e.g. "all group winners play
+  // each other for places 1-4"
 
 export interface Game {
   id: string
@@ -81,6 +90,13 @@ export interface Game {
   byeTeamId?: string      // set instead of home/awayTeamId when this "game" is a bye
   cancelledReason?: 'withdrawal'  // set when the game was cancelled due to a team withdrawing
   groupId?: string        // which group this game belongs to (only stage === 'group' with multiple groups)
+  rankTier?: number  // which placement cohort this game belongs to (1 = group winners' cohort playing
+    // for places 1-4, 2 = runners-up cohort playing for places 5-8, ...); only set when stage === 'placement'
+  placementFrom?: number  // the best (lowest-numbered) place this cohort is playing for, e.g. 1, 5, 9;
+    // only set when stage === 'placement' — used to label/sort the final standings page
+  homeSourceRank?: { groupId: string; rank: number }  // which group-phase rank feeds the home slot;
+    // stays set even after resolution, so a later group-phase correction can re-resolve this slot
+  awaySourceRank?: { groupId: string; rank: number }  // same for the away slot
 }
 
 export interface Schedule {
