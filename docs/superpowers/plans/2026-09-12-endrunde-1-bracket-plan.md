@@ -809,10 +809,20 @@ describe('buildBracket', () => {
   })
 
   it('bracket size 8 generates 4 quarterfinals + 2 semifinals + third-place + final', () => {
+    // sourceRanks is ALWAYS pre-paired match order ([match0.home, match0.away, match1.home, ...]),
+    // never plain seed order -- this is the exact shape buildQualifierSeeds (Task 7) produces, and
+    // buildBracket itself does no seeding/reordering of its own, only sequential pairing. For 8
+    // groups A-H, the standard "avoid an early final" bracket seed order is A/H, D/E, B/G, C/F
+    // (verified against Task 7's standardBracketSeedOrder(8) = [0,7,3,4,1,6,2,5]).
     const games = buildBracket({
       bracketSize: 8,
       rankTier: 2,
-      sourceRanks: Array.from({ length: 8 }, (_, i) => ({ groupId: String.fromCharCode(65 + i), rank: 2 })),
+      sourceRanks: [
+        { groupId: 'A', rank: 2 }, { groupId: 'H', rank: 2 },
+        { groupId: 'D', rank: 2 }, { groupId: 'E', rank: 2 },
+        { groupId: 'B', rank: 2 }, { groupId: 'G', rank: 2 },
+        { groupId: 'C', rank: 2 }, { groupId: 'F', rank: 2 },
+      ],
       fields: 4,
       gameSettings,
       blackoutPeriods: [],
@@ -840,6 +850,10 @@ describe('buildBracket', () => {
     expect(final.homeSourceMatch).toEqual({ stage: 'semifinal', matchIndex: 0, outcome: 'winner' })
     expect(final.awaySourceMatch).toEqual({ stage: 'semifinal', matchIndex: 1, outcome: 'winner' })
     expect(games.every(g => g.rankTier === 2)).toBe(true)
+    // matchIndex 0's quarterfinal is fed directly by sourceRanks[0]/[1] -- the first pre-paired
+    // matchup, i.e. seed A vs seed H (NOT plain sequential A vs B; buildBracket does not reorder
+    // its input, so this is really testing "buildBracket consumes pre-paired input positionally,"
+    // not "buildBracket seeds A vs H" -- that seeding decision belongs to buildQualifierSeeds).
     expect(quarterfinals[0].homeSourceRank).toEqual({ groupId: 'A', rank: 2 })
     expect(quarterfinals[0].awaySourceRank).toEqual({ groupId: 'H', rank: 2 })
   })
@@ -1054,13 +1068,19 @@ export function buildBracket(input: BuildBracketInput): Game[] {
 
     // The final's round also gets a third-place game, fed by the two semifinal losers, scheduled
     // in parallel with the final wherever a field is free (mirrors playoff-generator.ts's existing
-    // 4-bracket third-place scheduling).
-    if (stage === 'final') {
+    // 4-bracket third-place scheduling). Only applies when there IS a semifinal round to draw
+    // losers from -- a bracketSize-2 bracket's only round IS 'final' (roundIndex === 0), with no
+    // preceding round, so it must not get a third-place game.
+    if (stage === 'final' && roundIndex > 0) {
       const semifinalStage = stages[roundIndex - 1]
       let bestField = -1
       let bestSlotStart = ''
       for (let f = 0; f < fields; f++) {
-        const slotStart = findNextSlot(fieldClocks[f], gameDuration, blackoutPeriods, availabilityEnd)
+        // Respects the same roundEarliestStart gate as the final itself, not just "whenever this
+        // field is next free" -- otherwise the third-place game could be scheduled BEFORE the
+        // semifinals it depends on have even finished, if some field happened to sit idle.
+        const earliestForField = maxTime(fieldClocks[f], roundEarliestStart)
+        const slotStart = findNextSlot(earliestForField, gameDuration, blackoutPeriods, availabilityEnd)
         if (!slotStart) continue
         if (bestField === -1 || timeToMinutes(slotStart) < timeToMinutes(bestSlotStart)) {
           bestField = f
