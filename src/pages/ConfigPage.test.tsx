@@ -53,6 +53,17 @@ describe('ConfigPage', () => {
     expect(useTournamentStore.getState().schedule!.games.length).toBeGreaterThan(0)
   })
 
+  it('shows the group assignment section only in round-robin+finals mode', () => {
+    useTournamentStore.getState().setMode('round-robin')
+    const { unmount } = renderConfigPage()
+    expect(screen.queryByText('Gruppen')).not.toBeInTheDocument()
+    unmount()
+
+    useTournamentStore.getState().setMode('round-robin+finals')
+    renderConfigPage()
+    expect(screen.getByText('Gruppen')).toBeInTheDocument()
+  })
+
   it('shows a suggestion help text under "Anzahl Runden" in swiss mode', () => {
     useTournamentStore.getState().setMode('swiss')
     for (let i = 1; i <= 4; i++) {

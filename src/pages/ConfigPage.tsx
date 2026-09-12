@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TournamentForm from '@/components/config/TournamentForm'
+import GroupAssignmentForm from '@/components/config/GroupAssignmentForm'
 import GameSettingsForm from '@/components/config/GameSettingsForm'
 import VenueForm from '@/components/venue/VenueForm'
 import BlackoutList from '@/components/venue/BlackoutList'
@@ -65,6 +66,14 @@ export default function ConfigPage() {
           {(disabled) => <TournamentForm disabled={disabled} />}
         </LockedSectionGate>
       </section>
+      {tournament.mode === 'round-robin+finals' && (
+        <section className="space-y-4">
+          <h2 className="text-lg text-brand-primary-light">Gruppen</h2>
+          <LockedSectionGate locked={locked} unlocked={tournamentUnlocked} onUnlock={() => setConfirmTarget('tournament')}>
+            {(disabled) => <GroupAssignmentForm disabled={disabled} />}
+          </LockedSectionGate>
+        </section>
+      )}
       <section className="space-y-4">
         <h2 className="text-lg text-brand-primary-light">Spieleinstellungen</h2>
         <LockedSectionGate locked={locked} unlocked={tournamentUnlocked} onUnlock={() => setConfirmTarget('tournament')}>
