@@ -482,6 +482,57 @@ describe('resolvePlaceholders (via submitGameResult)', () => {
     expect(reResolved.awayTeamId).toBe('t1')
   })
 
+  it('does not resolve a withdrawn team into a placement game even if it still ranks first in its group', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      finalsVariant: 'endrunde-4' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const gg1 = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const gg2 = {
+      id: 'gg2', homeTeamId: 't1', awayTeamId: 't3', stage: 'group' as const, field: 1,
+      scheduledStart: '09:30', scheduledEnd: '10:00', round: 2, gameNumber: 2, periodScores: [], groupId: 'A',
+    }
+    const gg3 = {
+      id: 'gg3', homeTeamId: 't2', awayTeamId: 't3', stage: 'group' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 3, gameNumber: 3, periodScores: [], groupId: 'A',
+    }
+    const placementGame = {
+      id: 'pg1', homeTeamId: null, awayTeamId: null, stage: 'placement' as const, field: 1,
+      scheduledStart: '11:00', scheduledEnd: '11:30', round: 1, gameNumber: 4, periodScores: [],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 2 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [gg1, gg2, gg3, placementGame], totalDurationMin: 120, estimatedEnd: '11:30',
+      },
+    })
+
+    // t1 crushes t2, then withdraws before playing t3 (banks a walkover win) -> t1 would still
+    // rank #1 in group A on raw points if withdrawal isn't excluded from qualification.
+    useTournamentStore.getState().submitGameResult('gg1', [{ period: 1, homeScore: 30, awayScore: 5 }])
+    useTournamentStore.getState().withdrawTeam('t1')
+    // t2 beats t3 to complete the group
+    useTournamentStore.getState().submitGameResult('gg3', [{ period: 1, homeScore: 10, awayScore: 8 }])
+
+    const resolved = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
+    expect(resolved.homeTeamId).not.toBe('t1')
+    expect(resolved.homeTeamId).toBe('t2')
+    expect(resolved.awayTeamId).toBe('t3')
+  })
+
   it('does not overwrite a placement game that has already been played itself, even if the group phase is corrected afterward', () => {
     const tournament = {
       ...useTournamentStore.getState().tournament,
@@ -587,6 +638,85 @@ describe('withdrawTeam (group stage)', () => {
 
     const withdrawnTeam = useTournamentStore.getState().tournament.teams.find(t => t.id === 't2')!
     expect(withdrawnTeam.withdrawnAfterStage).toBe('group')
+  })
+
+  it('completing a group by cancelling the LAST unplayed game via withdrawal immediately resolves a waiting placement game (no separate submitGameResult needed)', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      finalsVariant: 'endrunde-4' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    // Group A's only game is still unplayed; withdrawing t2 cancels it as a walkover, which is
+    // ALSO the last game needed for group A to count as complete.
+    const gg1 = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const placementGame = {
+      id: 'pg1', homeTeamId: null, awayTeamId: null, stage: 'placement' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 1, gameNumber: 2, periodScores: [],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 2 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [gg1, placementGame], totalDurationMin: 60, estimatedEnd: '10:30',
+      },
+    })
+
+    useTournamentStore.getState().withdrawTeam('t2')
+
+    const resolved = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
+    expect(resolved.homeTeamId).toBe('t1')
+  })
+
+  it('handles withdrawal in an uneven group (3 teams) without crashing and scores walkover correctly', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const gg1 = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const gg2 = {
+      id: 'gg2', homeTeamId: 't1', awayTeamId: 't3', stage: 'group' as const, field: 1,
+      scheduledStart: '09:30', scheduledEnd: '10:00', round: 2, gameNumber: 2, periodScores: [], groupId: 'A',
+    }
+    const gg3 = {
+      id: 'gg3', homeTeamId: 't2', awayTeamId: 't3', stage: 'group' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 3, gameNumber: 3, periodScores: [], groupId: 'A',
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [gg1, gg2, gg3], totalDurationMin: 90, estimatedEnd: '10:30',
+      },
+    })
+
+    // t3 withdraws before playing anyone -> both its games become walkovers for its opponents.
+    useTournamentStore.getState().withdrawTeam('t3')
+
+    const { tournament: updatedTournament, schedule: updatedSchedule } = useTournamentStore.getState()
+    const standings = computeGroupStandings(updatedTournament.teams, updatedSchedule!.games, 'A')
+    expect(standings.find(s => s.teamId === 't1')!.points).toBe(2)
+    expect(standings.find(s => s.teamId === 't2')!.points).toBe(2)
+    expect(standings.find(s => s.teamId === 't3')!.points).toBe(0)
+    expect(standings.find(s => s.teamId === 't3')!.withdrawn).toBe(true)
   })
 
   it('does not touch swiss-mode withdrawal behavior', () => {
