@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
-import type { Game, GameSettings, TimeWindow } from '@/types'
+import type { Game, GameSettings, GameStage, TimeWindow } from '@/types'
 import type { GroupStanding } from './group-standings'
 import { generateRoundRobinRounds } from './schedule-generator'
-import { calcGameDurationMin, addMinutes, findNextSlot, timeToMinutes } from './game-duration'
+import { calcGameDurationMin, addMinutes, findNextSlot, timeToMinutes, maxTime } from './game-duration'
 
 function isScorableGame(game: Game): game is Game & { homeTeamId: string; awayTeamId: string } {
   return !game.cancelledReason && !!game.homeTeamId && !!game.awayTeamId && game.periodScores.length > 0
@@ -53,6 +53,158 @@ export function buildQualifierSeeds(groupIds: string[]): { groupId: string; rank
     { groupId: sorted[1], rank: 1 },
     { groupId: sorted[2], rank: 1 },
   ]
+}
+
+const BRACKET_STAGE_SEQUENCE: Record<number, GameStage[]> = {
+  2: ['final'],
+  4: ['semifinal', 'final'],
+  8: ['quarterfinal', 'semifinal', 'final'],
+  16: ['round-of-16', 'quarterfinal', 'semifinal', 'final'],
+  32: ['round-of-32', 'round-of-16', 'quarterfinal', 'semifinal', 'final'],
+}
+
+export interface BuildBracketInput {
+  bracketSize: 2 | 4 | 8 | 16 | 32
+  rankTier: number
+  sourceRanks: { groupId: string; rank: number }[]  // bracketSize entries, in seed order
+  fields: number
+  gameSettings: GameSettings
+  blackoutPeriods: TimeWindow[]
+  availabilityEnd: string
+  fieldNextFree: string[]
+  startGameNumber: number
+}
+
+/**
+ * Builds a complete single-elimination KO bracket for one rank tier: bracketSize teams enter via
+ * the first named round (fed by homeSourceRank/awaySourceRank, i.e. group-phase standings), every
+ * later round is fed by the previous round's winners (homeSourceMatch/awaySourceMatch), and a
+ * third-place game is fed by the two semifinal losers. Generalizes the fixed
+ * finalsBracketSize===4 logic in playoff-generator.ts to any of 2/4/8/16/32.
+ *
+ * Round N+1's game at matchIndex i is fed by round N's games at matchIndex 2i (home) and 2i+1
+ * (away) — the standard single-elimination bracket-tree layout, applied recursively per round.
+ */
+export function buildBracket(input: BuildBracketInput): Game[] {
+  const { bracketSize, rankTier, sourceRanks, fields, gameSettings, blackoutPeriods, availabilityEnd, startGameNumber } = input
+  const stages = BRACKET_STAGE_SEQUENCE[bracketSize]
+  if (sourceRanks.length !== bracketSize) {
+    throw new Error(`sourceRanks muss genau ${bracketSize} Einträge für ein ${bracketSize}er-Bracket enthalten`)
+  }
+
+  const gameDuration = calcGameDurationMin(gameSettings)
+  const slotDuration = gameDuration + gameSettings.bufferBetweenGamesMin
+  const fieldClocks = [...input.fieldNextFree]
+  const games: Game[] = []
+  let gameNumber = startGameNumber
+  let gamesInPreviousRound: Game[] = []
+
+  stages.forEach((stage, roundIndex) => {
+    const isFirstRound = roundIndex === 0
+    const matchCount = bracketSize / 2 ** (roundIndex + 1)
+    const roundGames: Game[] = []
+
+    // Every game in this round starts no earlier than breakBetweenRoundsMin after the LATEST game
+    // of the previous round ends (all games of a round can run in parallel across fields, but the
+    // next round can't start until every feeding game of this round has finished).
+    const roundEarliestStart = isFirstRound
+      ? fieldClocks.reduce((max, t) => (t > max ? t : max), fieldClocks[0])
+      : addMinutes(
+          gamesInPreviousRound.reduce((max, g) => (g.scheduledEnd > max ? g.scheduledEnd : max), '00:00'),
+          gameSettings.bufferBetweenGamesMin + gameSettings.breakBetweenRoundsMin,
+        )
+
+    for (let matchIndex = 0; matchIndex < matchCount; matchIndex++) {
+      let bestField = -1
+      let bestSlotStart = ''
+      for (let f = 0; f < fields; f++) {
+        const earliestForField = maxTime(fieldClocks[f], roundEarliestStart)
+        const slotStart = findNextSlot(earliestForField, gameDuration, blackoutPeriods, availabilityEnd)
+        if (!slotStart) continue
+        if (bestField === -1 || timeToMinutes(slotStart) < timeToMinutes(bestSlotStart)) {
+          bestField = f
+          bestSlotStart = slotStart
+        }
+      }
+      if (bestField === -1) {
+        throw new Error('Kein Zeitfenster für die Endrunde verfügbar — Hallenzeit reicht nicht aus')
+      }
+      const slotEnd = addMinutes(bestSlotStart, gameDuration)
+
+      const game: Game = {
+        id: uuidv4(),
+        homeTeamId: null,
+        awayTeamId: null,
+        stage,
+        rankTier,
+        matchIndex,
+        field: bestField + 1,
+        scheduledStart: bestSlotStart,
+        scheduledEnd: slotEnd,
+        round: roundIndex + 1,
+        gameNumber: gameNumber++,
+        periodScores: [],
+        ...(isFirstRound
+          ? {
+              homeSourceRank: sourceRanks[matchIndex * 2],
+              awaySourceRank: sourceRanks[matchIndex * 2 + 1],
+            }
+          : {
+              homeSourceMatch: { stage: stages[roundIndex - 1], matchIndex: matchIndex * 2, outcome: 'winner' as const },
+              awaySourceMatch: { stage: stages[roundIndex - 1], matchIndex: matchIndex * 2 + 1, outcome: 'winner' as const },
+            }),
+      }
+      roundGames.push(game)
+      fieldClocks[bestField] = addMinutes(bestSlotStart, slotDuration)
+    }
+
+    games.push(...roundGames)
+    gamesInPreviousRound = roundGames
+
+    // The final's round also gets a third-place game, fed by the two semifinal losers, scheduled
+    // in parallel with the final wherever a field is free (mirrors playoff-generator.ts's existing
+    // 4-bracket third-place scheduling). Only when there IS a semifinal to draw losers from — a
+    // bare 2-team bracket has no semifinal, so no third-place game either.
+    if (stage === 'final' && roundIndex > 0) {
+      const semifinalStage = stages[roundIndex - 1]
+      let bestField = -1
+      let bestSlotStart = ''
+      for (let f = 0; f < fields; f++) {
+        // Same breakBetweenRoundsMin gate as the main round loop above: the third-place game is
+        // fed by semifinal losers, just as the final is fed by semifinal winners, so it must not
+        // start any earlier than the final itself is allowed to.
+        const earliestForField = maxTime(fieldClocks[f], roundEarliestStart)
+        const slotStart = findNextSlot(earliestForField, gameDuration, blackoutPeriods, availabilityEnd)
+        if (!slotStart) continue
+        if (bestField === -1 || timeToMinutes(slotStart) < timeToMinutes(bestSlotStart)) {
+          bestField = f
+          bestSlotStart = slotStart
+        }
+      }
+      if (bestField === -1) {
+        throw new Error('Kein Zeitfenster für die Endrunde verfügbar — Hallenzeit reicht nicht aus')
+      }
+      games.push({
+        id: uuidv4(),
+        homeTeamId: null,
+        awayTeamId: null,
+        stage: 'third-place',
+        rankTier,
+        matchIndex: 0,
+        field: bestField + 1,
+        scheduledStart: bestSlotStart,
+        scheduledEnd: addMinutes(bestSlotStart, gameDuration),
+        round: roundIndex + 1,
+        gameNumber: gameNumber++,
+        periodScores: [],
+        homeSourceMatch: { stage: semifinalStage, matchIndex: 0, outcome: 'loser' },
+        awaySourceMatch: { stage: semifinalStage, matchIndex: 1, outcome: 'loser' },
+      })
+      fieldClocks[bestField] = addMinutes(bestSlotStart, slotDuration)
+    }
+  })
+
+  return games
 }
 
 export interface PlacementCohort {
