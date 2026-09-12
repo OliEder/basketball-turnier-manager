@@ -191,7 +191,20 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
   },
 
   setGroupCount: (count) => {
-    set(s => ({ tournament: { ...s.tournament, groupCount: count } }))
+    const maxLetterIndex = count - 1
+    set(s => ({
+      tournament: {
+        ...s.tournament,
+        groupCount: count,
+        teams: s.tournament.teams.map(t => {
+          const currentIndex = (t.groupId ?? 'A').charCodeAt(0) - 65
+          if (currentIndex > maxLetterIndex) {
+            return { ...t, groupId: String.fromCharCode(65 + maxLetterIndex) }
+          }
+          return t
+        }),
+      },
+    }))
     saveTournament(get().tournament)
   },
 

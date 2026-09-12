@@ -57,4 +57,16 @@ describe('GroupAssignmentForm', () => {
     fireEvent.change(dropdown, { target: { value: 'B' } })
     expect(useTournamentStore.getState().tournament.teams[0].groupId).toBe('B')
   })
+
+  it('does not update groupCount or crash when the input is cleared or non-numeric', () => {
+    const { addTeam } = useTournamentStore.getState()
+    addTeam({ name: 'Team 1', logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.getState().setGroupCount(3)
+    render(<GroupAssignmentForm />)
+    const input = screen.getByLabelText('Anzahl Gruppen')
+    expect(() => fireEvent.change(input, { target: { value: '' } })).not.toThrow()
+    expect(useTournamentStore.getState().tournament.groupCount).toBe(3)
+    expect(() => fireEvent.change(input, { target: { value: 'abc' } })).not.toThrow()
+    expect(useTournamentStore.getState().tournament.groupCount).toBe(3)
+  })
 })

@@ -20,7 +20,12 @@ export default function GroupAssignmentForm({ disabled = false }: { disabled?: b
           type="number"
           min={1}
           value={groupCount}
-          onChange={e => setGroupCount(Number(e.target.value))}
+          onChange={e => {
+            const parsed = Number(e.target.value)
+            if (Number.isInteger(parsed) && parsed >= 1) {
+              setGroupCount(parsed)
+            }
+          }}
           disabled={disabled}
         />
         <p className="text-xs text-muted-foreground">

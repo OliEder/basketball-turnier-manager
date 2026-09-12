@@ -315,6 +315,26 @@ describe('multi-group configuration', () => {
     useTournamentStore.getState().setTeamGroup(teamId, 'B')
     expect(useTournamentStore.getState().tournament.teams[0].groupId).toBe('B')
   })
+
+  it('setGroupCount reassigns teams whose groupId is now out of range to the last valid group', () => {
+    const { addTeam, setGroupCount, setTeamGroup } = useTournamentStore.getState()
+    addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    setGroupCount(3)
+    const teamId = useTournamentStore.getState().tournament.teams[0].id
+    setTeamGroup(teamId, 'C')
+    setGroupCount(2)
+    expect(useTournamentStore.getState().tournament.teams[0].groupId).toBe('B')
+  })
+
+  it('setGroupCount leaves teams with an already-valid groupId untouched', () => {
+    const { addTeam, setGroupCount, setTeamGroup } = useTournamentStore.getState()
+    addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    setGroupCount(3)
+    const teamId = useTournamentStore.getState().tournament.teams[0].id
+    setTeamGroup(teamId, 'A')
+    setGroupCount(2)
+    expect(useTournamentStore.getState().tournament.teams[0].groupId).toBe('A')
+  })
 })
 
 describe('resetTournament', () => {
