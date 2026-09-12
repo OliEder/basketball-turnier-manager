@@ -6,13 +6,12 @@ import { addTeam, selectMode } from './helpers'
 // (e.g. a change to the shared schedule generator that only breaks one specific mode).
 
 async function resetApp(page: Page) {
-  await page.goto('/')
+  await page.goto('/teams')
   await page.evaluate(() => localStorage.clear())
   await page.reload()
 }
 
 async function addTeams(page: Page, count: number) {
-  await page.getByRole('link', { name: 'Teams' }).click()
   for (let i = 1; i <= count; i++) {
     await addTeam(page, `Team ${i}`)
   }

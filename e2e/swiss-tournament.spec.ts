@@ -2,14 +2,13 @@ import { test, expect } from '@playwright/test'
 import { addTeam, selectMode } from './helpers'
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/teams')
   await page.evaluate(() => localStorage.clear())
   await page.reload()
 })
 
 test('plays through a full 5-team swiss tournament including a bye', async ({ page }) => {
   // Teams anlegen
-  await page.getByRole('link', { name: 'Teams' }).click()
   for (const name of ['Team A', 'Team B', 'Team C', 'Team D', 'Team E']) {
     await addTeam(page, name)
   }
@@ -73,7 +72,6 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
 })
 
 test('shows the team abbreviation instead of the full name once the viewport is below the md breakpoint', async ({ page }) => {
-  await page.getByRole('link', { name: 'Teams' }).click()
   for (const name of ['Team A', 'Team B']) {
     await addTeam(page, name)
   }
@@ -100,7 +98,6 @@ test('shows the team abbreviation instead of the full name once the viewport is 
 })
 
 test('lets the organizer navigate back to a completed round and correct a result through the UI', async ({ page }) => {
-  await page.getByRole('link', { name: 'Teams' }).click()
   for (const name of ['Team A', 'Team B', 'Team C', 'Team D']) {
     await addTeam(page, name)
   }

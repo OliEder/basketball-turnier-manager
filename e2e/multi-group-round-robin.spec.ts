@@ -2,11 +2,10 @@ import { test, expect } from '@playwright/test'
 import { addTeam, selectMode } from './helpers'
 
 test('organizer sets up a multi-group round-robin tournament and sees per-group standings', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/teams')
   await page.evaluate(() => localStorage.clear())
   await page.reload()
 
-  await page.getByRole('link', { name: 'Teams' }).click()
   for (let i = 1; i <= 8; i++) {
     await addTeam(page, `Team ${i}`)
   }
@@ -45,11 +44,10 @@ test('organizer sets up a multi-group round-robin tournament and sees per-group 
 })
 
 test('a single-group round-robin+finals tournament does not show the group-overview nav link', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/teams')
   await page.evaluate(() => localStorage.clear())
   await page.reload()
 
-  await page.getByRole('link', { name: 'Teams' }).click()
   for (const name of ['Team 1', 'Team 2', 'Team 3', 'Team 4']) {
     await addTeam(page, name)
   }

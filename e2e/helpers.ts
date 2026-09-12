@@ -14,11 +14,10 @@ export async function selectMode(page: Page, label: string) {
 }
 
 export async function setupSwissTournament(page: Page, teamNames: string[], swissRounds?: number) {
-  await page.goto('/')
+  await page.goto('/teams')
   await page.evaluate(() => localStorage.clear())
   await page.reload()
 
-  await page.getByRole('link', { name: 'Teams' }).click()
   for (const name of teamNames) {
     await addTeam(page, name)
   }
