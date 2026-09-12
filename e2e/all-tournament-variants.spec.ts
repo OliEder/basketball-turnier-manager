@@ -54,10 +54,10 @@ test('Variante 2: Gruppenphase + Endrunde, eine Gruppe (unverändertes Altverhal
   await expect(page.getByRole('link', { name: 'Zeitplan' })).toBeVisible()
 
   await page.getByRole('link', { name: 'Zeitplan' }).click()
-  // 8 teams, single round-robin (28 games) + finalsBracketSize: 4 (2 semifinals + 1 final,
-  // no third-place game -- see generatePlayoffGames in playoff-generator.ts) = 31.
+  // 8 teams, single round-robin (28 games) + finalsBracketSize: 4 (2 semifinals + 1 third-place
+  // game + 1 final -- see generatePlayoffGames in playoff-generator.ts) = 32.
   const gamesText = await page.getByText(/\d+ Spiele/).first().textContent()
-  expect(Number(gamesText!.match(/(\d+) Spiele/)![1])).toBe(31)
+  expect(Number(gamesText!.match(/(\d+) Spiele/)![1])).toBe(32)
 })
 
 test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) => {
@@ -125,9 +125,9 @@ test('Variante 4: Gruppenphase + Endrunde mit Doppelrunde (Hin- und Rückrunde)'
 
   await page.getByRole('link', { name: 'Zeitplan' }).click()
   // 4 teams, double round-robin: C(4,2)*2 = 12 group games + finalsBracketSize: 4
-  // (2 semifinals + 1 final, no third-place game) = 15.
+  // (2 semifinals + 1 third-place game + 1 final) = 16.
   const gamesText = await page.getByText(/\d+ Spiele/).first().textContent()
-  expect(Number(gamesText!.match(/(\d+) Spiele/)![1])).toBe(15)
+  expect(Number(gamesText!.match(/(\d+) Spiele/)![1])).toBe(16)
 
   // ScheduleView renders group-stage games as a flat, round-less list (only GroupOverviewPage
   // groups by round), so verify the return leg via the actual matchup data instead: the first
