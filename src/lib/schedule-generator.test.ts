@@ -253,6 +253,43 @@ describe('generateSchedule with round-robin+finals mode', () => {
     expect(placementGames.map(g => g.rankTier).sort()).toEqual([1, 2])
     expect(schedule.games.some(g => g.stage === 'semifinal' || g.stage === 'final')).toBe(false)
   })
+
+  it('generates a semifinal+final+third-place bracket seeded by group winners when finalsVariant is endrunde-3', () => {
+    const config: TournamentConfig = {
+      ...baseConfig,
+      mode: 'round-robin+finals',
+      groupCount: 4,
+      finalsVariant: 'endrunde-3',
+      teams: [
+        { ...makeTeam('t1', 'T1'), groupId: 'A' },
+        { ...makeTeam('t2', 'T2'), groupId: 'A' },
+        { ...makeTeam('t3', 'T3'), groupId: 'A' },
+        { ...makeTeam('t4', 'T4'), groupId: 'B' },
+        { ...makeTeam('t5', 'T5'), groupId: 'B' },
+        { ...makeTeam('t6', 'T6'), groupId: 'B' },
+        { ...makeTeam('t7', 'T7'), groupId: 'C' },
+        { ...makeTeam('t8', 'T8'), groupId: 'C' },
+        { ...makeTeam('t9', 'T9'), groupId: 'C' },
+        { ...makeTeam('t10', 'T10'), groupId: 'D' },
+        { ...makeTeam('t11', 'T11'), groupId: 'D' },
+        { ...makeTeam('t12', 'T12'), groupId: 'D' },
+      ],
+    }
+    const schedule = generateSchedule(config)
+    const semifinals = schedule.games.filter(g => g.stage === 'semifinal')
+    const thirdPlace = schedule.games.filter(g => g.stage === 'third-place')
+    const finals = schedule.games.filter(g => g.stage === 'final')
+    expect(semifinals).toHaveLength(2)
+    expect(thirdPlace).toHaveLength(1)
+    expect(finals).toHaveLength(1)
+    expect(schedule.games.some(g => g.stage === 'placement')).toBe(false)
+
+    // Group winners seeded alphabetically: A vs D, B vs C (per buildQualifierSeeds).
+    expect(semifinals[0].homeSourceRank).toEqual({ groupId: 'A', rank: 1 })
+    expect(semifinals[0].awaySourceRank).toEqual({ groupId: 'D', rank: 1 })
+    expect(semifinals[1].homeSourceRank).toEqual({ groupId: 'B', rank: 1 })
+    expect(semifinals[1].awaySourceRank).toEqual({ groupId: 'C', rank: 1 })
+  })
 })
 
 describe('generateSchedule with swiss mode', () => {

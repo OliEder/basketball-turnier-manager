@@ -3,7 +3,7 @@ import type { TournamentConfig, Game, Schedule } from '@/types'
 import { calcGameDurationMin, addMinutes, timeToMinutes, maxTime, findNextSlot } from './game-duration'
 import { generatePlayoffGames } from './playoff-generator'
 import { generateSwissSchedule } from './swiss-schedule'
-import { buildPlacementCohorts, buildPlacementGames } from './finals-variant-generator'
+import { buildPlacementCohorts, buildPlacementGames, buildQualifierSeeds } from './finals-variant-generator'
 import { computeGroupStandings } from './group-standings'
 
 /** Generate all unique pairs for round-robin. Returns [homeId, awayId][] */
@@ -187,6 +187,22 @@ export function generateSchedule(config: TournamentConfig): Schedule {
       startGameNumber: gameNumber,
     })
     games.push(...placementGames)
+  } else if (config.mode === 'round-robin+finals' && config.finalsVariant === 'endrunde-3') {
+    // Only the 4 group-winners qualify, regardless of how many teams are actually in each group —
+    // teamCount is fixed at 4 (the qualifying pool size), not teams.length (the whole tournament).
+    const qualifierSourceRanks = buildQualifierSeeds(groupIds)
+    const playoffGames = generatePlayoffGames({
+      finalsBracketSize: 4,
+      fields,
+      gameSettings,
+      blackoutPeriods: venue.blackoutPeriods,
+      availabilityEnd,
+      fieldNextFree,
+      teamCount: 4,
+      startGameNumber: gameNumber,
+      qualifierSourceRanks,
+    })
+    games.push(...playoffGames)
   } else if (config.mode === 'round-robin+finals') {
     const playoffGames = generatePlayoffGames({
       finalsBracketSize: config.finalsBracketSize ?? 4,

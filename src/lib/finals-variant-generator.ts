@@ -31,6 +31,30 @@ export function computeGroupPhaseBuchholz(
   return buchholz
 }
 
+/**
+ * Seeds the 4 group-winners of an Endrunde-3 tournament into semifinal slots: standard
+ * cross-bracket seeding (best vs. weakest) isn't meaningful here since groups can't be compared
+ * against each other before any results exist (each group's "rank 1" is only known relative to its
+ * own group) — so seeding is simply by groupId, alphabetically sorted, paired first-vs-last,
+ * second-vs-second-last. This mirrors the deterministic-by-groupId approach already used for
+ * Endrunde 4's placement cohorts.
+ *
+ * Returns 4 sourceRanks in bracket order: [sf1.home, sf1.away, sf2.home, sf2.away], each pointing
+ * at group-phase rank 1 of the given group — for direct use as PlayoffInput.qualifierSourceRanks.
+ */
+export function buildQualifierSeeds(groupIds: string[]): { groupId: string; rank: number }[] {
+  if (groupIds.length !== 4) {
+    throw new Error('Endrunde 3 benötigt genau 4 Gruppen')
+  }
+  const sorted = [...groupIds].sort()
+  return [
+    { groupId: sorted[0], rank: 1 },
+    { groupId: sorted[3], rank: 1 },
+    { groupId: sorted[1], rank: 1 },
+    { groupId: sorted[2], rank: 1 },
+  ]
+}
+
 export interface PlacementCohort {
   rankTier: number       // 1 = group winners, 2 = runners-up, ...
   placementFrom: number  // best place this cohort plays for: 1, 5, 9, ...
