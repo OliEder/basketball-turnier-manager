@@ -351,6 +351,178 @@ describe('setFinalsVariant / setDropoutHandling', () => {
   })
 })
 
+describe('resolvePlaceholders (via submitGameResult)', () => {
+  it('fills in real team IDs on a placement game once its group is fully scored', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 2,
+      finalsVariant: 'endrunde-4' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't3', name: 'T3', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'B' },
+        { id: 't4', name: 'T4', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'B' },
+      ],
+    }
+    const groupGame = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const groupGameB = {
+      id: 'gg2', homeTeamId: 't3', awayTeamId: 't4', stage: 'group' as const, field: 2,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 2, periodScores: [], groupId: 'B',
+    }
+    const placementGame = {
+      id: 'pg1', homeTeamId: null, awayTeamId: null, stage: 'placement' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 1, gameNumber: 3, periodScores: [],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'B', rank: 1 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [groupGame, groupGameB, placementGame], totalDurationMin: 90, estimatedEnd: '10:30',
+      },
+    })
+
+    // t1 beats t2 in group A -> t1 is group A's rank 1
+    useTournamentStore.getState().submitGameResult('gg1', [{ period: 1, homeScore: 20, awayScore: 10 }])
+    // t3 beats t4 in group B -> t3 is group B's rank 1
+    useTournamentStore.getState().submitGameResult('gg2', [{ period: 1, homeScore: 20, awayScore: 10 }])
+
+    const resolved = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
+    expect(resolved.homeTeamId).toBe('t1')
+    expect(resolved.awayTeamId).toBe('t3')
+    // homeSourceRank/awaySourceRank stay set even after resolution (see design decision above) —
+    // they are NOT cleared, unlike an earlier draft that considered doing so.
+    expect(resolved.homeSourceRank).toEqual({ groupId: 'A', rank: 1 })
+    expect(resolved.awaySourceRank).toEqual({ groupId: 'B', rank: 1 })
+  })
+
+  it('does not resolve a placement game while its group is still incomplete', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 2,
+      finalsVariant: 'endrunde-4' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const groupGame1 = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const groupGame2 = {
+      id: 'gg2', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:30', scheduledEnd: '10:00', round: 2, gameNumber: 2, periodScores: [], groupId: 'A',
+    }
+    const placementGame = {
+      id: 'pg1', homeTeamId: null, awayTeamId: null, stage: 'placement' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 1, gameNumber: 3, periodScores: [],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 2 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [groupGame1, groupGame2, placementGame], totalDurationMin: 90, estimatedEnd: '10:30',
+      },
+    })
+
+    // only one of group A's two games is scored — group A is not yet complete
+    useTournamentStore.getState().submitGameResult('gg1', [{ period: 1, homeScore: 20, awayScore: 10 }])
+
+    const stillPlaceholder = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
+    expect(stillPlaceholder.homeTeamId).toBeNull()
+    expect(stillPlaceholder.homeSourceRank).toEqual({ groupId: 'A', rank: 1 })
+  })
+
+  it('re-resolves a placement game after a group-phase result correction changes the standings', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      finalsVariant: 'endrunde-4' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const groupGame = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const placementGame = {
+      id: 'pg1', homeTeamId: null, awayTeamId: null, stage: 'placement' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 1, gameNumber: 2, periodScores: [],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 2 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [groupGame, placementGame], totalDurationMin: 60, estimatedEnd: '10:30',
+      },
+    })
+
+    useTournamentStore.getState().submitGameResult('gg1', [{ period: 1, homeScore: 20, awayScore: 10 }])
+    expect(useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!.homeTeamId).toBe('t1')
+
+    // correction flips the result: t2 now wins group A
+    useTournamentStore.getState().correctGameResult('gg1', [{ period: 1, homeScore: 10, awayScore: 20 }])
+    const reResolved = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
+    expect(reResolved.homeTeamId).toBe('t2')
+    expect(reResolved.awayTeamId).toBe('t1')
+  })
+
+  it('does not overwrite a placement game that has already been played itself, even if the group phase is corrected afterward', () => {
+    const tournament = {
+      ...useTournamentStore.getState().tournament,
+      mode: 'round-robin+finals' as const,
+      groupCount: 1,
+      finalsVariant: 'endrunde-4' as const,
+      teams: [
+        { id: 't1', name: 'T1', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+        { id: 't2', name: 'T2', logoUrl: '', color: '#000', contact: '', players: [], groupId: 'A' },
+      ],
+    }
+    const groupGame = {
+      id: 'gg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'group' as const, field: 1,
+      scheduledStart: '09:00', scheduledEnd: '09:30', round: 1, gameNumber: 1, periodScores: [], groupId: 'A',
+    }
+    const placementGame = {
+      id: 'pg1', homeTeamId: 't1', awayTeamId: 't2', stage: 'placement' as const, field: 1,
+      scheduledStart: '10:00', scheduledEnd: '10:30', round: 1, gameNumber: 2,
+      periodScores: [{ period: 1, homeScore: 15, awayScore: 12 }],
+      rankTier: 1, placementFrom: 1,
+      homeSourceRank: { groupId: 'A', rank: 1 }, awaySourceRank: { groupId: 'A', rank: 2 },
+    }
+    useTournamentStore.setState({
+      tournament,
+      schedule: {
+        id: 's1', tournamentId: tournament.id, generatedAt: new Date().toISOString(),
+        games: [groupGame, placementGame], totalDurationMin: 60, estimatedEnd: '10:30',
+      },
+    })
+
+    // group A is already scored (t1 won); now correct it to flip the winner
+    useTournamentStore.getState().correctGameResult('gg1', [{ period: 1, homeScore: 5, awayScore: 25 }])
+
+    // The placement game already has its OWN result recorded — it must be left untouched even
+    // though the group-phase correction would, in isolation, suggest a different team assignment.
+    const untouched = useTournamentStore.getState().schedule!.games.find(g => g.id === 'pg1')!
+    expect(untouched.homeTeamId).toBe('t1')
+    expect(untouched.awayTeamId).toBe('t2')
+    expect(untouched.periodScores).toEqual([{ period: 1, homeScore: 15, awayScore: 12 }])
+  })
+})
+
 describe('resetTournament', () => {
   it('clears the tournament, schedule and localStorage, and issues a fresh tournament id', () => {
     const { addTeam, setFields, generateAndSaveSchedule, resetTournament } = useTournamentStore.getState()

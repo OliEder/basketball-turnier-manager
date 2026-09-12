@@ -6,6 +6,7 @@ import { generateSchedule } from '@/lib/schedule-generator'
 import { calcGameDurationMin, addMinutes } from '@/lib/game-duration'
 import { computeStandings } from '@/lib/standings'
 import { pairNextSwissRound } from '@/lib/swiss-pairing'
+import { computeGroupStandings } from '@/lib/group-standings'
 
 export function getCurrentSwissRound(games: Game[]): number {
   const decided = games.filter(g =>
@@ -157,6 +158,49 @@ function reshapeFutureSwissRounds(games: Game[], afterRound: number, activeTeamC
   }
 
   return [...untouched, ...reshaped]
+}
+
+/**
+ * Fills in real team IDs on any 'placement' (Endrunde 4) game whose homeSourceRank/awaySourceRank
+ * points at a group that is now fully scored. A group counts as "fully scored" when every one of
+ * its group-stage games has either a result or a cancellation reason (mirrors the existing
+ * isRoundFullyEvaluated pattern, but per-group instead of per-swiss-round). Re-runs unconditionally
+ * for every 'placement' game whose OWN periodScores are still empty, so a later group-phase
+ * correction can flip the resolved team — homeSourceRank/awaySourceRank are never cleared, exactly
+ * so this re-resolution can happen without needing separate bookkeeping. A placement game that has
+ * already been scored itself is left untouched, regardless of what the group phase does afterward.
+ */
+function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
+  const groupIds = [...new Set(teams.map(t => t.groupId ?? 'A'))]
+  const groupIsComplete = new Map<string, boolean>()
+  for (const groupId of groupIds) {
+    const groupGames = games.filter(g => g.stage === 'group' && (g.groupId ?? 'A') === groupId)
+    groupIsComplete.set(groupId, groupGames.length > 0 && groupGames.every(g => g.cancelledReason || g.periodScores.length > 0))
+  }
+
+  const standingsCache = new Map<string, ReturnType<typeof computeGroupStandings>>()
+  const standingsFor = (groupId: string) => {
+    if (!standingsCache.has(groupId)) {
+      standingsCache.set(groupId, computeGroupStandings(teams, games, groupId))
+    }
+    return standingsCache.get(groupId)!
+  }
+
+  return games.map(g => {
+    if (g.stage !== 'placement' || g.periodScores.length > 0) return g
+    let { homeTeamId, awayTeamId } = g
+    const { homeSourceRank, awaySourceRank } = g
+    if (homeSourceRank && groupIsComplete.get(homeSourceRank.groupId)) {
+      const standing = standingsFor(homeSourceRank.groupId)[homeSourceRank.rank - 1]
+      if (standing) homeTeamId = standing.teamId
+    }
+    if (awaySourceRank && groupIsComplete.get(awaySourceRank.groupId)) {
+      const standing = standingsFor(awaySourceRank.groupId)[awaySourceRank.rank - 1]
+      if (standing) awayTeamId = standing.teamId
+    }
+    if (homeTeamId === g.homeTeamId && awayTeamId === g.awayTeamId) return g
+    return { ...g, homeTeamId, awayTeamId }
+  })
 }
 
 export const useTournamentStore = create<TournamentStore>((set, get) => ({
@@ -314,16 +358,17 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
   },
 
   submitGameResult: (gameId, periodScores) => {
-    const { schedule } = get()
+    const { schedule, tournament } = get()
     if (!schedule) return
     const game = schedule.games.find(g => g.id === gameId)
     if (!game) return
     if (!game.homeTeamId || !game.awayTeamId) {
       throw new Error('Spiel hat noch keine feststehenden Teams')
     }
-    const updatedGames = schedule.games.map(g =>
+    const gamesAfterResult = schedule.games.map(g =>
       g.id === gameId ? { ...g, periodScores } : g
     )
+    const updatedGames = resolvePlaceholders(gamesAfterResult, tournament.teams)
     const updated = { ...schedule, games: updatedGames }
     set({ schedule: updated })
     saveSchedule(updated)
@@ -389,7 +434,7 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
   },
 
   correctGameResult: (gameId, periodScores) => {
-    const { schedule } = get()
+    const { schedule, tournament } = get()
     if (!schedule) return
     const game = schedule.games.find(g => g.id === gameId)
     if (!game) return
@@ -399,9 +444,10 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
     if (nextRoundHasResult) {
       throw new Error('Ergebnis kann nicht mehr korrigiert werden — die nächste Runde wurde bereits ausgewertet')
     }
-    const updatedGames = schedule.games.map(g =>
+    const gamesAfterCorrection = schedule.games.map(g =>
       g.id === gameId ? { ...g, periodScores } : g
     )
+    const updatedGames = resolvePlaceholders(gamesAfterCorrection, tournament.teams)
     const updated = { ...schedule, games: updatedGames }
     set({ schedule: updated })
     saveSchedule(updated)
