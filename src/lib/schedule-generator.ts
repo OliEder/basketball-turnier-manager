@@ -170,13 +170,15 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     // the real, stable groupIds paired with rankTier instead. Actual team resolution happens later,
     // once the group phase has real results.
     const standingsByGroup = new Map(groupIds.map(groupId => [groupId, computeGroupStandings(teams, games, groupId)]))
-    const cohorts = buildPlacementCohorts(standingsByGroup).map(cohort => ({
+    // buildPlacementCohorts always builds teamIds as groupIds.map(...), so every cohort spans
+    // all groups — no need to size sourceRanks off cohort.teamIds.length, groupIds is equivalent.
+    const cohortInputs = buildPlacementCohorts(standingsByGroup).map(cohort => ({
       rankTier: cohort.rankTier,
       placementFrom: cohort.placementFrom,
-      sourceRanks: groupIds.slice(0, cohort.teamIds.length).map(groupId => ({ groupId, rank: cohort.rankTier })),
+      sourceRanks: groupIds.map(groupId => ({ groupId, rank: cohort.rankTier })),
     }))
     const placementGames = buildPlacementGames({
-      cohorts,
+      cohorts: cohortInputs,
       fields,
       gameSettings,
       blackoutPeriods: venue.blackoutPeriods,
