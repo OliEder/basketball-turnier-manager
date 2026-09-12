@@ -1549,8 +1549,11 @@ Add to `src/components/config/FinalsVariantForm.test.tsx`, after the existing En
 
 ```typescript
   it('offers Endrunde 1 as an option and disables it unless the group count is an exact power of 2 up to 32', () => {
-    render(<FinalsVariantForm />)
-    // beforeEach sets up groupCount: 2 -- Endrunde 1 IS usable at groupCount 2, so re-set to 3 to test the disabled case
+    // beforeEach sets up groupCount: 2 -- Endrunde 1 IS usable at groupCount 2, so re-set to 3 to test the disabled case.
+    // Set state BEFORE the only render() call in this test -- RTL's auto-cleanup only runs
+    // between tests (afterEach), not between renders within one test, so an earlier render-then-
+    // setState-then-render-again sequence here would leave two mounted trees both reacting to the
+    // setState, duplicating the warning text below and breaking the singular getByText assertion.
     useTournamentStore.setState({
       tournament: { ...useTournamentStore.getState().tournament, groupCount: 3 },
     })
@@ -1627,11 +1630,13 @@ Replace the `canUseEndrunde3` line and the `<select>` block:
         )}
         {!canUseEndrunde1 && (
           <p className="text-xs text-muted-foreground">
-            Endrunde 1 benötigt eine Gruppenanzahl von 2, 4, 8, 16 oder 32 (aktuell: {groupCount}).
+            Endrunde 1 benötigt 2, 4, 8, 16 oder 32 Gruppen (aktuell: {groupCount}).
           </p>
         )}
       </div>
 ```
+
+(Worded as "...32 Gruppen (aktuell: ...)" rather than "...eine Gruppenanzahl von 2, 4, 8, 16 oder 32 (aktuell: ...)" so the literal substring "2, 4, 8, 16 oder 32 Gruppen" lands in one JSX text node — the original wording split "32" and "Gruppen" across the interpolation boundary in a way that still renders fine visually but doesn't satisfy the test's `/…32 Gruppen/` regex against `textContent`.)
 
 - [ ] **Step 4: Run the tests**
 
