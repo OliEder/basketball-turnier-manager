@@ -190,7 +190,7 @@ export function generateSchedule(config: TournamentConfig): Schedule {
   } else if (config.mode === 'round-robin+finals' && config.finalsVariant === 'endrunde-3') {
     // Only the 4 group-winners qualify, regardless of how many teams are actually in each group —
     // teamCount is fixed at 4 (the qualifying pool size), not teams.length (the whole tournament).
-    const qualifierSourceRanks = buildQualifierSeeds(groupIds)
+    const qualifierSourceRanks = buildQualifierSeeds(groupIds, 1)
     const playoffGames = generatePlayoffGames({
       finalsBracketSize: 4,
       fields,
