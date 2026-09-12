@@ -178,24 +178,20 @@ function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
     groupIsComplete.set(groupId, groupGames.length > 0 && groupGames.every(g => g.cancelledReason || g.periodScores.length > 0))
   }
 
-  const standingsCache = new Map<string, ReturnType<typeof computeGroupStandings>>()
-  const standingsFor = (groupId: string) => {
-    if (!standingsCache.has(groupId)) {
-      standingsCache.set(groupId, computeGroupStandings(teams, games, groupId))
-    }
-    return standingsCache.get(groupId)!
-  }
+  // Recomputed on every submitGameResult/correctGameResult call, not cached across calls — cheap
+  // at this app's tournament sizes (small team/group counts), so not worth the added complexity.
+  const standingsByGroup = new Map(groupIds.map(id => [id, computeGroupStandings(teams, games, id)]))
 
   return games.map(g => {
     if (g.stage !== 'placement' || g.periodScores.length > 0) return g
     let { homeTeamId, awayTeamId } = g
     const { homeSourceRank, awaySourceRank } = g
     if (homeSourceRank && groupIsComplete.get(homeSourceRank.groupId)) {
-      const standing = standingsFor(homeSourceRank.groupId)[homeSourceRank.rank - 1]
+      const standing = standingsByGroup.get(homeSourceRank.groupId)?.[homeSourceRank.rank - 1]
       if (standing) homeTeamId = standing.teamId
     }
     if (awaySourceRank && groupIsComplete.get(awaySourceRank.groupId)) {
-      const standing = standingsFor(awaySourceRank.groupId)[awaySourceRank.rank - 1]
+      const standing = standingsByGroup.get(awaySourceRank.groupId)?.[awaySourceRank.rank - 1]
       if (standing) awayTeamId = standing.teamId
     }
     if (homeTeamId === g.homeTeamId && awayTeamId === g.awayTeamId) return g
