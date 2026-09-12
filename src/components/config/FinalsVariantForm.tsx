@@ -15,6 +15,14 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
   // aren't all equal; a single group never counts as "uneven".
   const hasUnevenGroups = sizes.length > 1 && new Set(sizes).size > 1
 
+  // Rough estimate assuming every group reaches every rank tier (errs toward overestimating,
+  // never under) — a round-robin of n teams plays n*(n-1)/2 games, one cohort per rank tier.
+  const groupCount = tournament.groupCount ?? 1
+  const smallestGroupSize = sizes.length > 0 ? Math.min(...sizes) : 0
+  const gamesPerCohort = (groupCount * (groupCount - 1)) / 2
+  const estimatedExtraGames = smallestGroupSize * gamesPerCohort
+  const showCapacityWarning = estimatedExtraGames >= 20
+
   return (
     <div className="space-y-4 max-w-md">
       <div className="space-y-1">
@@ -38,6 +46,16 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
             Die Gruppen sind unterschiedlich groß. Die Anzahl der Rangstufen richtet sich nach der
             kleinsten Gruppe — Teams auf niedrigeren Rängen in größeren Gruppen nehmen an keiner
             Platzierungsgruppe teil.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {showCapacityWarning && (
+        <Alert>
+          <AlertDescription>
+            Diese Konfiguration erzeugt schätzungsweise {estimatedExtraGames} zusätzliche Spiele für
+            die Endrunde. Prüfe, ob die verfügbare Hallenzeit und Feldanzahl dafür ausreichen —
+            ansonsten Gruppenanzahl reduzieren oder mehr Felder/Zeit einplanen.
           </AlertDescription>
         </Alert>
       )}
