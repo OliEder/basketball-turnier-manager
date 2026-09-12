@@ -27,3 +27,38 @@ export function computeGroupPhaseBuchholz(
   }
   return buchholz
 }
+
+export interface PlacementCohort {
+  rankTier: number       // 1 = group winners, 2 = runners-up, ...
+  placementFrom: number  // best place this cohort plays for: 1, 5, 9, ...
+  teamIds: string[]      // one team per group, in group-alphabetical order
+}
+
+/**
+ * Endrunde 4 is defined for exactly 4 groups ("Vierergruppe" per rank tier — see spec's
+ * "exakt 4 bei Endrunde 1/3/4"), so each cohort's placement range always spans 4 places
+ * (1-4, 5-8, 9-12, ...) regardless of how many groups a particular standings map happens to
+ * contain (test fixtures may use fewer groups for brevity).
+ */
+const PLACEMENT_STEP = 4
+
+/**
+ * Splits group-phase standings into placement cohorts for Endrunde 4: cohort 1 contains every
+ * group's rank-1 team, cohort 2 every group's rank-2 team, and so on. The number of cohorts is
+ * capped at the smallest group's size, so every team ends up in exactly one cohort — a group
+ * with more teams than the smallest group simply has its lowest-ranked team(s) excluded from any
+ * finals cohort (see docs/superpowers/specs/2026-09-12-finals-variants-design.md, "Anzahl Rangstufen").
+ */
+export function buildPlacementCohorts(
+  standingsByGroup: Map<string, { teamId: string }[]>,
+): PlacementCohort[] {
+  const groupIds = [...standingsByGroup.keys()].sort()
+  const smallestGroupSize = Math.min(...groupIds.map(g => standingsByGroup.get(g)!.length))
+
+  const cohorts: PlacementCohort[] = []
+  for (let rankIndex = 0; rankIndex < smallestGroupSize; rankIndex++) {
+    const teamIds = groupIds.map(groupId => standingsByGroup.get(groupId)![rankIndex].teamId)
+    cohorts.push({ rankTier: rankIndex + 1, placementFrom: rankIndex * PLACEMENT_STEP + 1, teamIds })
+  }
+  return cohorts
+}
