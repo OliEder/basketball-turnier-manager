@@ -88,12 +88,29 @@ export function generateSchedule(config: TournamentConfig): Schedule {
     }
   }
 
-  const rounds = generateRoundRobinRounds(teams.map(t => t.id))
+  const groupIds = [...new Set(teams.map(t => t.groupId ?? 'A'))].sort()
+  const roundsByGroup = new Map(
+    groupIds.map(groupId => [
+      groupId,
+      generateRoundRobinRounds(teams.filter(t => (t.groupId ?? 'A') === groupId).map(t => t.id)),
+    ]),
+  )
+  const maxRoundCount = Math.max(0, ...[...roundsByGroup.values()].map(r => r.length))
+
   const games: Game[] = []
   let gameNumber = 1
 
-  for (let roundIndex = 0; roundIndex < rounds.length; roundIndex++) {
-    for (const [homeTeamId, awayTeamId] of rounds[roundIndex]) {
+  for (let roundIndex = 0; roundIndex < maxRoundCount; roundIndex++) {
+    const batchPairs: { groupId: string; homeTeamId: string; awayTeamId: string }[] = []
+    for (const [groupId, groupRounds] of roundsByGroup) {
+      const roundPairs = groupRounds[roundIndex]
+      if (!roundPairs) continue
+      for (const [homeTeamId, awayTeamId] of roundPairs) {
+        batchPairs.push({ groupId, homeTeamId, awayTeamId })
+      }
+    }
+
+    for (const { groupId, homeTeamId, awayTeamId } of batchPairs) {
       const teamsEarliest = maxTime(
         teamNextFree.get(homeTeamId) ?? firstGameStart,
         teamNextFree.get(awayTeamId) ?? firstGameStart,
@@ -131,6 +148,7 @@ export function generateSchedule(config: TournamentConfig): Schedule {
         round: roundIndex + 1,
         gameNumber: gameNumber++,
         periodScores: [],
+        groupId,
       })
 
       fieldNextFree[bestField] = addMinutes(bestSlotStart, slotDuration)
