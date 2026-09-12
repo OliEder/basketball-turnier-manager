@@ -631,22 +631,26 @@ describe('resolvePlaceholders (via submitGameResult)', () => {
     const sf1 = {
       id: 'sf1', homeTeamId: 't1', awayTeamId: 't4', stage: 'semifinal' as const, field: 1,
       scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 1, periodScores: [],
+      matchIndex: 0, rankTier: 1,
     }
     const sf2 = {
       id: 'sf2', homeTeamId: 't2', awayTeamId: 't3', stage: 'semifinal' as const, field: 2,
       scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 2, periodScores: [],
+      matchIndex: 1, rankTier: 1,
     }
     const thirdPlace = {
       id: 'tp1', homeTeamId: null, awayTeamId: null, stage: 'third-place' as const, field: 2,
       scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 3, periodScores: [],
-      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'loser' as const },
-      awaySourceSemifinal: { semifinalIndex: 2 as const, outcome: 'loser' as const },
+      homeSourceMatch: { stage: 'semifinal' as const, matchIndex: 0, outcome: 'loser' as const },
+      awaySourceMatch: { stage: 'semifinal' as const, matchIndex: 1, outcome: 'loser' as const },
+      rankTier: 1,
     }
     const final = {
       id: 'f1', homeTeamId: null, awayTeamId: null, stage: 'final' as const, field: 1,
       scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 4, periodScores: [],
-      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'winner' as const },
-      awaySourceSemifinal: { semifinalIndex: 2 as const, outcome: 'winner' as const },
+      homeSourceMatch: { stage: 'semifinal' as const, matchIndex: 0, outcome: 'winner' as const },
+      awaySourceMatch: { stage: 'semifinal' as const, matchIndex: 1, outcome: 'winner' as const },
+      rankTier: 1,
     }
     useTournamentStore.setState({
       tournament,
@@ -685,16 +689,19 @@ describe('resolvePlaceholders (via submitGameResult)', () => {
     const sf1 = {
       id: 'sf1', homeTeamId: 't1', awayTeamId: 't4', stage: 'semifinal' as const, field: 1,
       scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 1, periodScores: [],
+      matchIndex: 0, rankTier: 1,
     }
     const sf2 = {
       id: 'sf2', homeTeamId: 't2', awayTeamId: 't3', stage: 'semifinal' as const, field: 2,
       scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 2, periodScores: [],
+      matchIndex: 1, rankTier: 1,
     }
     const final = {
       id: 'f1', homeTeamId: null, awayTeamId: null, stage: 'final' as const, field: 1,
       scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 4, periodScores: [],
-      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'winner' as const },
-      awaySourceSemifinal: { semifinalIndex: 2 as const, outcome: 'winner' as const },
+      homeSourceMatch: { stage: 'semifinal' as const, matchIndex: 0, outcome: 'winner' as const },
+      awaySourceMatch: { stage: 'semifinal' as const, matchIndex: 1, outcome: 'winner' as const },
+      rankTier: 1,
     }
     useTournamentStore.setState({
       tournament,
@@ -727,11 +734,13 @@ describe('resolvePlaceholders (via submitGameResult)', () => {
     const sf1 = {
       id: 'sf1', homeTeamId: 't1', awayTeamId: 't2', stage: 'semifinal' as const, field: 1,
       scheduledStart: '10:00', scheduledEnd: '10:30', round: 2, gameNumber: 1, periodScores: [],
+      matchIndex: 0, rankTier: 1,
     }
     const final = {
       id: 'f1', homeTeamId: null, awayTeamId: null, stage: 'final' as const, field: 1,
       scheduledStart: '11:00', scheduledEnd: '11:30', round: 3, gameNumber: 2, periodScores: [],
-      homeSourceSemifinal: { semifinalIndex: 1 as const, outcome: 'winner' as const },
+      homeSourceMatch: { stage: 'semifinal' as const, matchIndex: 0, outcome: 'winner' as const },
+      rankTier: 1,
     }
     useTournamentStore.setState({
       tournament,

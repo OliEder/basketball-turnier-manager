@@ -244,37 +244,44 @@ function withdrawNonSwissTeam(
 }
 
 /**
- * Determines the winner/loser team ID of a semifinal game, or undefined if it hasn't been scored
- * yet or was cancelled (a cancelled semifinal has no meaningful winner/loser to feed forward).
+ * Determines the winner/loser team ID of a completed match, or undefined if it hasn't been scored
+ * yet or was cancelled (a cancelled match has no meaningful winner/loser to feed forward).
  */
-function semifinalOutcomeTeamId(semifinal: Game | undefined, outcome: 'winner' | 'loser'): string | undefined {
-  if (!semifinal || semifinal.cancelledReason || semifinal.periodScores.length === 0) return undefined
-  if (!semifinal.homeTeamId || !semifinal.awayTeamId) return undefined
-  const { home, away } = computeFinalScore(semifinal)
+function matchOutcomeTeamId(match: Game | undefined, outcome: 'winner' | 'loser'): string | undefined {
+  if (!match || match.cancelledReason || match.periodScores.length === 0) return undefined
+  if (!match.homeTeamId || !match.awayTeamId) return undefined
+  const { home, away } = computeFinalScore(match)
   if (home === away) return undefined // no winner/loser on an unresolved draw
-  const winnerId = home > away ? semifinal.homeTeamId : semifinal.awayTeamId
-  const loserId = home > away ? semifinal.awayTeamId : semifinal.homeTeamId
+  const winnerId = home > away ? match.homeTeamId : match.awayTeamId
+  const loserId = home > away ? match.awayTeamId : match.homeTeamId
   return outcome === 'winner' ? winnerId : loserId
 }
 
 /**
- * Fills in real team IDs on any 'placement' (Endrunde 4), 'semifinal' (Endrunde 3), 'final', or
- * 'third-place' game whose source pointers can now be resolved:
+ * Fills in real team IDs on any 'placement' (Endrunde 4) or KO-bracket game (Endrunde 1/3: any of
+ * 'round-of-32' | 'round-of-16' | 'quarterfinal' | 'semifinal' | 'final' | 'third-place') whose
+ * source pointers can now be resolved:
  *
- * - 'placement' and 'semifinal' games resolve from homeSourceRank/awaySourceRank once the pointed-at
- *   group is fully scored — a group counts as "fully scored" when every one of its group-stage
- *   games has either a result or a cancellation reason (mirrors the existing isRoundFullyEvaluated
- *   pattern, but per-group instead of per-swiss-round).
- * - 'final' and 'third-place' games resolve from homeSourceSemifinal/awaySourceSemifinal once the
- *   pointed-at semifinal has itself been scored (winner feeds the final, loser feeds third-place).
+ * - Any game with homeSourceRank/awaySourceRank (placement games, and a KO bracket's qualifying
+ *   round) resolves from group-phase standings once the pointed-at group is fully scored — a
+ *   group counts as "fully scored" when every one of its group-stage games has either a result or
+ *   a cancellation reason (mirrors the existing isRoundFullyEvaluated pattern, but per-group
+ *   instead of per-swiss-round).
+ * - Any game with homeSourceMatch/awaySourceMatch (every KO round after the qualifying round)
+ *   resolves once the pointed-at match (same rankTier, given stage + matchIndex) has itself been
+ *   scored — its winner feeds one side, its loser the other, per each pointer's `outcome`.
+ *
+ * Match lookups are scoped by rankTier: a future feature (Endrunde 1) runs multiple independent
+ * brackets in parallel (one per rank tier), so a "semifinal, matchIndex 0" pointer must resolve
+ * against THIS bracket's semifinal, not some other rank tier's.
  *
  * Re-runs unconditionally for every such game whose OWN periodScores are still empty, so a later
- * correction (of a group-stage OR semifinal result) can flip the resolved team — the source
+ * correction (of a group-stage OR bracket-match result) can flip the resolved team — the source
  * pointers are never cleared, exactly so this re-resolution can happen without needing separate
  * bookkeeping. A game that has already been scored itself is left untouched, regardless of what its
  * source stage does afterward. A withdrawn team is excluded from the qualifying ranks (see
  * standingsByGroup below) — walkover wins it banked before withdrawing must not let it occupy a
- * placement-cohort or semifinal slot.
+ * placement-cohort or bracket slot.
  */
 function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
   const groupIds = [...new Set(teams.map(t => t.groupId ?? 'A'))]
@@ -293,17 +300,23 @@ function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
     groupIds.map(id => [id, computeGroupStandings(teams, games, id).filter(s => !s.withdrawn)]),
   )
 
-  const semifinalsByIndex = new Map<1 | 2, Game>()
-  const semifinals = games.filter(g => g.stage === 'semifinal')
-  if (semifinals[0]) semifinalsByIndex.set(1, semifinals[0])
-  if (semifinals[1]) semifinalsByIndex.set(2, semifinals[1])
+  // Keyed by `${rankTier ?? 1}:${stage}:${matchIndex}` — rankTier defaults to 1 for the
+  // pre-existing simple round-robin+finals feature and Endrunde 3, neither of which sets rankTier.
+  const matchesByKey = new Map<string, Game>()
+  for (const g of games) {
+    if (g.matchIndex === undefined) continue
+    matchesByKey.set(`${g.rankTier ?? 1}:${g.stage}:${g.matchIndex}`, g)
+  }
 
   return games.map(g => {
     if (g.periodScores.length > 0) return g
-    if (g.stage !== 'placement' && g.stage !== 'semifinal' && g.stage !== 'final' && g.stage !== 'third-place') return g
+    if (g.stage !== 'placement' && g.stage !== 'round-of-32' && g.stage !== 'round-of-16' &&
+        g.stage !== 'quarterfinal' && g.stage !== 'semifinal' && g.stage !== 'final' && g.stage !== 'third-place') {
+      return g
+    }
 
     let { homeTeamId, awayTeamId } = g
-    const { homeSourceRank, awaySourceRank, homeSourceSemifinal, awaySourceSemifinal } = g
+    const { homeSourceRank, awaySourceRank, homeSourceMatch, awaySourceMatch } = g
 
     if (homeSourceRank && groupIsComplete.get(homeSourceRank.groupId)) {
       const standing = standingsByGroup.get(homeSourceRank.groupId)?.[homeSourceRank.rank - 1]
@@ -313,12 +326,14 @@ function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
       const standing = standingsByGroup.get(awaySourceRank.groupId)?.[awaySourceRank.rank - 1]
       if (standing) awayTeamId = standing.teamId
     }
-    if (homeSourceSemifinal) {
-      const teamId = semifinalOutcomeTeamId(semifinalsByIndex.get(homeSourceSemifinal.semifinalIndex), homeSourceSemifinal.outcome)
+    if (homeSourceMatch) {
+      const sourceGame = matchesByKey.get(`${g.rankTier ?? 1}:${homeSourceMatch.stage}:${homeSourceMatch.matchIndex}`)
+      const teamId = matchOutcomeTeamId(sourceGame, homeSourceMatch.outcome)
       if (teamId) homeTeamId = teamId
     }
-    if (awaySourceSemifinal) {
-      const teamId = semifinalOutcomeTeamId(semifinalsByIndex.get(awaySourceSemifinal.semifinalIndex), awaySourceSemifinal.outcome)
+    if (awaySourceMatch) {
+      const sourceGame = matchesByKey.get(`${g.rankTier ?? 1}:${awaySourceMatch.stage}:${awaySourceMatch.matchIndex}`)
+      const teamId = matchOutcomeTeamId(sourceGame, awaySourceMatch.outcome)
       if (teamId) awayTeamId = teamId
     }
 
