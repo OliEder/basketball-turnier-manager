@@ -116,10 +116,12 @@ klickt.
 
 `e2e/accessibility.spec.ts` prüft mit `@axe-core/playwright` gegen `wcag2a`, `wcag2aa`, `wcag21a`,
 `wcag21aa`-Regelsätze, gefiltert auf `impact === 'serious' \|\| impact === 'critical'` — kleinere
-(`moderate`/`minor`) Verstöße lassen den Test NICHT scheitern. Geprüft werden acht kuratierte
+(`moderate`/`minor`) Verstöße lassen den Test NICHT scheitern. Geprüft werden zwölf kuratierte
 Seiten-/Zustandskombinationen (Teams leer/mit Team, Konfiguration, Schweizer Ergebniserfassung,
--Übersicht, Score-Entry-Zustand, manuelle Paarungsdialog-Zustand) — nicht jede Seite/jeder Zustand
-der App ist abgedeckt (siehe Kapitel 10, 11).
+-Übersicht, Score-Entry-Zustand, manuelle Paarungsdialog-Zustand, Export-Seite, Endrunde-4-
+Ergebnisseite, Endrunde-1-Bracket-Ergebnisseite, kombinierte Endstand-Seite) — nicht jede
+Seite/jeder Zustand der App ist abgedeckt (siehe Kapitel 10, 11.8). Diese Liste soll bei jeder
+neuen Seite/jedem signifikanten neuen UI-Zustand erweitert werden (siehe `AGENTS.md`).
 
 ## 8.11 Keine Internationalisierung
 

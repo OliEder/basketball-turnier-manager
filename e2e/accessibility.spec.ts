@@ -116,4 +116,85 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
 
     await expectNoSeriousViolations(page)
   })
+
+  test('export page', async ({ page }) => {
+    await page.goto('/export')
+    await expectNoSeriousViolations(page)
+  })
+
+  test('Endrunde 4 results page (Platzierungsgruppen)', async ({ page }) => {
+    // 8 teams, 2 groups of 4 -> smallest group size 4 -> up to 4 rank tiers, each a
+    // round-robin placement cohort. Minimal valid Endrunde-4 setup.
+    await page.goto('/teams')
+    for (let i = 1; i <= 8; i++) {
+      await addTeam(page, `Team ${i}`)
+    }
+    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await selectMode(page, 'Gruppenphase + Endrunde')
+    await page.getByLabel('Anzahl Gruppen').fill('2')
+    for (let i = 5; i <= 8; i++) {
+      await page.getByLabel(`Gruppe für Team ${i}`).selectOption('B')
+    }
+    await page.getByLabel('Endrunden-Variante').selectOption('endrunde-4')
+    await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
+    await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
+
+    await page.getByRole('link', { name: 'Endrunde: Ergebnisse' }).click()
+    await expect(page.getByLabel('Status')).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('Endrunde 1 bracket results page (per-rank-tier tabs)', async ({ page }) => {
+    // 8 teams, 2 groups of 4 -> group phase produces real group-stage games; the KO-bracket
+    // tabs are visible immediately, even before any group result is entered.
+    await page.goto('/teams')
+    for (let i = 1; i <= 8; i++) {
+      await addTeam(page, `Team ${i}`)
+    }
+    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await selectMode(page, 'Gruppenphase + Endrunde')
+    await page.getByLabel('Anzahl Gruppen').fill('2')
+    for (let i = 5; i <= 8; i++) {
+      await page.getByLabel(`Gruppe für Team ${i}`).selectOption('B')
+    }
+    await page.getByLabel('Endrunden-Variante').selectOption('endrunde-1')
+    await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
+    await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
+
+    await page.getByRole('link', { name: 'Endrunde: K.-o.-Ergebnisse' }).click()
+    await expect(page.getByRole('button', { name: /Rangstufe 1/ })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('final standings page (combined 1..N ranking)', async ({ page }) => {
+    // "Endstand" only exists for Endrunde 1 and Endrunde 4 (see AppShell.tsx's nav-item
+    // gating) -- Endrunde 3 has no combined standings page at all, only its KO-results page.
+    // Use Endrunde 4 (2 groups of 4), play the group phase so the placement-cohort games
+    // (fed by group standings) resolve, then check the standings table renders real rows.
+    await page.goto('/teams')
+    for (let i = 1; i <= 8; i++) {
+      await addTeam(page, `Team ${i}`)
+    }
+    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await selectMode(page, 'Gruppenphase + Endrunde')
+    await page.getByLabel('Anzahl Gruppen').fill('2')
+    for (let i = 5; i <= 8; i++) {
+      await page.getByLabel(`Gruppe für Team ${i}`).selectOption('B')
+    }
+    await page.getByLabel('Endrunden-Variante').selectOption('endrunde-4')
+    await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
+    await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
+
+    // 2 groups of 4 -> 6 games per group (single round-robin) -> 12 group games total.
+    await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+    for (let i = 0; i < 12; i++) {
+      await page.getByLabel(/^Ergebnis Heim, Spiel/).first().fill('20')
+      await page.getByLabel(/^Ergebnis Auswärts, Spiel/).first().fill('10')
+      await page.getByRole('button', { name: 'Speichern' }).first().click()
+    }
+
+    await page.getByRole('link', { name: 'Endstand' }).click()
+    await expect(page.getByText('1.', { exact: true })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
 })

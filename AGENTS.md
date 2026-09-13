@@ -20,6 +20,22 @@ Testabsicherung.
 Diese Pflege ist kein optionaler Nice-to-have-Schritt, sondern Teil des Brainstorming-Ablaufs für
 dieses Projekt.
 
+## Barrierefreiheits-Tests (A11y) aktuell halten
+
+`e2e/accessibility.spec.ts` prüft eine kuratierte, NICHT erschöpfende Liste von
+Seiten-/Zustandskombinationen gegen WCAG 2.1 AA (`@axe-core/playwright`, siehe arc42 Kapitel 8.10).
+Diese Liste war bereits einmal unvollständig (vier Seiten fehlten, siehe arc42 Kapitel 11.8) — das
+darf sich nicht wiederholen:
+
+- Bei jeder neuen Seite/Route einen entsprechenden Test in `e2e/accessibility.spec.ts` ergänzen.
+- Bei jedem signifikanten neuen UI-Zustand einer bestehenden Seite (neuer Dialog, neue
+  bedingte Anzeige, neuer Fehler-/Leerzustand) prüfen, ob er ebenfalls einen eigenen Testfall
+  verdient — analog zu den bereits vorhandenen Zustands-Varianten (z. B. "Konfiguration mit
+  Schweizer Modus", "manuelle Paarungsdialog-Zustand").
+- Nach Ergänzung/Änderung die Zahl der kuratierten Kombinationen in `docs/architecture/arc42/08-
+  querschnittliche-konzepte.md` (Kapitel 8.10) und `10-qualitaetsanforderungen.md` (QS-4)
+  konsistent nachziehen.
+
 ## Architekturdokumentation
 
 Vollständige arc42-Architekturdokumentation liegt unter `docs/architecture/arc42/`

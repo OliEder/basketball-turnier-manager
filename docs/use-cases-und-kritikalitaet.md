@@ -96,7 +96,7 @@ bleibt als schnelles Nachschlage-Cockpit über alle Use Cases hinweg erhalten.
 | UC7 | Turnier aus JSON importieren | 🟡 | siehe Slices unten | 🟡 teilweise |
 | N1 | Team-Logos in Spielplan/Ergebnissen | ⚪ | Unit-Tests für Alt-Text-Behandlung | ✅ |
 | N2 | Eingebautes Anleitungs-Handbuch (`/anleitung`) | ⚪ | Kein Test (statischer Inhalt) | — |
-| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | 🟡 (querschnittlich, kein eigener Use Case) | `e2e/accessibility.spec.ts` | ✅ (8 kuratierte Seiten) |
+| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | 🟡 (querschnittlich, kein eigener Use Case) | `e2e/accessibility.spec.ts` | ✅ (12 kuratierte Seiten) |
 
 ---
 
@@ -451,7 +451,7 @@ beschädigen oder teilweise überschreiben.
 | --- | --- | --- | --- |
 | N1 | Team-Logos in Spielplan/Ergebnissen | Rein visuelle Aufwertung, dekorativ (`alt=""`). | Unit-Tests für die Alt-Text-Behandlung |
 | N2 | Eingebautes Anleitungs-Handbuch (`/anleitung`) | Statische Hilfeseite in der App. | Kein Test (rein statischer Inhalt) |
-| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | Kein eigener Use Case, sondern eine querschnittliche Qualitätsanforderung an UC1-UC7 (siehe arc42 Kapitel 10, QS-4). | `e2e/accessibility.spec.ts`, 8 kuratierte Seiten-/Zustandskombinationen |
+| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | Kein eigener Use Case, sondern eine querschnittliche Qualitätsanforderung an UC1-UC7 (siehe arc42 Kapitel 10, QS-4). | `e2e/accessibility.spec.ts`, 12 kuratierte Seiten-/Zustandskombinationen |
 
 ## Bekannte Vorfälle (Beispiele, warum diese Übersicht existiert)
 
