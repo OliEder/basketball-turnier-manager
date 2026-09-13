@@ -55,6 +55,11 @@ const DEFAULT_TOURNAMENT: TournamentConfig = {
 interface TournamentStore {
   tournament: TournamentConfig
   schedule: Schedule | null
+  // Set by generateAndSaveSchedule when schedule generation throws (e.g. the venue is too short
+  // for the configured games/blackout periods) -- null otherwise. The previous schedule (if any)
+  // is deliberately left untouched in this case, so this flag is the only way the UI can tell the
+  // organizer that their last generation attempt did NOT take effect.
+  scheduleGenerationError: string | null
   isTournamentLocked: () => boolean
   // Tournament actions
   setTournamentName: (name: string) => void
@@ -345,6 +350,7 @@ function resolvePlaceholders(games: Game[], teams: Team[]): Game[] {
 export const useTournamentStore = create<TournamentStore>((set, get) => ({
   tournament: loadTournament() ?? DEFAULT_TOURNAMENT,
   schedule: loadSchedule(),
+  scheduleGenerationError: null,
 
   isTournamentLocked: () => {
     const { schedule } = get()
@@ -477,8 +483,22 @@ export const useTournamentStore = create<TournamentStore>((set, get) => ({
   },
 
   generateAndSaveSchedule: () => {
-    const schedule = generateSchedule(get().tournament)
-    set({ schedule })
+    let schedule: Schedule
+    try {
+      schedule = generateSchedule(get().tournament)
+    } catch (err) {
+      // generateSchedule throws (rather than returning a partial/empty result) when the venue
+      // genuinely can't fit the configured games -- e.g. too many blackout periods, or too short
+      // an availability window for the endrunde bracket. Surface this as an explicit error and
+      // leave any existing schedule untouched, instead of letting the exception propagate
+      // uncaught: without this, a failed regeneration attempt would silently discard nothing
+      // (the old schedule is never overwritten) but also give the organizer no indication that
+      // their change was never actually applied -- they'd keep looking at a stale schedule
+      // believing it already reflects their latest configuration.
+      set({ scheduleGenerationError: err instanceof Error ? err.message : String(err) })
+      return
+    }
+    set({ schedule, scheduleGenerationError: null })
     saveSchedule(schedule)
   },
 

@@ -19,7 +19,7 @@ type ConfirmTarget = 'tournament' | 'venue' | 'regenerate' | 'import' | 'reset' 
 
 export default function ConfigPage() {
   const navigate = useNavigate()
-  const { tournament, schedule, generateAndSaveSchedule, isTournamentLocked, importTournament, resetTournament } = useTournamentStore()
+  const { tournament, schedule, scheduleGenerationError, generateAndSaveSchedule, isTournamentLocked, importTournament, resetTournament } = useTournamentStore()
   const locked = isTournamentLocked()
 
   const [tournamentUnlocked, setTournamentUnlocked] = useState(false)
@@ -29,7 +29,8 @@ export default function ConfigPage() {
   const [importError, setImportError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const canGenerate = tournament.teams.length >= 2
+  const needsFinalsVariant = tournament.mode === 'round-robin+finals' && (tournament.groupCount ?? 1) > 1 && !tournament.finalsVariant
+  const canGenerate = tournament.teams.length >= 2 && !needsFinalsVariant
 
   const handleGenerateClick = () => {
     if (locked) {
@@ -115,15 +116,32 @@ export default function ConfigPage() {
           </Button>
         </div>
 
-        {!canGenerate && (
+        {tournament.teams.length < 2 && (
           <Alert>
             <AlertDescription>Mindestens 2 Teams erforderlich.</AlertDescription>
+          </Alert>
+        )}
+
+        {needsFinalsVariant && (
+          <Alert>
+            <AlertDescription>
+              Bitte zuerst eine Endrunden-Variante auswählen (Abschnitt „Endrunden-Variante" oben) — bei mehreren Gruppen kann sonst kein sinnvoller Spielplan für die Endrunde erzeugt werden.
+            </AlertDescription>
           </Alert>
         )}
 
         {schedule && schedule.games.length === 0 && (
           <Alert>
             <AlertDescription>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</AlertDescription>
+          </Alert>
+        )}
+
+        {scheduleGenerationError && (
+          <Alert>
+            <AlertDescription>
+              Zeitplan konnte nicht neu generiert werden: {scheduleGenerationError} — der zuletzt
+              erfolgreich generierte Zeitplan bleibt unverändert bestehen.
+            </AlertDescription>
           </Alert>
         )}
       </section>

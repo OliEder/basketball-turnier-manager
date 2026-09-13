@@ -29,6 +29,10 @@ function buildLargeTournamentFixture(teamCount: number, groupCount: number) {
     name: 'Großturnier 64',
     mode: 'round-robin+finals',
     finalsBracketSize: 4,
+    // Required whenever groupCount > 1 -- without a chosen variant the generic single-bracket
+    // fallback produces a semifinal/final whose placeholders can never resolve to real teams.
+    // endrunde-1 needs an exact power-of-2 group count; 16 qualifies.
+    finalsVariant: 'endrunde-1',
     groupCount,
     fields: 8,
     gameSettings: {

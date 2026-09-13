@@ -22,6 +22,10 @@ test('organizer sets up a multi-group round-robin tournament and sees per-group 
     await page.getByLabel(`Gruppe für Team ${i}`).selectOption('B')
   }
 
+  // Required whenever groupCount > 1 -- without a chosen variant the generic single-bracket
+  // fallback produces a semifinal/final whose placeholders can never resolve to real teams.
+  await page.getByLabel('Endrunden-Variante').selectOption('endrunde-4')
+
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 

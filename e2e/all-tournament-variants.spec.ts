@@ -45,6 +45,13 @@ test('Variante 2: Gruppenphase + Endrunde, eine Gruppe (unverändertes Altverhal
 
   await page.getByRole('link', { name: 'Konfiguration' }).click()
   await selectMode(page, 'Gruppenphase + Endrunde')
+  // 8 teams suggest 2 groups by default (see group-suggestion.ts) -- explicitly force a single
+  // group here, since that's what this test actually intends to exercise ("eine Gruppe"). Without
+  // this, groupCount silently stayed at the suggested 2 while every team stayed in group A by
+  // coincidence, which masked a real bug: a groupCount > 1 config with no chosen finals variant
+  // can never resolve its semifinal/final placeholders (see "Variante 3" below, and the
+  // config-validation E2E spec).
+  await page.getByLabel('Anzahl Gruppen').fill('1')
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
@@ -72,6 +79,10 @@ test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) =>
   for (let i = 5; i <= 8; i++) {
     await page.getByLabel(`Gruppe für Team ${i}`).selectOption('B')
   }
+
+  // Required whenever groupCount > 1 -- without a chosen variant the generic single-bracket
+  // fallback produces a semifinal/final whose placeholders can never resolve to real teams.
+  await page.getByLabel('Endrunden-Variante').selectOption('endrunde-4')
 
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
