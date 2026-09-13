@@ -318,6 +318,12 @@ describe('generateSchedule with round-robin+finals mode', () => {
     expect(koGames.filter(g => g.rankTier === 2)).toHaveLength(4)
     expect(schedule.games.some(g => g.stage === 'placement')).toBe(false)
 
+    // Regression guard: buildBracket must receive and stamp placementFrom on every game so
+    // computeEndrunde1Standings offsets each rank tier's places correctly (tier 1 -> 1..4,
+    // tier 2 -> 5..8) instead of every tier being placed as if it were tier 1.
+    expect(koGames.filter(g => g.rankTier === 1).every(g => g.placementFrom === 1)).toBe(true)
+    expect(koGames.filter(g => g.rankTier === 2).every(g => g.placementFrom === 5)).toBe(true)
+
     const rankTier1Semifinals = koGames.filter(g => g.rankTier === 1 && g.stage === 'semifinal')
     expect(rankTier1Semifinals[0].homeSourceRank).toEqual({ groupId: 'A', rank: 1 })
     expect(rankTier1Semifinals[0].awaySourceRank).toEqual({ groupId: 'D', rank: 1 })

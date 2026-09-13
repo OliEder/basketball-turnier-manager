@@ -197,6 +197,9 @@ export function generateSchedule(config: TournamentConfig): Schedule {
       const bracketGames = buildBracket({
         bracketSize: groupIds.length as 2 | 4 | 8 | 16 | 32,
         rankTier,
+        // Same formula as buildPlacementCohorts (Endrunde 4): tier 1 plays for places 1..N, tier 2
+        // for N+1..2N, etc. -- keeps computeEndrunde1Standings' place numbering correct per tier.
+        placementFrom: (rankTier - 1) * groupIds.length + 1,
         sourceRanks,
         fields,
         gameSettings,

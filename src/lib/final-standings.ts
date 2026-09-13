@@ -110,9 +110,13 @@ export function computeEndrunde1Standings(_teams: Team[], games: Game[]): FinalS
     if (pending) {
       // Without a completed final AND third-place game there's no reliable way to name all 4
       // teams in this tier yet (a still-unresolved semifinal upstream may mean the placeholder
-      // team IDs on final/thirdPlace aren't real teams at all) -- report the tier as 4 pending
-      // rows with whatever team IDs are currently known, consistent with computeFinalStandings'
-      // "never silently omit a team" rule.
+      // team IDs on final/thirdPlace aren't real teams at all) -- report only the places whose
+      // team ID is already known directly on final/thirdPlace, silently omitting the rest. Unlike
+      // computeFinalStandings, this does NOT resolve homeSourceMatch/awaySourceMatch chains to
+      // backfill still-unknown teams, so a tier whose semifinals are done but final/third-place
+      // aren't yet played can render with some of its 4 places missing entirely, not as 4
+      // pending placeholder rows -- a caller wanting the stronger guarantee needs to resolve
+      // those chains itself first.
       const knownIds = [final.homeTeamId, final.awayTeamId, thirdPlace.homeTeamId, thirdPlace.awayTeamId]
       knownIds.forEach((teamId, index) => {
         if (teamId) results.push({ teamId, place: placementFrom + index, pending: true })
