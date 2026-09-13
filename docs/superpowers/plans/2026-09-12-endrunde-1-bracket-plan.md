@@ -18,6 +18,17 @@ two-semifinal assumption. Add a new tab-based results page and a new final-stand
 
 **Tech Stack:** TypeScript, Vitest (unit + coverage), Playwright (E2E), React, Zustand.
 
+> **Post-Task-10 correction (found by Task 10's code-quality review):** `BuildBracketInput` (Task
+> 6) and every `buildBracket()` call site shown in Tasks 6 and 8 below are missing a required
+> `placementFrom: number` field. Without it, `buildBracket()` never stamps `placementFrom` on any
+> game it produces, so `computeEndrunde1Standings` (Task 10) would place every rank tier beyond
+> the first as if it were tier 1. This was already fixed directly in the shipped code (commit
+> `5309053`): `BuildBracketInput` gained a required `placementFrom` field, every game literal in
+> `buildBracket()` now includes it, and `generateSchedule`'s `endrunde-1` branch (Task 8) computes
+> it via `(rankTier - 1) * groupIds.length + 1` (the same formula `buildPlacementCohorts` uses for
+> Endrunde 4). The task sections below are left as originally written for history — anyone
+> re-deriving this plan from scratch should add `placementFrom` to every `buildBracket()` call.
+
 ---
 
 ## Important context for every task
