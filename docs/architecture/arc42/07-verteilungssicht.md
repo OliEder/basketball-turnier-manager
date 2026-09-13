@@ -40,8 +40,13 @@ Fünf unabhängige, parallel laufende Jobs bei jedem Pull Request und jedem Push
 | `build` | Verifiziert, dass ein Produktions-Build gelingt | `npm run build` |
 | `e2e-tests` | Vollständige Playwright-Suite (Chromium) gegen den lokalen Dev-Server | `npm run test:e2e` |
 
-Bei einem E2E-Fehlschlag wird der Playwright-HTML-Report als Artefakt hochgeladen
-(`playwright-report/`, 7 Tage Aufbewahrung).
+Drei Jobs laden ihren Report immer (nicht nur bei Fehlschlag) als CI-Artefakt hoch, damit er auch
+nach einem grünen Lauf einsehbar bleibt (14 Tage Aufbewahrung):
+
+- `unit-tests` → `unit-test-report` (Vitest-JUnit-XML, `test-results/junit.xml`).
+- `coverage` → `coverage-report` (durchklickbarer HTML-Coverage-Report, `coverage/index.html`).
+- `e2e-tests` → `playwright-report` (Playwright-HTML-Report, inkl. Screenshots/Traces
+  fehlgeschlagener Läufe, falls vorhanden).
 
 **Nicht im Repository als YAML verifiziert, aber laut Projektkontext aktiv:** GitHub CodeQL
 (Standard-Sicherheitsscan) — vermutlich über GitHubs Default-Setup aktiviert, nicht über eine
