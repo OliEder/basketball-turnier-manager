@@ -22,7 +22,8 @@ dieses Projekt.
 
 ## Architekturdokumentation
 
-Vollständige arc42-Architekturdokumentation liegt unter `docs/architecture/arc42/`. Bei größeren
+Vollständige arc42-Architekturdokumentation liegt unter `docs/architecture/arc42/`
+(Einstieg: `docs/architecture/arc42/00-uebersicht.md`). Bei größeren
 strukturellen Änderungen (neue Architekturentscheidung, neuer Baustein, geänderte Kopplung
 zwischen Modulen) das passende Kapitel dort ergänzen, insbesondere:
 
