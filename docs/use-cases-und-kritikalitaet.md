@@ -92,7 +92,7 @@ bleibt als schnelles Nachschlage-Cockpit über alle Use Cases hinweg erhalten.
 | UC3 | Ergebnis korrigieren | 🔴 | siehe Slices unten | ✅ |
 | UC4 | Team zurückziehen | 🔴 (Swiss) / 🟡 (Nicht-Swiss) | siehe Slices unten | 🟡 teilweise, siehe Risiko R1 |
 | UC5 | Bei erschöpfter automatischer Paarung manuell paaren (Swiss) | 🟡 | siehe Slices unten | ✅ |
-| UC6 | Turnierstand exportieren (PDF/HTML/JSON) | 🔴 (JSON) / ⚪ (PDF/HTML) | siehe Slices unten | 🟡 teilweise |
+| UC6 | Turnierstand exportieren (PDF/HTML/JSON) | 🔴 (JSON) / ⚪ (PDF/HTML) | siehe Slices unten | ✅ (JSON) / 🟡 teilweise (PDF/HTML) |
 | UC7 | Turnier aus JSON importieren | 🟡 | siehe Slices unten | 🟡 teilweise |
 | N1 | Team-Logos in Spielplan/Ergebnissen | ⚪ | Unit-Tests für Alt-Text-Behandlung | ✅ |
 | N2 | Eingebautes Anleitungs-Handbuch (`/anleitung`) | ⚪ | Kein Test (statischer Inhalt) | — |
@@ -385,11 +385,12 @@ team count odd reshapes a not-yet-drawn future round to include a bye").
 **Akzeptanzkriterium:** Die exportierte Datei enthält den vollständigen, aktuellen Turnierstand
 und lässt sich verlustfrei wieder importieren (siehe UC7).
 
-**Testabsicherung:** **Kein dedizierter E2E-Test für den Export-Klick selbst.** Indirekt über
+**Testabsicherung:** `e2e/export.spec.ts` ("organizer downloads a full JSON backup of the
+tournament") — klickt „JSON herunterladen" in einem echten Browser, fängt den ausgelösten
+Download ab und prüft den tatsächlichen Dateiinhalt (Teams, Zeitplan, `exportedAt`). Ergänzt um
 `json-import.ts`-Unit-Tests (Rundtrip-Kompatibilität) und
-`e2e/multi-group-round-robin-large.spec.ts` (Import-Seite desselben Formats) abgedeckt. **Lücke:**
-der Export-Klick selbst ist nicht E2E-getestet — für einen 🔴-kritischen Use Case eigentlich
-Pflicht (siehe Kritikalitäts-Skala).
+`e2e/multi-group-round-robin-large.spec.ts` (Import-Seite desselben Formats). **Vormalige Lücke
+(Risiko R3) behoben am 2026-09-13.**
 
 ### Erweiternder Slice: PDF-Export (⚪ nice-to-have)
 
@@ -482,11 +483,9 @@ diese Übersicht künftig verhindern soll:
   Bracket-Größe (bewusste Design-Entscheidung, siehe `docs/superpowers/specs/2026-09-12-endrunde-1-bracket-design.md`).
   Bei einem 8er- oder größeren Bracket bleiben Plätze in der Mitte der Rangstufe unbelegt — für einen
   Organisator, der das nicht weiß, wirkt das wie eine fehlende Funktion.
-- **R3** (neu identifiziert bei der Use-Case-2.0-Umstrukturierung): UC6 (JSON-Export) ist als
-  🔴-kritisch eingestuft (einziger Datensicherungsweg, siehe arc42 ADR-01), hat aber keinen
-  dedizierten E2E-Test für den Export-Klick selbst — nur indirekte Abdeckung über den Import-Pfad.
-  Das widerspricht der eigenen Kritikalitäts-Skala dieses Dokuments (🔴 verlangt E2E-Abdeckung des
-  vollständigen Organizer-Flows) und sollte in einer künftigen Session nachgezogen werden.
+- ~~**R3**: UC6 (JSON-Export) hatte keinen dedizierten E2E-Test für den Export-Klick selbst.~~
+  **Behoben am 2026-09-13** — `e2e/export.spec.ts` klickt den Export-Button in einem echten
+  Browser und verifiziert den tatsächlichen Downloadinhalt.
 
 ## Verweise
 
