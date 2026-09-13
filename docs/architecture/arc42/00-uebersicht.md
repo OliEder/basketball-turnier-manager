@@ -28,4 +28,4 @@ Brainstorming-Session gepflegt wird.
 Bei größeren strukturellen Änderungen (neue Architekturentscheidung, neuer Baustein, geänderte
 Kopplung zwischen Modulen) das passende Kapitel hier ergänzen — insbesondere Kapitel 08
 (Querschnittliche Konzepte), 09 (Architekturentscheidungen) und 11 (Risiken). Diese Regel ist in
-`CLAUDE.md` verankert.
+`AGENTS.md` verankert.

@@ -8,7 +8,7 @@ Organisator-Sicht wichtigen Ablauf brechen — genau das ist am 2026-09-13 dreim
 
 **Pflegeregel:** Bei jeder `superpowers:brainstorming`-Session wird dieses Dokument geprüft und bei
 Bedarf ergänzt/korrigiert — neue Use-Cases, geänderte Kritikalität, neue/entfernte Testabsicherung.
-Diese Regel ist in `CLAUDE.md` verankert.
+Diese Regel ist in `AGENTS.md` verankert.
 
 ## Kritikalitäts-Skala
 

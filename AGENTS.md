@@ -1,4 +1,4 @@
-# Projekt-Hinweise für Claude
+# Projekt-Hinweise für KI-Coding-Agenten
 
 ## Use-Case-Übersicht pflegen
 
