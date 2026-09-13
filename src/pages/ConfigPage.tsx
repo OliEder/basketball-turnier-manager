@@ -19,7 +19,7 @@ type ConfirmTarget = 'tournament' | 'venue' | 'regenerate' | 'import' | 'reset' 
 
 export default function ConfigPage() {
   const navigate = useNavigate()
-  const { tournament, schedule, generateAndSaveSchedule, isTournamentLocked, importTournament, resetTournament } = useTournamentStore()
+  const { tournament, schedule, scheduleGenerationError, generateAndSaveSchedule, isTournamentLocked, importTournament, resetTournament } = useTournamentStore()
   const locked = isTournamentLocked()
 
   const [tournamentUnlocked, setTournamentUnlocked] = useState(false)
@@ -133,6 +133,15 @@ export default function ConfigPage() {
         {schedule && schedule.games.length === 0 && (
           <Alert>
             <AlertDescription>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</AlertDescription>
+          </Alert>
+        )}
+
+        {scheduleGenerationError && (
+          <Alert>
+            <AlertDescription>
+              Zeitplan konnte nicht neu generiert werden: {scheduleGenerationError} — der zuletzt
+              erfolgreich generierte Zeitplan bleibt unverändert bestehen.
+            </AlertDescription>
           </Alert>
         )}
       </section>

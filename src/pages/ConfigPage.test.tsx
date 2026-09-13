@@ -53,6 +53,27 @@ describe('ConfigPage', () => {
     expect(useTournamentStore.getState().schedule!.games.length).toBeGreaterThan(0)
   })
 
+  it('shows an explanatory alert instead of silently keeping a stale schedule when generation throws', () => {
+    const { addTeam, setMode, setGroupCount, setFinalsVariant } = useTournamentStore.getState()
+    for (let i = 1; i <= 8; i++) addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.setState(s => ({
+      tournament: {
+        ...s.tournament,
+        teams: s.tournament.teams.map((t, i) => ({ ...t, groupId: String.fromCharCode(65 + Math.floor(i / 2)) })),
+        venue: { ...s.tournament.venue, availabilityWindows: [{ start: '09:00', end: '09:05' }] },
+      },
+    }))
+    setMode('round-robin+finals')
+    setGroupCount(4)
+    setFinalsVariant('endrunde-3')
+
+    renderConfigPage()
+    fireEvent.click(screen.getByRole('button', { name: /zeitplan generieren/i }))
+
+    expect(screen.getByText(/zeitplan konnte nicht neu generiert werden/i)).toBeInTheDocument()
+    expect(useTournamentStore.getState().schedule).toBeNull()
+  })
+
   it('disables "Zeitplan generieren" for multiple groups without a chosen finals variant', () => {
     const { addTeam, setMode, setGroupCount } = useTournamentStore.getState()
     for (let i = 1; i <= 8; i++) addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })

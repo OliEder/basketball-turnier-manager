@@ -992,3 +992,67 @@ describe('computeGroupStandings walkover scoring (via group-stage withdrawal)', 
     expect(standings.find(s => s.teamId === 't2')!.points).toBe(0)
   })
 })
+
+describe('generateAndSaveSchedule error handling', () => {
+  it('surfaces a scheduleGenerationError and leaves the previous schedule untouched when generation throws', () => {
+    const { addTeam, setMode, setGroupCount, setFinalsVariant, generateAndSaveSchedule } = useTournamentStore.getState()
+    for (let i = 1; i <= 8; i++) addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.setState(s => ({
+      tournament: {
+        ...s.tournament,
+        teams: s.tournament.teams.map((t, i) => ({ ...t, groupId: String.fromCharCode(65 + Math.floor(i / 2)) })),
+      },
+    }))
+    setMode('round-robin+finals')
+    setGroupCount(4)
+    setFinalsVariant('endrunde-3')
+
+    generateAndSaveSchedule()
+    const previousSchedule = useTournamentStore.getState().schedule
+    expect(previousSchedule).not.toBeNull()
+    expect(useTournamentStore.getState().scheduleGenerationError).toBeNull()
+
+    // Shrink the venue so drastically that the semifinal/final/third-place bracket can no longer
+    // fit -- generateSchedule (via generatePlayoffGames) throws in this case rather than
+    // returning an empty/partial schedule.
+    useTournamentStore.setState(s => ({
+      tournament: {
+        ...s.tournament,
+        venue: { ...s.tournament.venue, availabilityWindows: [{ start: '09:00', end: '09:05' }] },
+      },
+    }))
+
+    generateAndSaveSchedule()
+
+    expect(useTournamentStore.getState().scheduleGenerationError).toMatch(/Hallenzeit/)
+    // The previous, still-valid schedule must remain in place -- a failed regeneration attempt
+    // must never silently discard the last successfully generated schedule.
+    expect(useTournamentStore.getState().schedule).toEqual(previousSchedule)
+  })
+
+  it('clears a previous scheduleGenerationError once generation succeeds again', () => {
+    const { addTeam, setMode, setGroupCount, setFinalsVariant, generateAndSaveSchedule } = useTournamentStore.getState()
+    for (let i = 1; i <= 8; i++) addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })
+    useTournamentStore.setState(s => ({
+      tournament: {
+        ...s.tournament,
+        teams: s.tournament.teams.map((t, i) => ({ ...t, groupId: String.fromCharCode(65 + Math.floor(i / 2)) })),
+        venue: { ...s.tournament.venue, availabilityWindows: [{ start: '09:00', end: '09:05' }] },
+      },
+    }))
+    setMode('round-robin+finals')
+    setGroupCount(4)
+    setFinalsVariant('endrunde-3')
+
+    generateAndSaveSchedule()
+    expect(useTournamentStore.getState().scheduleGenerationError).not.toBeNull()
+
+    useTournamentStore.setState(s => ({
+      tournament: { ...s.tournament, venue: { ...s.tournament.venue, availabilityWindows: [{ start: '09:00', end: '20:00' }] } },
+    }))
+    generateAndSaveSchedule()
+
+    expect(useTournamentStore.getState().scheduleGenerationError).toBeNull()
+    expect(useTournamentStore.getState().schedule).not.toBeNull()
+  })
+})
