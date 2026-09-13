@@ -91,12 +91,15 @@ geführt, dass ein Implementierungsagent einen ungenutzten Parameter mit `_`-Pr�
 musste). Stil-/Best-Practice-Verstöße (z. B. inkonsistente Formatierung, keine Prettier-Konfiguration
 gefunden) werden dennoch nirgends automatisiert geprüft.
 
-## 11.8 Barrierefreiheits-Abdeckung ist kuratiert, nicht vollständig
+## 11.8 Barrierefreiheits-Abdeckung ist kuratiert, nicht vollständig (BEHOBEN 2026-09-13)
 
-`e2e/accessibility.spec.ts` prüft 8 explizit ausgewählte Seiten-/Zustandskombinationen (Kapitel
-8.10, 10.2 QS-4). Seiten wie `BracketResultsPage`, `FinalsResultsPage`, `FinalStandingsPage`,
-`ExportPage` sind **nicht** in dieser Liste — kein Beleg, dass sie WCAG-Verstöße haben, aber auch
-kein automatisierter Nachweis, dass sie keine haben.
+`e2e/accessibility.spec.ts` prüfte ursprünglich nur 8 explizit ausgewählte
+Seiten-/Zustandskombinationen (Kapitel 8.10, 10.2 QS-4); `BracketResultsPage`, `FinalsResultsPage`,
+`FinalStandingsPage` und `ExportPage` fehlten. Ergänzt um vier weitere Tests (Export-Seite,
+Endrunde-4-Ergebnisseite, Endrunde-1-Bracket-Ergebnisseite mit Rangstufen-Tabs, kombinierte
+Endstand-Seite) — jetzt 12 kuratierte Kombinationen, alle vier vormals fehlenden Seiten
+abgedeckt, keine ernsten WCAG-Verstöße gefunden. Weiterhin **kuratiert, nicht erschöpfend** —
+jede neue Seite/jeder neue signifikante UI-Zustand sollte hier ergänzt werden (siehe `AGENTS.md`).
 
 ## 11.9 `localStorage` als einziger Datenspeicher — kein Multi-Geräte-/Multi-Browser-Betrieb
 

@@ -76,12 +76,12 @@ graph LR
 ### QS-4: Barrierefreiheit kritischer Seiten (Qualitätsziel 4)
 
 - **Quelle**: Nutzer mit Screenreader oder reiner Tastaturbedienung.
-- **Stimulus**: Ruft eine der acht kuratierten Seiten-/Zustandskombinationen auf (siehe Kapitel 8.10).
+- **Stimulus**: Ruft eine der zwölf kuratierten Seiten-/Zustandskombinationen auf (siehe Kapitel 8.10).
 - **Artefakt**: Die jeweilige React-Seite/-Komponente.
 - **Umgebung**: Standard-Browser (Chromium, laut `playwright.config.ts`).
 - **Antwort**: Keine automatisiert erkennbare WCAG-2.1-AA-Verletzung mit Schweregrad `serious`
   oder `critical`.
-- **Antwortmaß**: `e2e/accessibility.spec.ts`, 8/8 geprüfte Seiten-/Zustandskombinationen grün.
+- **Antwortmaß**: `e2e/accessibility.spec.ts`, 12/12 geprüfte Seiten-/Zustandskombinationen grün.
   **Einschränkung**: nicht jede Seite/jeder Zustand der App ist in dieser Liste enthalten (siehe
   Kapitel 11, Risiko zu unvollständiger A11y-Abdeckung).
 
