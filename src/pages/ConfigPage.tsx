@@ -29,7 +29,8 @@ export default function ConfigPage() {
   const [importError, setImportError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const canGenerate = tournament.teams.length >= 2
+  const needsFinalsVariant = tournament.mode === 'round-robin+finals' && (tournament.groupCount ?? 1) > 1 && !tournament.finalsVariant
+  const canGenerate = tournament.teams.length >= 2 && !needsFinalsVariant
 
   const handleGenerateClick = () => {
     if (locked) {
@@ -115,9 +116,17 @@ export default function ConfigPage() {
           </Button>
         </div>
 
-        {!canGenerate && (
+        {tournament.teams.length < 2 && (
           <Alert>
             <AlertDescription>Mindestens 2 Teams erforderlich.</AlertDescription>
+          </Alert>
+        )}
+
+        {needsFinalsVariant && (
+          <Alert>
+            <AlertDescription>
+              Bitte zuerst eine Endrunden-Variante auswählen (Abschnitt „Endrunden-Variante" oben) — bei mehreren Gruppen kann sonst kein sinnvoller Spielplan für die Endrunde erzeugt werden.
+            </AlertDescription>
           </Alert>
         )}
 

@@ -98,7 +98,7 @@ export default function TournamentForm({ disabled = false }: { disabled?: boolea
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {[1, 2, 3, 4].map(n => (
+            {[1, 2, 3, 4, 5, 6].map(n => (
               <SelectItem key={n} value={String(n)}>{n} {n === 1 ? 'Feld' : 'Felder'}</SelectItem>
             ))}
           </SelectContent>

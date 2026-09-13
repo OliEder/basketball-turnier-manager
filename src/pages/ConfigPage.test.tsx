@@ -53,6 +53,43 @@ describe('ConfigPage', () => {
     expect(useTournamentStore.getState().schedule!.games.length).toBeGreaterThan(0)
   })
 
+  it('disables "Zeitplan generieren" for multiple groups without a chosen finals variant', () => {
+    const { addTeam, setMode, setGroupCount } = useTournamentStore.getState()
+    for (let i = 1; i <= 8; i++) addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })
+    setMode('round-robin+finals')
+    setGroupCount(4)
+
+    renderConfigPage()
+
+    expect(screen.getByRole('button', { name: /zeitplan generieren/i })).toBeDisabled()
+    expect(screen.getByText(/endrunden-variante auswählen/i)).toBeInTheDocument()
+  })
+
+  it('enables "Zeitplan generieren" for multiple groups once a finals variant is chosen', () => {
+    const { addTeam, setMode, setGroupCount, setFinalsVariant } = useTournamentStore.getState()
+    for (let i = 1; i <= 8; i++) addTeam({ name: `Team ${i}`, logoUrl: '', color: '#000', contact: '' })
+    setMode('round-robin+finals')
+    setGroupCount(4)
+    setFinalsVariant('endrunde-3')
+
+    renderConfigPage()
+
+    expect(screen.getByRole('button', { name: /zeitplan generieren/i })).toBeEnabled()
+    expect(screen.queryByText(/endrunden-variante auswählen/i)).not.toBeInTheDocument()
+  })
+
+  it('does not require a finals variant when groupCount is 1', () => {
+    const { addTeam, setMode, setGroupCount } = useTournamentStore.getState()
+    addTeam({ name: 'Team A', logoUrl: '', color: '#000', contact: '' })
+    addTeam({ name: 'Team B', logoUrl: '', color: '#000', contact: '' })
+    setMode('round-robin+finals')
+    setGroupCount(1)
+
+    renderConfigPage()
+
+    expect(screen.getByRole('button', { name: /zeitplan generieren/i })).toBeEnabled()
+  })
+
   it('shows the group assignment section only in round-robin+finals mode', () => {
     useTournamentStore.getState().setMode('round-robin')
     const { unmount } = renderConfigPage()
