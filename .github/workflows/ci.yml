@@ -21,6 +21,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test -- --run
+        env:
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-report
+          path: test-results/junit.xml
+          retention-days: 14
 
   coverage:
     name: Coverage
@@ -33,6 +41,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:coverage
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
 
   typecheck:
     name: Typecheck
@@ -73,8 +87,8 @@ jobs:
         env:
           CI: "true"
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: playwright-report
           path: playwright-report/
-          retention-days: 7
+          retention-days: 14
