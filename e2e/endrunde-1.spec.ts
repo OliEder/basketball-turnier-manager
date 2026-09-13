@@ -49,7 +49,7 @@ test('organizer plays a full Endrunde 1 tournament with two parallel rank-tier b
   await expect(page.getByText('Keine Spiele für die gewählten Filter.')).toBeVisible()
 
   // Both rank-tier brackets' quarterfinals should now be auto-resolved with real teams.
-  await page.getByRole('link', { name: 'Endrunde: KO-Ergebnisse' }).click()
+  await page.getByRole('link', { name: 'Endrunde: K.-o.-Ergebnisse' }).click()
   await expect(page.getByRole('button', { name: /Rangstufe 1/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Rangstufe 2/ })).toBeVisible()
 
@@ -79,8 +79,14 @@ test('organizer plays a full Endrunde 1 tournament with two parallel rank-tier b
   }
   await expect(page.getByText('Keine Spiele für die gewählten Filter.')).toBeVisible()
 
-  // Combined final standing shows all 16 places.
+  // Combined final standing: each rank tier's KO bracket resolves exactly 4 places (final
+  // winner/loser, third-place winner/loser) regardless of bracket size — quarterfinal losers
+  // are not placed further (per computeEndrunde1Standings / the Endrunde-1 design spec). With
+  // an 8-team bracket per tier, rank tier 1 (placementFrom 1) yields places 1-4 and rank tier 2
+  // (placementFrom 9) yields places 9-12; places 5-8 and 13-16 are never assigned.
   await page.getByRole('link', { name: 'Endstand' }).click()
-  await expect(page.getByText('16.', { exact: true })).toBeVisible()
   await expect(page.getByText('1.', { exact: true })).toBeVisible()
+  await expect(page.getByText('4.', { exact: true })).toBeVisible()
+  await expect(page.getByText('9.', { exact: true })).toBeVisible()
+  await expect(page.getByText('12.', { exact: true })).toBeVisible()
 })

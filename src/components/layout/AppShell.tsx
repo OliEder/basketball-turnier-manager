@@ -34,6 +34,12 @@ export default function AppShell() {
           ...(isRoundRobinFinals && tournament.finalsVariant === 'endrunde-3'
             ? [{ to: '/playoff-results', label: 'Endrunde: KO-Ergebnisse', gated: true }]
             : []),
+          ...(isRoundRobinFinals && tournament.finalsVariant === 'endrunde-1'
+            ? [
+                { to: '/bracket-results', label: 'Endrunde: K.-o.-Ergebnisse', gated: true },
+                { to: '/final-standings', label: 'Endstand', gated: true },
+              ]
+            : []),
         ]),
     { to: '/export', label: 'Export', gated: false },
     { to: '/anleitung', label: 'Anleitung', gated: false },
