@@ -257,6 +257,7 @@ describe('buildBracket', () => {
     const games = buildBracket({
       bracketSize: 2,
       rankTier: 1,
+      placementFrom: 1,
       sourceRanks: [{ groupId: 'A', rank: 1 }, { groupId: 'B', rank: 1 }],
       fields: 2,
       gameSettings,
@@ -269,15 +270,36 @@ describe('buildBracket', () => {
     const [final] = games
     expect(final.stage).toBe('final')
     expect(final.rankTier).toBe(1)
+    expect(final.placementFrom).toBe(1)
     expect(final.matchIndex).toBe(0)
     expect(final.homeSourceRank).toEqual({ groupId: 'A', rank: 1 })
     expect(final.awaySourceRank).toEqual({ groupId: 'B', rank: 1 })
+  })
+
+  it('sets placementFrom on every game in the bracket, including the third-place game, for a non-default rank tier', () => {
+    const games = buildBracket({
+      bracketSize: 4,
+      rankTier: 2,
+      placementFrom: 5,
+      sourceRanks: [
+        { groupId: 'A', rank: 2 }, { groupId: 'D', rank: 2 },
+        { groupId: 'B', rank: 2 }, { groupId: 'C', rank: 2 },
+      ],
+      fields: 2,
+      gameSettings,
+      blackoutPeriods: [],
+      availabilityEnd: '19:30',
+      fieldNextFree: ['11:00', '11:00'],
+      startGameNumber: 1,
+    })
+    expect(games.every(g => g.placementFrom === 5)).toBe(true)
   })
 
   it('bracket size 4 generates 2 semifinals + third-place + final, matching the existing 4-bracket shape', () => {
     const games = buildBracket({
       bracketSize: 4,
       rankTier: 1,
+      placementFrom: 1,
       sourceRanks: [
         { groupId: 'A', rank: 1 }, { groupId: 'D', rank: 1 },
         { groupId: 'B', rank: 1 }, { groupId: 'C', rank: 1 },
@@ -316,6 +338,7 @@ describe('buildBracket', () => {
     const games = buildBracket({
       bracketSize: 8,
       rankTier: 2,
+      placementFrom: 9,
       sourceRanks: [
         { groupId: 'A', rank: 2 }, { groupId: 'H', rank: 2 },
         { groupId: 'D', rank: 2 }, { groupId: 'E', rank: 2 },
@@ -357,6 +380,7 @@ describe('buildBracket', () => {
     const games = buildBracket({
       bracketSize: 8,
       rankTier: 1,
+      placementFrom: 1,
       sourceRanks: Array.from({ length: 8 }, (_, i) => ({ groupId: String.fromCharCode(65 + i), rank: 1 })),
       fields: 4,
       gameSettings,
@@ -375,6 +399,7 @@ describe('buildBracket', () => {
     const games = buildBracket({
       bracketSize: 4,
       rankTier: 1,
+      placementFrom: 1,
       sourceRanks: [
         { groupId: 'A', rank: 1 }, { groupId: 'D', rank: 1 },
         { groupId: 'B', rank: 1 }, { groupId: 'C', rank: 1 },
@@ -402,6 +427,7 @@ describe('buildBracket', () => {
       buildBracket({
         bracketSize: 4,
         rankTier: 1,
+        placementFrom: 1,
         sourceRanks: [{ groupId: 'A', rank: 1 }, { groupId: 'B', rank: 1 }],
         fields: 2,
         gameSettings,
@@ -418,6 +444,7 @@ describe('buildBracket', () => {
       buildBracket({
         bracketSize: 4,
         rankTier: 1,
+        placementFrom: 1,
         sourceRanks: [
           { groupId: 'A', rank: 1 }, { groupId: 'D', rank: 1 },
           { groupId: 'B', rank: 1 }, { groupId: 'C', rank: 1 },

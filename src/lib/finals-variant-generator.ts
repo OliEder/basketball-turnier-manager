@@ -89,6 +89,7 @@ const BRACKET_STAGE_SEQUENCE: Record<number, GameStage[]> = {
 export interface BuildBracketInput {
   bracketSize: 2 | 4 | 8 | 16 | 32
   rankTier: number
+  placementFrom: number  // best place this bracket plays for: 1, 5, 9, ... (see PlacementCohort)
   sourceRanks: { groupId: string; rank: number }[]  // bracketSize entries, in seed order
   fields: number
   gameSettings: GameSettings
@@ -109,7 +110,7 @@ export interface BuildBracketInput {
  * (away) — the standard single-elimination bracket-tree layout, applied recursively per round.
  */
 export function buildBracket(input: BuildBracketInput): Game[] {
-  const { bracketSize, rankTier, sourceRanks, fields, gameSettings, blackoutPeriods, availabilityEnd, startGameNumber } = input
+  const { bracketSize, rankTier, placementFrom, sourceRanks, fields, gameSettings, blackoutPeriods, availabilityEnd, startGameNumber } = input
   const stages = BRACKET_STAGE_SEQUENCE[bracketSize]
   if (sourceRanks.length !== bracketSize) {
     throw new Error(`sourceRanks muss genau ${bracketSize} Einträge für ein ${bracketSize}er-Bracket enthalten`)
@@ -160,6 +161,7 @@ export function buildBracket(input: BuildBracketInput): Game[] {
         awayTeamId: null,
         stage,
         rankTier,
+        placementFrom,
         matchIndex,
         field: bestField + 1,
         scheduledStart: bestSlotStart,
@@ -216,6 +218,7 @@ export function buildBracket(input: BuildBracketInput): Game[] {
         awayTeamId: null,
         stage: 'third-place',
         rankTier,
+        placementFrom,
         matchIndex: 0,
         field: bestField + 1,
         scheduledStart: bestSlotStart,
