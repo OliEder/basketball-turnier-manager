@@ -1,7 +1,7 @@
 import { useTournamentStore } from '@/store/tournament-store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
-import { computeFinalStandings } from '@/lib/final-standings'
+import { computeFinalStandings, computeEndrunde1Standings } from '@/lib/final-standings'
 
 export default function FinalStandingsPage() {
   const { tournament, schedule } = useTournamentStore()
@@ -15,7 +15,9 @@ export default function FinalStandingsPage() {
   }
 
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
-  const standings = computeFinalStandings(tournament.teams, schedule.games)
+  const standings = tournament.finalsVariant === 'endrunde-1'
+    ? computeEndrunde1Standings(tournament.teams, schedule.games)
+    : computeFinalStandings(tournament.teams, schedule.games)
 
   if (standings.length === 0) {
     return (

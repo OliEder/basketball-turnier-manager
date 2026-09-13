@@ -156,6 +156,16 @@ describe('AppShell', () => {
     expect(screen.queryByText('Endstand')).not.toBeInTheDocument()
   })
 
+  it('shows "Endrunde: K.-o.-Ergebnisse" and "Endstand" nav links for Endrunde 1', () => {
+    useTournamentStore.setState({
+      tournament: { ...useTournamentStore.getState().tournament, mode: 'round-robin+finals', finalsVariant: 'endrunde-1' },
+    })
+    renderShell()
+    expect(screen.getByText('Endrunde: K.-o.-Ergebnisse')).toBeInTheDocument()
+    expect(screen.getByText('Endstand')).toBeInTheDocument()
+    expect(screen.queryByText('Endrunde: KO-Ergebnisse')).not.toBeInTheDocument()
+  })
+
   describe('mobile navigation toggle', () => {
     it('renders a menu toggle button for small screens', () => {
       renderShell()
