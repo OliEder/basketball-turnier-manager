@@ -112,3 +112,40 @@ Ein ~4 MB großer externer Datensatz deutscher Basketballvereine
 (`basketball-vereinsregister-deutschland/data/clubs.json`) wurde als mögliche künftige
 Datenquelle für Team-Autovervollständigung identifiziert, aber bewusst zurückgestellt (siehe
 Memory `vereinsregister_clubs_dataset`). Kein Code-Risiko, nur ein offener Vorschlag.
+
+## 11.11 Vision: Team/Zuschauer als aktiverer Akteur (Live-Ansichten auf Zweitgeräten)
+
+Aktuell ist Team/Zuschauer ein rein passiver Akteur (siehe
+`docs/use-cases-und-kritikalitaet.md`, Akteur-Diagramm) — Konsum ausschließlich über Ausdrucke
+oder den statischen Web-Export, ohne Live-Bezug zum tatsächlichen Turnierstand im Organisator-Gerät.
+
+**Geäußerte, aber noch nicht spezifizierte Vision:** mehrere Monitore in der Halle sollen künftig
+live unterschiedliche Ansichten zeigen können — z. B. ein Bildschirm die Gruppentabellen, ein
+anderer den Gesamtzeitplan, jeweils automatisch aktuell.
+
+**Architektur-Implikation, falls umgesetzt:** Dies würde direkt mit ADR-01 (kein Server-Backend)
+und der `localStorage`-Beschränkung (Kapitel 3.2, Risiko 11.9) kollidieren — ohne irgendeine Form
+von Synchronisation zwischen Geräten (sei es ein minimaler lokaler Server, `BroadcastChannel`
+innerhalb desselben Browsers/derselben Geräte-Instanz, oder ein echter Netzwerkdienst) kann ein
+zweites Gerät den Live-Zeitplan nicht anzeigen. Explizit nur als bekanntes künftiges Vorhaben
+festgehalten, kein Design/Plan vorhanden — nicht zu verwechseln mit dem bereits existierenden,
+rein lokalen Web-Export (UC6 in `docs/use-cases-und-kritikalitaet.md`), der einen statischen,
+nicht-live-aktualisierten Schnappschuss erzeugt.
+
+## 11.12 Vision: Kampfgericht als neuer, aktiv interagierender Akteur
+
+**Geäußerte, aber noch nicht spezifizierte Vision:** Das Kampfgericht (Schiedsgericht am
+Spielfeld) soll künftig Spielergebnisse direkt an den Turnier-Manager übermitteln können, statt
+dass der Organisator sie manuell nacherfasst (aktuell UC2 in
+`docs/use-cases-und-kritikalitaet.md`, ausschließlich vom Organisator ausgeführt).
+
+**Architektur-Implikation, falls umgesetzt:** Anders als die Zuschauer-Vision (Kapitel 11.11, rein
+lesend) wäre dies ein AKTIV schreibender dritter Akteur mit eigenem, eingeschränktem
+Schreibzugriff (nur Ergebniseingabe für ein zugewiesenes Spiel, keine Konfigurationsrechte). Das
+stellt die aktuelle, im gesamten Datenmodell und Store fest verankerte Grundannahme "genau ein
+aktiver Nutzer pro Gerät/Browser, kein Rollen-/Rechtekonzept" (siehe Kapitel 1.4, 3.1) grundlegend
+infrage — `tournament-store.ts` hat aktuell keinerlei Konzept von "wer" eine Aktion ausführt, nur
+"was" geändert wurde. Wie bei Kapitel 11.11 wäre auch hierfür zwingend irgendeine Form von
+Geräte-übergreifender Kommunikation nötig, die es heute nicht gibt (Kapitel 3.2, ADR-01). Explizit
+nur als bekanntes künftiges Vorhaben festgehalten, kein Design/Plan, keine Priorisierung gegenüber
+Kapitel 11.11 oder dem zielbasierten Wizard (Kapitel 11.2) vorgenommen.
