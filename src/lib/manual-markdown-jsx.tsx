@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import type { Tokens } from 'marked'
 import type { ManualToken, CalloutToken } from './markdown-tokens'
 
@@ -67,23 +67,121 @@ function renderCalloutToken(token: CalloutToken, key: number): ReactNode {
   )
 }
 
-export function renderManualMarkdownToJsx(tokens: ManualToken[]): ReactNode[] {
-  return tokens.map((token, i) => {
-    switch (token.type) {
-      case 'heading':
-        return renderHeadingToken(token as Tokens.Heading, i)
-      case 'paragraph':
-        return renderParagraphToken(token as Tokens.Paragraph, i)
-      case 'list':
-        return renderListToken(token as Tokens.List, i)
-      case 'image':
-        return renderImageToken(token as Tokens.Image, i)
-      case 'callout':
-        return renderCalloutToken(token as CalloutToken, i)
-      case 'space':
-        return null
-      default:
-        return null
+function renderToken(token: ManualToken, key: number): ReactNode {
+  switch (token.type) {
+    case 'heading':
+      return renderHeadingToken(token as Tokens.Heading, key)
+    case 'paragraph':
+      return renderParagraphToken(token as Tokens.Paragraph, key)
+    case 'list':
+      return renderListToken(token as Tokens.List, key)
+    case 'image':
+      return renderImageToken(token as Tokens.Image, key)
+    case 'callout':
+      return renderCalloutToken(token as CalloutToken, key)
+    case 'space':
+      return null
+    default:
+      return null
+  }
+}
+
+interface SubsectionGroup {
+  heading: Tokens.Heading
+  children: ManualToken[]
+}
+
+interface SectionGroup {
+  heading: Tokens.Heading | null
+  children: ManualToken[]
+  subsections: SubsectionGroup[]
+}
+
+/** Groups depth-3 headings within a single section's tokens into nested subsection groups. */
+function groupSubsections(tokens: ManualToken[]): { children: ManualToken[]; subsections: SubsectionGroup[] } {
+  const children: ManualToken[] = []
+  const subsections: SubsectionGroup[] = []
+  let current: SubsectionGroup | null = null
+
+  for (const token of tokens) {
+    if (token.type === 'heading' && (token as Tokens.Heading).depth === 3) {
+      current = { heading: token as Tokens.Heading, children: [] }
+      subsections.push(current)
+      continue
     }
-  })
+    if (current) {
+      current.children.push(token)
+    } else {
+      children.push(token)
+    }
+  }
+
+  return { children, subsections }
+}
+
+/** Groups a flat token array into depth-2 sections (each with its own depth-3 subsections). */
+function groupSections(tokens: ManualToken[]): SectionGroup[] {
+  const groups: SectionGroup[] = []
+  let currentTokens: ManualToken[] | null = null
+  let currentHeading: Tokens.Heading | null = null
+  let leading: ManualToken[] = []
+
+  const flush = () => {
+    if (currentHeading) {
+      const { children, subsections } = groupSubsections(currentTokens ?? [])
+      groups.push({ heading: currentHeading, children, subsections })
+    }
+  }
+
+  for (const token of tokens) {
+    if (token.type === 'heading' && (token as Tokens.Heading).depth === 2) {
+      flush()
+      currentHeading = token as Tokens.Heading
+      currentTokens = []
+      continue
+    }
+    if (currentHeading) {
+      currentTokens!.push(token)
+    } else {
+      leading.push(token)
+    }
+  }
+  flush()
+
+  if (leading.length > 0) {
+    groups.unshift({ heading: null, children: leading, subsections: [] })
+  }
+
+  return groups
+}
+
+function renderSubsectionGroup(group: SubsectionGroup, key: number): ReactNode {
+  const id = group.heading.text.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-+|-+$/g, '')
+  return (
+    <div key={key} id={id} className="space-y-3">
+      {renderHeadingToken(group.heading, 0)}
+      {group.children.map((token, i) => renderToken(token, i + 1))}
+    </div>
+  )
+}
+
+function renderSectionGroup(group: SectionGroup, key: number): ReactNode {
+  if (!group.heading) {
+    // Leading content before any depth-2 heading: render unwrapped rather than losing it.
+    return <Fragment key={key}>{group.children.map((token, i) => renderToken(token, i))}</Fragment>
+  }
+
+  const id = group.heading.text.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-+|-+$/g, '')
+  return (
+    <section key={key} id={id} className="space-y-4">
+      {renderHeadingToken(group.heading, 0)}
+      {group.children.map((token, i) => renderToken(token, i + 1))}
+      {group.subsections.map((sub, i) => renderSubsectionGroup(sub, i))}
+    </section>
+  )
+}
+
+export function renderManualMarkdownToJsx(tokens: ManualToken[]): ReactNode[] {
+  const groups = groupSections(tokens)
+  return groups.map((group, i) => renderSectionGroup(group, i))
 }

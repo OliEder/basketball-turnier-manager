@@ -40,4 +40,27 @@ describe('renderManualMarkdownToJsx', () => {
 
     expect(screen.getByRole('link', { name: 'Downloadlink' })).toHaveAttribute('href', expect.stringContaining('demos/example.json'))
   })
+
+  it('wraps a level-2 heading and its following content in a <section class="space-y-4">, and level-3 content in a nested <div class="space-y-3">', () => {
+    const md = '## Section One\n\nParagraph A.\n\n### Sub One\n\nParagraph B.\n\n## Section Two\n\nParagraph C.\n'
+    const tokens = tokenizeManualMarkdown(md)
+    render(<>{renderManualMarkdownToJsx(tokens)}</>)
+
+    const sectionOne = screen.getByRole('heading', { name: 'Section One', level: 2 }).closest('section')
+    expect(sectionOne).toHaveClass('space-y-4')
+    expect(sectionOne).toHaveTextContent('Paragraph A.')
+    expect(sectionOne).toHaveTextContent('Sub One')
+    expect(sectionOne).toHaveTextContent('Paragraph B.')
+    // Section Two's content must NOT leak into Section One's wrapper
+    expect(sectionOne).not.toHaveTextContent('Paragraph C.')
+
+    const subOne = screen.getByRole('heading', { name: 'Sub One', level: 3 }).closest('div.space-y-3')
+    expect(subOne).toBeTruthy()
+    expect(subOne).toHaveTextContent('Paragraph B.')
+
+    const sectionTwo = screen.getByRole('heading', { name: 'Section Two', level: 2 }).closest('section')
+    expect(sectionTwo).toHaveClass('space-y-4')
+    expect(sectionTwo).toHaveTextContent('Paragraph C.')
+    expect(sectionTwo).not.toHaveTextContent('Paragraph A.')
+  })
 })
