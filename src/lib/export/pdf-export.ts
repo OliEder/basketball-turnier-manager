@@ -45,10 +45,14 @@ function SchedulePdf({ tournament, schedule }: { tournament: TournamentConfig; s
   )
 }
 
-export async function downloadPdf(tournament: TournamentConfig, schedule: Schedule): Promise<void> {
-  const doc = SchedulePdf({ tournament, schedule }) as React.ReactElement<
+export function buildSchedulePdfDocument(tournament: TournamentConfig, schedule: Schedule) {
+  return SchedulePdf({ tournament, schedule }) as React.ReactElement<
     import('@react-pdf/renderer').DocumentProps
   >
+}
+
+export async function downloadPdf(tournament: TournamentConfig, schedule: Schedule): Promise<void> {
+  const doc = buildSchedulePdfDocument(tournament, schedule)
   const instance = pdf(doc)
   const blob = await instance.toBlob()
   const url = URL.createObjectURL(blob)
