@@ -63,4 +63,11 @@ describe('renderManualMarkdownToJsx', () => {
     expect(sectionTwo).toHaveTextContent('Paragraph C.')
     expect(sectionTwo).not.toHaveTextContent('Paragraph A.')
   })
+
+  it('assigns the id from a `<!-- #id -->` comment to the immediately preceding heading', () => {
+    const md = '## Section Title\n<!-- #my-custom-id -->\n\nBody.\n'
+    const tokens = tokenizeManualMarkdown(md)
+    render(<>{renderManualMarkdownToJsx(tokens)}</>)
+    expect(screen.getByRole('heading', { name: 'Section Title' })).toHaveAttribute('id', 'my-custom-id')
+  })
 })

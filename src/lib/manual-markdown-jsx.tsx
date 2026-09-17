@@ -15,8 +15,15 @@ function renderInline(tokens: Tokens.Generic[]): ReactNode[] {
       }
       case 'image':
         return renderImageToken(token as Tokens.Image, i)
-      case 'text':
-        return (token as Tokens.Text).text
+      case 'text': {
+        const textToken = token as Tokens.Text
+        // A `text` token can itself wrap nested inline tokens (e.g. a list item whose text
+        // contains a link or bold run gets tokenized as a `text` token with its own `.tokens`
+        // array) -- recurse into those rather than falling back to the raw, markup-stripped text.
+        return textToken.tokens
+          ? <Fragment key={i}>{renderInline(textToken.tokens)}</Fragment>
+          : textToken.text
+      }
       default:
         return null
     }
@@ -27,11 +34,24 @@ function renderListItems(items: Tokens.ListItem[]): ReactNode[] {
   return items.map((item, i) => <li key={i}>{renderInline(item.tokens)}</li>)
 }
 
-function renderHeadingToken(token: Tokens.Heading, key: number): ReactNode {
+/** A heading token that has been annotated with its resolved anchor id (see `extractAnchorId`). */
+type HeadingWithId = Tokens.Heading & { __anchorId?: string }
+
+const ANCHOR_COMMENT_PATTERN = /^<!-- #(\S+) -->$/
+
+function slugifyHeadingText(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
+function headingId(token: HeadingWithId): string {
+  return token.__anchorId ?? slugifyHeadingText(token.text)
+}
+
+function renderHeadingToken(token: HeadingWithId, key: number): ReactNode {
   const className = token.depth === 2
     ? 'font-display text-xl uppercase text-brand-primary'
     : 'font-display text-base uppercase text-brand-primary-light'
-  const id = token.text.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-+|-+$/g, '')
+  const id = headingId(token)
   return token.depth === 2
     ? <h2 key={key} id={id} className={className}>{token.text}</h2>
     : <h3 key={key} id={id} className={className}>{token.text}</h3>
@@ -156,7 +176,7 @@ function groupSections(tokens: ManualToken[]): SectionGroup[] {
 }
 
 function renderSubsectionGroup(group: SubsectionGroup, key: number): ReactNode {
-  const id = group.heading.text.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-+|-+$/g, '')
+  const id = headingId(group.heading as HeadingWithId)
   return (
     <div key={key} id={id} className="space-y-3">
       {renderHeadingToken(group.heading, 0)}
@@ -171,7 +191,7 @@ function renderSectionGroup(group: SectionGroup, key: number): ReactNode {
     return <Fragment key={key}>{group.children.map((token, i) => renderToken(token, i))}</Fragment>
   }
 
-  const id = group.heading.text.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-+|-+$/g, '')
+  const id = headingId(group.heading as HeadingWithId)
   return (
     <section key={key} id={id} className="space-y-4">
       {renderHeadingToken(group.heading, 0)}
@@ -181,7 +201,36 @@ function renderSectionGroup(group: SectionGroup, key: number): ReactNode {
   )
 }
 
+/**
+ * Resolves each heading's anchor id from an immediately following `<!-- #id -->` HTML comment
+ * token (emitted by marked as a sibling right after the `heading` token it annotates), and drops
+ * those comment tokens from the array so they're never rendered as visible content. Headings
+ * without such a comment are left untouched and fall back to slugifying their text at render time.
+ */
+function resolveAnchorIds(tokens: ManualToken[]): ManualToken[] {
+  const result: ManualToken[] = []
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]
+    if (token.type === 'html') {
+      // Anchor comments are only ever consumed via the heading lookahead below; any other
+      // `html` token (there shouldn't be any in this app's manual content) is also skipped,
+      // since raw HTML must never leak into the rendered output.
+      continue
+    }
+    if (token.type === 'heading') {
+      const next = tokens[i + 1]
+      const match = next?.type === 'html' ? next.raw.trim().match(ANCHOR_COMMENT_PATTERN) : null
+      if (match) {
+        result.push({ ...token, __anchorId: match[1] } as HeadingWithId)
+        continue
+      }
+    }
+    result.push(token)
+  }
+  return result
+}
+
 export function renderManualMarkdownToJsx(tokens: ManualToken[]): ReactNode[] {
-  const groups = groupSections(tokens)
+  const groups = groupSections(resolveAnchorIds(tokens))
   return groups.map((group, i) => renderSectionGroup(group, i))
 }
