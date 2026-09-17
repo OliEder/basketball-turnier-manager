@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
+import type { Game } from '@/types'
 
 export default function SwissResultsPage() {
   const { tournament, schedule, submitGameResult, advanceSwissRound, advanceSwissRoundManually, withdrawTeam, correctGameResult } = useTournamentStore()
@@ -34,6 +35,23 @@ export default function SwissResultsPage() {
   const isScoreEntered = (gameId: string) => {
     const entry = scores[gameId]
     return !!entry && entry.home.trim() !== '' && entry.away.trim() !== '' && !Number.isNaN(Number(entry.home)) && !Number.isNaN(Number(entry.away))
+  }
+
+  // Resolves the value that would actually be submitted for a correction. If the field was
+  // never touched, it falls back to the game's existing (already-valid) score; once touched --
+  // even cleared to empty -- that typed value (however invalid) is authoritative.
+  const resolvedCorrectionScore = (game: Game, side: 'home' | 'away'): number | undefined => {
+    const entry = scores[game.id]
+    const touched = entry?.[side]
+    if (touched !== undefined) return touched.trim() === '' ? NaN : Number(touched)
+    if (game.periodScores.length > 0) return side === 'home' ? game.periodScores[0].homeScore : game.periodScores[0].awayScore
+    return undefined
+  }
+
+  const canSaveCorrection = (game: Game): boolean => {
+    const home = resolvedCorrectionScore(game, 'home')
+    const away = resolvedCorrectionScore(game, 'away')
+    return home !== undefined && away !== undefined && !Number.isNaN(home) && !Number.isNaN(away)
   }
 
   const allEvaluated = roundGames.every(
@@ -237,16 +255,20 @@ export default function SwissResultsPage() {
                     Korrigieren
                   </Button>
                 ) : hasResult ? (
-                  <Button onClick={() => {
-                    const entry = scores[game.id]
-                    if (!entry) { setCorrectingGameId(null); return }
-                    try {
-                      correctGameResult(game.id, [{ period: 1, homeScore: Number(entry.home), awayScore: Number(entry.away) }])
-                      setCorrectingGameId(null)
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : String(err))
-                    }
-                  }}>
+                  <Button
+                    disabled={!canSaveCorrection(game)}
+                    onClick={() => {
+                      if (!canSaveCorrection(game)) return
+                      const homeScore = resolvedCorrectionScore(game, 'home') as number
+                      const awayScore = resolvedCorrectionScore(game, 'away') as number
+                      try {
+                        correctGameResult(game.id, [{ period: 1, homeScore, awayScore }])
+                        setCorrectingGameId(null)
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : String(err))
+                      }
+                    }}
+                  >
                     Speichern
                   </Button>
                 ) : <span />}

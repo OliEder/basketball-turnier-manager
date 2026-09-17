@@ -177,6 +177,23 @@ describe('SwissResultsPage', () => {
     expect(screen.getByText('15')).toBeInTheDocument()
   })
 
+  it('does not write NaN into the schedule if the save button were somehow triggered with an invalid correction input', () => {
+    setupSwissTournament(4, 2)
+    const game = useTournamentStore.getState().schedule!.games.find(g => g.round === 1 && g.field > 0)!
+    useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 20, awayScore: 15 }])
+
+    render(<SwissResultsPage />)
+    fireEvent.click(screen.getAllByRole('button', { name: /korrigieren/i })[0])
+    const homeInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`)
+    fireEvent.change(homeInput, { target: { value: '' } })
+
+    const saveButton = screen.getAllByRole('button', { name: /speichern/i })[0]
+    expect(saveButton).toBeDisabled()
+
+    const unchanged = useTournamentStore.getState().schedule!.games.find(g => g.id === game.id)!
+    expect(unchanged.periodScores).toEqual([{ period: 1, homeScore: 20, awayScore: 15 }])
+  })
+
   it('surfaces an error when correction is no longer allowed because the next round already has a result', () => {
     setupSwissTournament(4, 2)
     const { schedule, submitGameResult, advanceSwissRound } = useTournamentStore.getState()
