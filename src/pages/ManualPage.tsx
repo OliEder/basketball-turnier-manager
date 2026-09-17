@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { openManualPrintWindow } from '@/lib/export/manual-print-export'
+import { downloadManualPdf } from '@/lib/export/manual-pdf'
 import manualMarkdown from '@/content/manual.md?raw'
 import { tokenizeManualMarkdown } from '@/lib/markdown-tokens'
 import { renderManualMarkdownToJsx } from '@/lib/manual-markdown-jsx'
@@ -72,7 +72,7 @@ export default function ManualPage() {
         <h1 className="font-display text-2xl uppercase text-brand-primary">
           Nutzeranleitung: Basketball Turnier-Manager
         </h1>
-        <Button onClick={() => void openManualPrintWindow()} className="shrink-0">
+        <Button onClick={() => void downloadManualPdf()} className="shrink-0">
           Als PDF herunterladen
         </Button>
       </div>
