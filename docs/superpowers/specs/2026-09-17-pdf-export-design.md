@@ -95,28 +95,76 @@ nur als react-pdf-Elementbaum statt HTML-Template-String.
 beginnt — identische Berechnung wie bisher, nur als Trigger für eine neue react-pdf-`Page`
 statt eines CSS-Page-Breaks.
 
-### `manual-pdf.ts`
+### Markdown als gemeinsame Inhaltsquelle für die Anleitung
 
-Pro Anleitungs-Abschnitt (Überschrift + zugehöriger Screenshot + Erklärtext) eine react-pdf
-`View` mit `wrap={false}`, damit react-pdf den ganzen Abschnitt inklusive Überschrift auf die
-nächste Seite schiebt, statt mitten im Abschnitt umzubrechen — erreicht die Vorgabe „Umbruch
-möglichst vor einer Überschrift" ohne manuelle Seitenzahl-Berechnung.
+**Hintergrund:** `ManualPage.tsx` ist aktuell 609 Zeilen JSX mit 29 Screenshots über 9
+Abschnitte, durchsetzt mit Fließtext, Listen, Links und Callout-Boxen — kein einfaches
+Titel+Bild+Text-Schema. Eine generische Datenstruktur wie `{ id, title, paragraphs }` würde
+diesen Reichtum nicht abbilden können. Recherche ergab: `react-markdown` ist seit 18 Monaten
+unverändert und geht von DOM-Struktur aus (dokumentiert fragil mit react-pdf); `react-pdf-html`
+führt ein drittes Zwischenformat (HTML) ein; Raster-Ansätze (html2pdf.js) verschlechtern die
+PDF-Qualität gegenüber dem bestehenden nativen react-pdf-Export. Der tragfähige Ansatz:
+**`marked`** (aktiv gepflegt, 0 Dependencies) zum Parsen von Markdown-Text in Tokens, plus ein
+selbst geschriebener, gemeinsamer Renderer, der jeden Token-Typ einmal auf Web-JSX und einmal
+auf react-pdf-Elemente abbildet.
 
-Screenshots werden weiterhin als Data-URIs geladen (Funktion aus `manual-print-export.ts`
-übernommen, umbenannt zu `fetchImagesAsDataUris` da nicht mehr print-spezifisch) und per
-react-pdf `<Image>`-Komponente eingebettet.
+**Neue Dateien:**
 
-**Entscheidung Abschnittsstruktur:** `ManualPage.tsx` ist als JSX-Baum aus
-`Section`/`SubSection`/`Screenshot`/`Callout`-Komponenten aufgebaut, nicht als scrapbares
-HTML — eine DOM-Ableitung wäre fragil (Text müsste aus gerendertem HTML zurückgeparst werden).
-Stattdessen wird die Anleitung als strukturierte Daten definiert: ein Array von
-`{ id, title, screenshotFilename, alt, paragraphs }`-Objekten in einer neuen Datei
-`src/lib/manual-content.ts`, aus der sowohl `ManualPage.tsx` (rendert wie bisher über
-`Section`/`Screenshot`) als auch `manual-pdf.ts` ihre Inhalte beziehen — eine einzige
-Quelle der Wahrheit statt Duplikation. Der `Screenshot`-Komponente ihr bereits vorhandenes
-`alt`-Prop liefert direkt den Bildunterschriften-Text fürs PDF (siehe A11y-Abschnitt).
-Dieser Umbau von `ManualPage.tsx` (Inhalte raus in `manual-content.ts`, Page rendert nur noch
-daraus) ist Teil dieser Arbeit.
+- `src/content/manual.md` — der komplette Anleitungstext, migriert aus `ManualPage.tsx`.
+  Callout-Boxen werden über eine Fenced-Container-Konvention markiert:
+  ```markdown
+  ::: callout Hinweis zum Kürzel
+  Wird kein Kürzel eingetragen, leitet das Tool automatisch eines ab ...
+  :::
+  ```
+  Screenshots über normale Markdown-Bildsyntax mit Alt-Text: `![Leere Teamübersicht](01-teams-leer.png)`.
+  Abschnittsüberschriften über normale `#`/`##`/`###`-Syntax (ersetzt `Section`/`SubSection`).
+
+- `src/lib/markdown-tokens.ts` — dünner Wrapper um `marked.lexer(markdown)`, plus eine
+  Vorverarbeitung, die `::: callout Titel\n...\n:::`-Blöcke zu einem eigenen Token-Typ
+  `{ type: 'callout', title: string, tokens: Token[] }` umformt (da `marked` das nicht nativ
+  kennt — die Callout-Blöcke werden vor dem eigentlichen `marked.lexer()`-Aufruf per Regex aus
+  dem Markdown-Text herausgeschnitten und durch einen Platzhalter ersetzt, dessen Kindinhalt
+  rekursiv mit `marked.lexer()` weiterverarbeitet wird).
+
+- `src/lib/manual-markdown-jsx.ts` — `renderManualMarkdownToJsx(tokens: Token[]): ReactNode[]`.
+  Wandelt Tokens in JSX um: `heading` → `<h2>`/`<h3>` mit den bestehenden
+  `font-display text-xl uppercase text-brand-primary`-Klassen, `paragraph`/`text` → `<p>` mit
+  `strong`/`em`/`a`-Inline-Verarbeitung, `list` → `<ul>`/`<ol>`, `image` → die bestehende
+  `Screenshot`-Komponente (Pfad-Präfix `${import.meta.env.BASE_URL}anleitung/` + Dateiname aus
+  dem Markdown-Bild-`src`), `callout` → die bestehende `Callout`-Komponente.
+
+- `src/lib/manual-markdown-pdf.ts` — `renderManualMarkdownToPdf(tokens: Token[], images: Record<string, string>): ReactElement[]`.
+  Gleiche Token-Typen, aber react-pdf-Ziel: `heading` → `<Text style={pdfBaseStyles.h2}>`,
+  `paragraph` → `<Text style={pdfBaseStyles.cell}>` (Inline-`strong` als separates `<Text style={{fontWeight:'bold'}}>`-Fragment
+  im selben `<Text>`-Parent, da react-pdf Inline-Formatierung durch verschachtelte `<Text>`
+  statt HTML-Tags handhabt), `list` → `<View>` mit einem `<Text>` pro Listenpunkt (Präfix „• "
+  bzw. „{n}. "), `image` → `<Image src={images[filename]} />` gefolgt von einem `<Text>` mit
+  dem Alt-Text als sichtbare Bildunterschrift (siehe A11y-Abschnitt), `callout` → ein `<View>`
+  mit hellblauem Hintergrund (`pdfColors.zebra`) und Rahmen, Titel fett.
+
+  Jeder Abschnitt (oberste `##`-Ebene) wird in eine react-pdf `View` mit `wrap={false}`
+  gruppiert, damit react-pdf den ganzen Abschnitt inklusive Überschrift auf die nächste Seite
+  schiebt statt mitten im Abschnitt umzubrechen — erreicht die Vorgabe „Umbruch möglichst vor
+  einer Überschrift" ohne manuelle Seitenzahl-Berechnung.
+
+- `src/lib/export/manual-pdf.ts` — `downloadManualPdf(): Promise<void>`. Lädt
+  `src/content/manual.md` (als Vite `?raw`-Import), parst es über `markdown-tokens.ts`, lädt
+  die referenzierten Screenshots als Data-URIs (Funktion aus `manual-print-export.ts`
+  übernommen, umbenannt zu `fetchImagesAsDataUris` da nicht mehr print-spezifisch), rendert
+  über `manual-markdown-pdf.ts` und triggert den Download — analog zu `downloadPdf` in
+  `pdf-export.ts`.
+
+**`ManualPage.tsx`** wird auf einen dünnen Wrapper reduziert: lädt `manual.md` (`?raw`-Import),
+parst über `markdown-tokens.ts`, rendert über `manual-markdown-jsx.ts`. Die
+Inhaltskomponenten `Section`/`SubSection`/`Screenshot`/`Callout` bleiben als von
+`manual-markdown-jsx.ts` verwendete Bausteine erhalten (nur ihre Aufrufer ändern sich), ebenso
+`TableOfContents`/`TOC_ITEMS` (bleiben statisch, da die IDs aus den `#`/`##`-Überschriften im
+Markdown den bisherigen `id`-Attributen entsprechen müssen — TOC_ITEMS wird beim Migrieren mit
+den `#`-Überschriften im neuen `manual.md` abgeglichen, damit die Anker weiterhin funktionieren).
+
+Diese eine Markdown-Datei ist damit die einzige Quelle der Wahrheit für Web-Seite und PDF —
+keine Duplikation von Anleitungstext.
 
 ## UI-Änderungen
 
@@ -137,12 +185,15 @@ robust.
 E2E-Tests. Im Rahmen dieser Arbeit wird `pdf-export.test.ts` nach demselben neuen Muster
 ergänzt.
 
-**Refactor-Absicherung:** Da `ManualPage.tsx` umgebaut wird (Inhalte raus in
-`manual-content.ts`), wird vor dem Umbau ein `ManualPage.test.tsx` geschrieben (oder ergänzt,
-falls schon vorhanden), das die bestehende gerenderte Ausgabe (Überschriften, Bild-`alt`-Texte,
-Abschnittsreihenfolge) absichert — der Umbau darf am sichtbaren Ergebnis der Seite nichts
-ändern. `manual-content.ts` selbst bekommt einen einfachen Struktur-Test (jede Sektion hat
-`id`/`title`, jeder Screenshot hat ein nicht-leeres `alt`).
+**Refactor-Absicherung:** Da `ManualPage.tsx` auf einen Markdown-Wrapper umgebaut wird, wird
+vor der Migration ein `ManualPage.test.tsx` geschrieben (oder ergänzt, falls schon vorhanden),
+das die bestehende gerenderte Ausgabe absichert: alle 9 Abschnitts-Überschriften vorhanden, alle
+29 Bild-`alt`-Texte vorhanden, Abschnittsreihenfolge unverändert. Der Umbau darf am sichtbaren
+Ergebnis der Seite nichts ändern — dieser Test bleibt unverändert bestehen und muss nach der
+Migration weiterhin grün sein. Zusätzlich: `markdown-tokens.test.ts` (Callout-Block-Erkennung,
+Tokenisierung eines Minimalbeispiels), `manual-markdown-jsx.test.ts` und
+`manual-markdown-pdf.test.ts` (je Token-Typ wird korrekt umgesetzt: Überschrift, Absatz,
+Liste, Bild, Callout).
 
 **E2E-Tests** (Playwright), analog zum kürzlich gemergten `e2e/export.spec.ts`
 (UC6 JSON-Export): pro PDF ein Test, der den echten Download abfängt
@@ -184,10 +235,16 @@ Diese Maßnahmen werden nicht separat getestet (kein automatisiertes PDF-A11y-To
 Teil des Scopes), sondern als Teil der Implementierung direkt in `pdf-theme.ts` und den drei
 neuen Modulen umgesetzt.
 
+## Neue Abhängigkeit
+
+`marked` (aktuell aktiv gepflegt, 0 Runtime-Dependencies) wird als neue Dependency in
+`package.json` aufgenommen — ausschließlich für `markdown-tokens.ts`.
+
 ## Aufräumen
 
 - `src/lib/print-pagination.test.ts` bleibt (testet weiterhin `computeRoundPageBreaks`,
   das unverändert weiterverwendet wird).
-- `src/lib/export/manual-print-export.test.ts`, `group-overview-export.test.ts`,
-  `swiss-overview-export.test.ts` werden gelöscht (ersetzt durch die neuen `*-pdf.test.ts`).
+- `src/lib/export/manual-print-export.ts`, `group-overview-export.ts`,
+  `swiss-overview-export.ts` (+ jeweilige Tests) werden gelöscht (ersetzt durch die neuen
+  `*-pdf.ts`-Module bzw. den Markdown-Renderer).
 - Memory `pdf_export_followup.md` wird nach Abschluss als erledigt markiert.
