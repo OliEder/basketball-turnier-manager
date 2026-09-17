@@ -1,4 +1,4 @@
-import { pdf, Document, Page, Text, View } from '@react-pdf/renderer'
+import { pdf, Document, Page, Text } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import manualMarkdown from '@/content/manual.md?raw'
 import { tokenizeManualMarkdown, type ManualToken, type CalloutToken } from '@/lib/markdown-tokens'
@@ -65,34 +65,21 @@ function collectImageFilenames(tokens: ManualToken[]): string[] {
   return filenames
 }
 
-// Groups top-level tokens into per-section chunks (each starting at a depth-2 heading), so each
-// section becomes its own non-wrapping react-pdf View -- keeps a section's heading and its first
-// content together on one page instead of breaking immediately after the heading.
-function groupIntoSections(tokens: ManualToken[]): ManualToken[][] {
-  const sections: ManualToken[][] = []
-  for (const token of tokens) {
-    if (token.type === 'heading' && (token as { depth: number }).depth === 2) {
-      sections.push([token])
-    } else if (sections.length === 0) {
-      sections.push([token])
-    } else {
-      sections[sections.length - 1].push(token)
-    }
-  }
-  return sections
-}
-
 export async function downloadManualPdf(): Promise<void> {
   const tokens = tokenizeManualMarkdown(manualMarkdown)
   const images = await fetchImagesAsDataUris(collectImageFilenames(tokens))
-  const sections = groupIntoSections(tokens)
 
+  // Sections are rendered as a flat, normally-wrapping stream of content (no per-section
+  // non-wrapping wrapper): a wrapper View with `wrap: false` cannot be split across pages by
+  // react-pdf, and several real manual.md sections contain many full-height screenshots that
+  // are taller than a single page -- an unbreakable wrapper around one of those silently
+  // overflows/clips content instead of flowing it onto subsequent pages. Occasionally a
+  // heading may land near the bottom of a page as a result; that's an acceptable tradeoff for
+  // never silently losing content.
   const doc = createElement(Document, { title: 'Nutzeranleitung: Basketball Turnier-Manager' },
     createElement(Page, { size: 'A4', style: pdfBaseStyles.page },
       createElement(Text, { style: pdfBaseStyles.h1 }, 'Nutzeranleitung: Basketball Turnier-Manager'),
-      ...sections.map((sectionTokens, i) =>
-        createElement(View, { key: i, wrap: false }, ...renderManualMarkdownToPdf(sectionTokens, images)),
-      ),
+      ...renderManualMarkdownToPdf(tokens, images),
     ),
   )
 
