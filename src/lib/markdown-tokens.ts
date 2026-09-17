@@ -26,9 +26,19 @@ export function tokenizeManualMarkdown(markdown: string): ManualToken[] {
   const rawTokens = marked.lexer(withPlaceholders)
   const result: ManualToken[] = []
   for (const token of rawTokens) {
-    if (token.type === 'paragraph' && /^CALLOUT_PLACEHOLDER_\d+$/.test(token.text.trim())) {
-      const index = Number(token.text.trim().replace('CALLOUT_PLACEHOLDER_', ''))
+    const match = token.type === 'paragraph' ? token.text.trim().match(/^CALLOUT_PLACEHOLDER_(\d+)/) : null
+    if (token.type === 'paragraph' && match) {
+      const index = Number(match[1])
       result.push(callouts[index])
+
+      // When the callout isn't followed by a blank line, marked merges the placeholder
+      // line with whatever text immediately follows it into this same paragraph token.
+      // Recover that trailing text by stripping the placeholder line and re-tokenizing
+      // the remainder as its own content.
+      const trailing = token.text.trim().slice(match[0].length).replace(/^\n/, '')
+      if (trailing.trim().length > 0) {
+        result.push(...marked.lexer(trailing))
+      }
     } else {
       result.push(token)
     }

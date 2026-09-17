@@ -24,4 +24,15 @@ describe('tokenizeManualMarkdown', () => {
     expect(tokens.some(t => t.type === 'callout')).toBe(true)
     expect(tokens.some(t => t.type === 'paragraph' && (t as { text?: string }).text === 'After.')).toBe(true)
   })
+
+  it('recovers a callout block even when not followed by a blank line, without losing the following text', () => {
+    const md = '::: callout Hinweis\nInhalt.\n:::\nDirekt danach, ohne Leerzeile.\n'
+    const tokens = tokenizeManualMarkdown(md)
+    const callout = tokens.find(t => t.type === 'callout') as { type: string; title: string }
+    expect(callout).toBeDefined()
+    expect(callout.title).toBe('Hinweis')
+    const fullText = tokens.map(t => (t as { raw?: string }).raw ?? '').join('')
+    expect(fullText).not.toContain('CALLOUT_PLACEHOLDER')
+    expect(tokens.some(t => t.type === 'paragraph' && (t as { text?: string }).text?.includes('Direkt danach'))).toBe(true)
+  })
 })
