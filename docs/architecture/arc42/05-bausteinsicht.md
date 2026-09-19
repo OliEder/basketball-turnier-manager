@@ -46,6 +46,8 @@ graph TB
 | Eine neue Konfigurationsoption in der UI | `src/components/config/*.tsx` + zugehörige Store-Aktion in `tournament-store.ts` + `TournamentConfig`-Typ in `src/types/index.ts` |
 | Eine neue Seite/Route | `src/pages/*.tsx` + Eintrag in `src/App.tsx` + Nav-Eintrag in `src/components/layout/AppShell.tsx` |
 | Export-Format | `src/lib/export/*.ts` |
+| Das gemeinsame PDF-Farbschema/Layout | `src/lib/export/pdf-theme.ts` (siehe Kapitel 5.7) |
+| Anleitungs-Inhalt (Text, Screenshots, Hinweisboxen) | `src/content/manual.md` (siehe Kapitel 5.7, ADR-10) — NICHT `ManualPage.tsx` direkt |
 | Was in `localStorage` landet | `src/lib/storage.ts` |
 
 ## 5.2 Ebene 2 — Die Generatoren im Detail (Blackbox-Sicht)
@@ -177,3 +179,40 @@ Die Sichtbarkeit der jeweiligen Nav-Einträge wird zentral in `AppShell.tsx` anh
 | `export/` | Export-Bedienfeld |
 | `layout/` | `AppShell` (Kopfzeile, Navigation, Routing-Outlet) |
 | `ui/` | Generische, Radix-basierte Primitives (Button, Select, Dialog, Alert, Input, Label) |
+
+## 5.7 Ebene 2 — PDF-Export (`src/lib/export/*-pdf.ts`)
+
+Alle vier PDF-Downloads (Zeitplan, Gruppentabellen, Schweizer-System-Übersicht, Anleitung) sind
+native `@react-pdf/renderer`-Dokumente (kein `window.print()`-Umweg mehr, siehe ADR-10) und teilen
+sich ein gemeinsames visuelles Thema:
+
+- **`pdf-theme.ts`**: einzige Quelle für Farben (`pdfColors`) und Basis-`StyleSheet`s
+  (`pdfBaseStyles`) — blaue Überschriften/Tabellenköpfe, Zebra-Zeilen. Alle vier Exporte
+  importieren von hier, keiner definiert eigene Farbwerte.
+- **`pdf-round-table.ts`**: die Rundenspielplan-Tabelle (Feld/Zeit-oder-Ergebnis/Paarung), von
+  `group-overview-pdf.ts` und `swiss-overview-pdf.ts` gemeinsam genutzt (identische Anforderung in
+  beiden Kontexten, daher ein Modul statt zweier Kopien).
+- **`group-overview-pdf.ts`** / **`swiss-overview-pdf.ts`**: je ein `build*Document(...)` (baut den
+  react-pdf-Elementbaum, direkt testbar ohne echten Download auszulösen) plus ein
+  `download*Pdf(...)` (löst `pdf(doc).toBlob()` + Download aus) — dieses Muster (getrennte
+  Build- und Download-Funktion) gilt für alle vier Exporte, auch den ursprünglichen
+  Zeitplan-Export (`pdf-export.ts`s `buildSchedulePdfDocument`/`downloadPdf`).
+- **`manual-pdf.ts`**: lädt `src/content/manual.md`, holt referenzierte Screenshots als
+  Data-URIs (`fetchImagesAsDataUris`), rendert über `manual-markdown-pdf.ts` und triggert den
+  Download. Abschnitte werden NICHT als unteilbare (`wrap: false`) Blöcke behandelt — ein Fix
+  während der finalen Review dieses Features stellte fest, dass react-pdf einen zu großen
+  `wrap: false`-Block (ein Anleitungsabschnitt mit vielen Screenshots ist oft länger als eine
+  Seite) still überlaufen lässt statt ihn umzubrechen, was Inhalte aus dem PDF verschwinden
+  ließ.
+
+**Anleitung: Markdown statt JSX (siehe ADR-10).** `manual-markdown-jsx.tsx` (Web) und
+`manual-markdown-pdf.ts` (PDF) rendern denselben, über `markdown-tokens.ts`
+(`tokenizeManualMarkdown`, Wrapper um `marked`) tokenisierten Inhalt aus `src/content/manual.md`
+auf zwei unterschiedliche Ziel-Primitive (HTML/Tailwind bzw. react-pdf `Text`/`View`/`Image`).
+`marked` hat kein natives Konzept für Hinweisboxen — dafür gibt es eine eigene
+`::: callout Titel\n...\n:::`-Konvention, die `markdown-tokens.ts` vor dem eigentlichen
+`marked.lexer()`-Aufruf aus dem Text herausschneidet und als eigenen `callout`-Token wieder
+einfügt. Bekannte Eigenheit von `marked`: eine alleinstehende `![alt](src)`-Zeile wird als
+`paragraph`-Token mit einem verschachtelten `image`-Token tokenisiert, nie als eigenständiger
+`image`-Token — beide Renderer (und `manual-pdf.ts`s Bild-Sammlung) behandeln diesen Fall
+explizit.

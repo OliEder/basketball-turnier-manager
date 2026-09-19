@@ -152,3 +152,25 @@ infrage — `tournament-store.ts` hat aktuell keinerlei Konzept von "wer" eine A
 Geräte-übergreifender Kommunikation nötig, die es heute nicht gibt (Kapitel 3.2, ADR-01). Explizit
 nur als bekanntes künftiges Vorhaben festgehalten, kein Design/Plan, keine Priorisierung gegenüber
 Kapitel 11.11 oder dem zielbasierten Wizard (Kapitel 11.2) vorgenommen.
+
+## 11.13 PDF-Exporte sind nicht Tagged-PDF/PDF-UA-konform
+
+`@react-pdf/renderer` (Version 4.5.1, im Einsatz für alle vier PDF-Downloads, siehe ADR-10 und
+Kapitel 5.7) unterstützt aktuell kein Tagged-PDF/PDF-UA (offenes, seit längerem unbeantwortetes
+Upstream-Issue in der Bibliothek). Die erzeugten PDFs haben damit keine semantische
+Struktur/Lesereihenfolge für Screenreader über den reinen Text-Layer hinaus, keine echte
+Tabellen-Semantik, keine Landmark-Struktur. Innerhalb dieser Grenze umgesetzt: Dokument-Metadaten
+(Titel), Bild-Alt-Text als sichtbare Bildunterschrift (da react-pdf kein Screenreader-wirksames
+`alt`-Attribut kennt), geprüfter WCAG-AA-Farbkontrast (alle vier Farbkombinationen zwischen
+10.46:1 und 14.9:1, deutlich über der 4.5:1-Anforderung), und eine Elementbaum-Reihenfolge, die der
+visuellen Reihenfolge entspricht.
+
+Die einzige praktikable freie Bibliothek mit echtem Tagged-PDF-Support ist PDFKit — hat aber eine
+komplett andere, imperative API, die nicht mit react-pdfs Komponentenmodell kombinierbar ist. Ein
+echter Fix würde bedeuten, `@react-pdf/renderer` selbst zu forken und Tagged-PDF-Unterstützung über
+mehrere seiner internen Pakete hinweg nachzurüsten — ein mehrwöchiges, eigenständiges
+Infrastrukturprojekt, keine Erweiterung dieser App. Bewusst zurückgestellt als separate, spätere
+Idee (siehe Memory `react_pdf_fork_idea`), nicht Teil dieses Features.
+
+**Beleg**: `docs/superpowers/specs/2026-09-17-pdf-export-design.md`, Abschnitt
+"Barrierefreiheit (bestmögliche Annäherung)".
