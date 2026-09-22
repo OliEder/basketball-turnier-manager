@@ -92,7 +92,9 @@ test('imports a 64-team, 16-group tournament and generates a correct schedule', 
     // to keep the assertion count proportionate while still catching an off-by-one in group
     // derivation (e.g. only the first N-1 groups rendering, or the last group being dropped).
     for (const letter of ['A', 'H', 'P']) {
-      await page.getByRole('button', { name: `Gruppe ${letter}` }).click()
+      // exact: true avoids Playwright's fuzzy substring match also hitting the "Diese Gruppe als
+      // PDF herunterladen" button -- "gruppe als" contains "gruppe a" as a plain substring.
+      await page.getByRole('button', { name: `Gruppe ${letter}`, exact: true }).click()
       await expect(page.getByRole('heading', { name: `Gruppe ${letter}` })).toBeVisible()
       // Every group table should list exactly its own 4 teams (header row + 4 team rows = 5).
       await expect(page.getByRole('table').getByRole('row')).toHaveCount(5)

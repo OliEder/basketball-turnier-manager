@@ -11,7 +11,8 @@
 | Routing | React Router 7 (Client-seitig, `BrowserRouter`) | `src/App.tsx` |
 | UI-Primitives | Radix UI (`react-select`, `react-dialog`) für zugängliche Select-/Dialog-Komponenten | `package.json` |
 | Persistenz | Ausschließlich `localStorage` — kein Server, keine Datenbank, keine externe API-Anbindung außer optionalen Team-Logo-Bild-URLs | `src/lib/storage.ts` |
-| Export-Formate | JSON (Turnierdatensatz), PDF (`@react-pdf/renderer`), statisches HTML+ZIP (`jszip`) | `src/lib/export/*` |
+| Export-Formate | JSON (Turnierdatensatz), PDF (`@react-pdf/renderer`, vier native Downloads: Zeitplan, Gruppentabellen, Schweizer-System-Übersicht, Anleitung — kein `window.print()` mehr), statisches HTML+ZIP (`jszip`) | `src/lib/export/*`, ADR-10 |
+| Markdown-Verarbeitung | `marked` (Tokenizer, ausschließlich für die Anleitung — eine Quelle für Web-Seite und PDF, siehe ADR-10) | `src/lib/markdown-tokens.ts` |
 | Testing | Vitest 4 + Testing Library (Unit/Komponente), Playwright 1.63 (E2E), `@axe-core/playwright` (Barrierefreiheit) | `package.json` |
 | Node-Version (CI) | Node 22 | `.github/workflows/ci.yml` |
 | Hosting | Statisches Bundle, wahlweise GitHub Pages (`deploy-pages.yml`, Pfad-Präfix `/basketball-turnier-manager/`) oder Vercel (`vercel.json`, SPA-Rewrite auf `index.html`) | `.github/workflows/deploy-pages.yml`, `vercel.json` |

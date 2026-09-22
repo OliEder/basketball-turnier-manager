@@ -122,3 +122,36 @@ Es gibt weder eine ESLint-Konfiguration noch einen Lint-Job in der CI-Pipeline. 
 explizite Design-Entscheidung in den Specs belegt — vermutlich bewusst zugunsten von
 TypeScript-Strict-Mode plus Testabdeckung, aber diese Annahme ist NICHT im Code oder in
 `docs/superpowers/` verifiziert.
+
+---
+
+### ADR-10: Markdown als gemeinsame Inhaltsquelle für Web-Anleitung und PDF-Export
+
+- **Kontext**: Alle vier Export-Buttons (Zeitplan, Gruppentabellen, Schweizer-System-Übersicht,
+  Anleitung) sollten von `window.print()`-Popups auf echte PDF-Downloads umgestellt werden
+  (`@react-pdf/renderer`, bereits für den Zeitplan-Export im Einsatz). Für die Anleitung
+  (609 Zeilen handgeschriebenes JSX, 29 Screenshots, Fließtext, Listen, Hinweisboxen) hätte das
+  bedeutet, entweder den Inhalt zwischen Web-Seite und PDF zu duplizieren, oder ein Zwischenformat
+  zu finden, aus dem beide Darstellungen erzeugt werden können.
+- **Geprüfte Alternativen**: `react-markdown` (seit 18 Monaten nicht aktualisiert, geht von
+  DOM-Struktur aus — dokumentiert fragil mit react-pdf, siehe verlinkte GitHub-Issues in der
+  Design-Spec); `react-pdf-html` (führt mit HTML ein drittes Zwischenformat ein, das Web- und
+  PDF-Renderer wieder unabhängig interpretieren könnten); Raster-Ansätze wie `html2pdf.js`
+  (verschlechtern die PDF-Qualität — nicht mehr durchsuchbar/selektierbar, ein Rückschritt
+  gegenüber dem bereits bestehenden nativen react-pdf-Zeitplan-Export); ein eigenes,
+  JSON-basiertes Rich-Content-Format (mehr Aufwand als der Rest des Features zusammen, siehe
+  Design-Spec).
+- **Entscheidung**: Der Anleitungsinhalt wird EINMAL als Markdown (`src/content/manual.md`)
+  gepflegt, mit `marked` (aktiv gepflegt, keine Laufzeit-Abhängigkeiten) tokenisiert und von zwei
+  eigens geschriebenen, kleinen Renderern konsumiert — einer zu Web-JSX
+  (`manual-markdown-jsx.tsx`), einer zu react-pdf-Elementen (`manual-markdown-pdf.ts`). Eine
+  projekteigene `::: callout Titel ... :::`-Konvention deckt Hinweisboxen ab, die `marked` nicht
+  nativ kennt.
+- **Konsequenz**: Kein Duplikat-Pflegeaufwand zwischen Web-Seite und PDF, aber ein eigener,
+  kleiner Tokenizer/Renderer-Layer (`markdown-tokens.ts` + zwei Renderer) muss selbst gewartet
+  werden statt eine fertige Bibliothek zu nutzen. Eine echte, mehrwöchige Alternative (ein Fork von
+  `@react-pdf/renderer` mit Tagged-PDF/PDF-UA-Unterstützung, die auch das
+  Barrierefreiheits-Problem lösen würde) wurde als eigenständiges, späteres Projekt zurückgestellt
+  (siehe Kapitel 11).
+- **Beleg**: `docs/superpowers/specs/2026-09-17-pdf-export-design.md`, Abschnitt "Markdown als
+  gemeinsame Inhaltsquelle für die Anleitung"; `docs/superpowers/plans/2026-09-17-pdf-export.md`.

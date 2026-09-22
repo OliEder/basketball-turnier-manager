@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { computeGroupStandings } from '@/lib/group-standings'
-import { renderGroupOverviewHtml } from '@/lib/export/group-overview-export'
+import { downloadGroupOverviewPdf } from '@/lib/export/group-overview-pdf'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import GameRow from '@/components/schedule/GameRow'
@@ -26,30 +26,16 @@ export default function GroupOverviewPage() {
   const groupGames = schedule.games.filter(g => g.stage === 'group' && (g.groupId ?? 'A') === currentGroupId)
   const rounds = [...new Set(groupGames.map(g => g.round))].sort((a, b) => a - b)
 
-  const openPrintWindow = (html: string) => {
-    const blob = new Blob([html], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const printWindow = window.open(url, '_blank')
-    if (printWindow) {
-      printWindow.addEventListener('load', () => {
-        printWindow.print()
-        URL.revokeObjectURL(url)
-      })
-    } else {
-      URL.revokeObjectURL(url)
-    }
+  const handleDownloadCurrentGroupPdf = () => {
+    void downloadGroupOverviewPdf(tournament, schedule, [{ groupId: currentGroupId, standings }])
   }
 
-  const handlePrintCurrentGroup = () => {
-    openPrintWindow(renderGroupOverviewHtml(tournament, schedule, [{ groupId: currentGroupId, standings }]))
-  }
-
-  const handlePrintAllGroups = () => {
+  const handleDownloadAllGroupsPdf = () => {
     const sections = groupIds.map(groupId => ({
       groupId,
       standings: computeGroupStandings(tournament.teams, schedule.games, groupId),
     }))
-    openPrintWindow(renderGroupOverviewHtml(tournament, schedule, sections))
+    void downloadGroupOverviewPdf(tournament, schedule, sections)
   }
 
   return (
@@ -68,8 +54,8 @@ export default function GroupOverviewPage() {
           ))}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handlePrintCurrentGroup}>Diese Gruppe drucken</Button>
-          <Button variant="outline" size="sm" onClick={handlePrintAllGroups}>Alle Gruppen drucken</Button>
+          <Button variant="outline" size="sm" onClick={handleDownloadCurrentGroupPdf}>Diese Gruppe als PDF herunterladen</Button>
+          <Button variant="outline" size="sm" onClick={handleDownloadAllGroupsPdf}>Alle Gruppen als PDF herunterladen</Button>
         </div>
       </div>
 

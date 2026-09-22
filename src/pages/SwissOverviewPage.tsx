@@ -1,6 +1,6 @@
 import { getCurrentSwissRound, isRoundFullyEvaluated, useTournamentStore } from '@/store/tournament-store'
 import { computeStandings } from '@/lib/standings'
-import { renderSwissOverviewHtml } from '@/lib/export/swiss-overview-export'
+import { downloadSwissOverviewPdf } from '@/lib/export/swiss-overview-pdf'
 import { computeRoundPageBreaks } from '@/lib/print-pagination'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -48,25 +48,14 @@ export default function SwissOverviewPage() {
   )
   const roundPageBreaks = computeRoundPageBreaks(rounds, gamesPerRound)
 
-  const handlePrint = () => {
-    const html = renderSwissOverviewHtml(tournament, schedule, standings)
-    const blob = new Blob([html], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const printWindow = window.open(url, '_blank')
-    if (printWindow) {
-      printWindow.addEventListener('load', () => {
-        printWindow.print()
-        URL.revokeObjectURL(url)
-      })
-    } else {
-      URL.revokeObjectURL(url)
-    }
+  const handleDownloadPdf = () => {
+    void downloadSwissOverviewPdf(tournament, schedule, standings)
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button onClick={handlePrint}>Drucken</Button>
+        <Button onClick={handleDownloadPdf}>PDF herunterladen</Button>
       </div>
 
       <TableOfContents rounds={rounds} />
