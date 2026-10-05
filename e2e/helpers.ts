@@ -21,8 +21,7 @@ export async function addTeam(page: Page, name: string) {
 }
 
 export async function selectMode(page: Page, label: string) {
-  await page.locator('#tourney-mode').click()
-  await page.getByRole('option', { name: label }).click()
+  await page.locator('#tourney-mode').selectOption({ label })
 }
 
 export async function setupSwissTournament(page: Page, teamNames: string[], swissRounds?: number) {
