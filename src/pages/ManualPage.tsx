@@ -39,7 +39,7 @@ const TOC_ITEMS = [
 
 function TableOfContents() {
   return (
-    <nav aria-label="Inhalt" className="rounded-md border border-brand-primary/30 bg-tint p-4 text-sm">
+    <nav aria-label="Inhalt" className="rounded-md border border-border bg-tint p-4 text-sm">
       <p className="font-semibold text-brand-primary mb-2">Inhalt</p>
       <ul className="space-y-1">
         {TOC_ITEMS.map(item => (
