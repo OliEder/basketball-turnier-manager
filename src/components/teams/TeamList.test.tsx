@@ -28,7 +28,7 @@ describe('TeamList', () => {
   it('adds a team immediately when the tournament is not locked', () => {
     render(<TeamList />)
     fireEvent.click(screen.getByRole('button', { name: 'Team hinzufügen' }))
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Team C' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Team C' } })
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
 
     expect(screen.queryByRole('button', { name: 'Bestätigen' })).not.toBeInTheDocument()
@@ -47,7 +47,7 @@ describe('TeamList', () => {
     render(<TeamList />)
     fireEvent.click(screen.getByRole('button', { name: 'Team hinzufügen' }))
 
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Team C' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Team C' } })
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
     expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeInTheDocument()
     expect(useTournamentStore.getState().tournament.teams).toHaveLength(2)
@@ -99,7 +99,7 @@ describe('TeamList', () => {
 
     render(<TeamList />)
     fireEvent.click(screen.getAllByRole('button', { name: /bearbeiten/i })[0])
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Team A Neu' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Team A Neu' } })
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
 
     expect(screen.queryByRole('button', { name: 'Bestätigen' })).not.toBeInTheDocument()

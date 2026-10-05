@@ -1,5 +1,4 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Label } from '@/components/ui/label'
 import { Banner } from '@bbv/dss-design-system/react'
 
 export default function FinalsVariantForm({ disabled = false }: { disabled?: boolean }) {
@@ -29,7 +28,7 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
   return (
     <div className="space-y-4 max-w-md">
       <div className="space-y-1">
-        <Label htmlFor="finals-variant">Endrunden-Variante</Label>
+        <label htmlFor="finals-variant" className="dss-field-label">Endrunden-Variante</label>
         <select
           id="finals-variant"
           className="border border-border rounded-sm px-2 py-1 text-sm w-full"
@@ -80,7 +79,7 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
       )}
 
       <div className="space-y-1">
-        <Label htmlFor="dropout-handling">Bei Rückzug in der Endrunde</Label>
+        <label htmlFor="dropout-handling" className="dss-field-label">Bei Rückzug in der Endrunde</label>
         <select
           id="dropout-handling"
           className="border border-border rounded-sm px-2 py-1 text-sm w-full"

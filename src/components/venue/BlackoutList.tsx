@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button } from '@bbv/dss-design-system/react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button, TextInput } from '@bbv/dss-design-system/react'
 import type { TimeWindow } from '@/types'
 
 export default function BlackoutList({ disabled = false }: { disabled?: boolean }) {
@@ -33,18 +31,9 @@ export default function BlackoutList({ disabled = false }: { disabled?: boolean 
         </div>
       ))}
       <div className="flex gap-2 items-end flex-wrap">
-        <div className="space-y-1">
-          <Label htmlFor="blackout-start">Von</Label>
-          <Input id="blackout-start" type="time" value={newBlackout.start} onChange={e => setNewBlackout(p => ({ ...p, start: e.target.value }))} className="w-32" disabled={disabled} />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="blackout-end">Bis</Label>
-          <Input id="blackout-end" type="time" value={newBlackout.end} onChange={e => setNewBlackout(p => ({ ...p, end: e.target.value }))} className="w-32" disabled={disabled} />
-        </div>
-        <div className="space-y-1 flex-1">
-          <Label htmlFor="blackout-reason">Grund (optional)</Label>
-          <Input id="blackout-reason" value={newBlackout.reason ?? ''} onChange={e => setNewBlackout(p => ({ ...p, reason: e.target.value }))} placeholder="z.B. Mittagspause" disabled={disabled} />
-        </div>
+        <TextInput id="blackout-start" label="Von" type="time" value={newBlackout.start} onChange={e => setNewBlackout(p => ({ ...p, start: e.target.value }))} fieldClassName="w-32" disabled={disabled} />
+        <TextInput id="blackout-end" label="Bis" type="time" value={newBlackout.end} onChange={e => setNewBlackout(p => ({ ...p, end: e.target.value }))} fieldClassName="w-32" disabled={disabled} />
+        <TextInput id="blackout-reason" label="Grund (optional)" fieldClassName="flex-1" value={newBlackout.reason ?? ''} onChange={e => setNewBlackout(p => ({ ...p, reason: e.target.value }))} placeholder="z.B. Mittagspause" disabled={disabled} />
         <Button onClick={add} disabled={disabled}>Hinzufügen</Button>
       </div>
     </div>

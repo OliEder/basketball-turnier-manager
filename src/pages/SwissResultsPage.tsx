@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore, getCurrentSwissRound } from '@/store/tournament-store'
 import { PairingConflictError } from '@/lib/swiss-pairing'
-import { Button, Banner } from '@bbv/dss-design-system/react'
-import { Input } from '@/components/ui/input'
+import { Button, Banner, TextInput } from '@bbv/dss-design-system/react'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import type { Game } from '@/types'
@@ -184,16 +183,18 @@ export default function SwissResultsPage() {
                 {hasResult && correctingGameId !== game.id ? (
                   <span className="text-sm text-muted-foreground text-right">{game.periodScores[0].homeScore}</span>
                 ) : !hasResult ? (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner px-1 text-center"
                     aria-label={`Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? '' } }))}
                   />
                 ) : (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner px-1 text-center"
                     defaultValue={game.periodScores[0].homeScore}
                     aria-label={`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? String(game.periodScores[0].awayScore) } }))}
@@ -205,16 +206,18 @@ export default function SwissResultsPage() {
                 {hasResult && correctingGameId !== game.id ? (
                   <span className="text-sm text-muted-foreground text-left">{game.periodScores[0].awayScore}</span>
                 ) : !hasResult ? (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner px-1 text-center"
                     aria-label={`Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? '', away: e.target.value } }))}
                   />
                 ) : (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner px-1 text-center"
                     defaultValue={game.periodScores[0].awayScore}
                     aria-label={`Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? String(game.periodScores[0].homeScore), away: e.target.value } }))}
