@@ -1,6 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button } from '@bbv/dss-design-system/react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button, Banner } from '@bbv/dss-design-system/react'
 import { downloadJson } from '@/lib/export/json-export'
 import { downloadHtmlZip } from '@/lib/export/html-export'
 import { downloadPdf } from '@/lib/export/pdf-export'
@@ -11,9 +10,9 @@ export default function ExportPanel() {
 
   if (!ready) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Zeitplan“).</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Bitte zuerst einen Zeitplan generieren (Seite „Zeitplan“).</div>
+      </Banner>
     )
   }
 

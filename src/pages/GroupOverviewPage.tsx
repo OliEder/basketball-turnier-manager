@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { computeGroupStandings } from '@/lib/group-standings'
 import { downloadGroupOverviewPdf } from '@/lib/export/group-overview-pdf'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@bbv/dss-design-system/react'
+import { Banner, Button } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 
@@ -14,9 +13,9 @@ export default function GroupOverviewPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+      </Banner>
     )
   }
 

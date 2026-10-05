@@ -1,6 +1,6 @@
 import { useTournamentStore } from '@/store/tournament-store'
 import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Banner } from '@bbv/dss-design-system/react'
 
 export default function FinalsVariantForm({ disabled = false }: { disabled?: boolean }) {
   const { tournament, setFinalsVariant, setDropoutHandling } = useTournamentStore()
@@ -60,23 +60,23 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
       </div>
 
       {hasUnevenGroups && (
-        <Alert>
-          <AlertDescription>
+        <Banner>
+          <div>
             Die Gruppen sind unterschiedlich groß. Die Anzahl der Rangstufen richtet sich nach der
             kleinsten Gruppe — Teams auf niedrigeren Rängen in größeren Gruppen nehmen an keiner
             Platzierungsgruppe teil.
-          </AlertDescription>
-        </Alert>
+          </div>
+        </Banner>
       )}
 
       {showCapacityWarning && (
-        <Alert>
-          <AlertDescription>
+        <Banner severity="warn">
+          <div>
             Diese Konfiguration erzeugt schätzungsweise {estimatedExtraGames} zusätzliche Spiele für
             die Endrunde. Prüfe, ob die verfügbare Hallenzeit und Feldanzahl dafür ausreichen —
             ansonsten Gruppenanzahl reduzieren oder mehr Felder/Zeit einplanen.
-          </AlertDescription>
-        </Alert>
+          </div>
+        </Banner>
       )}
 
       <div className="space-y-1">

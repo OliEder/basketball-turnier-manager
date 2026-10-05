@@ -9,8 +9,7 @@ import BlackoutList from '@/components/venue/BlackoutList'
 import { LockedSectionGate } from '@/components/config/LockedSectionGate'
 import { DestructiveConfirmDialog } from '@/components/ui/destructive-confirm-dialog'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button } from '@bbv/dss-design-system/react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button, Banner } from '@bbv/dss-design-system/react'
 import { parseTournamentImport } from '@/lib/import/json-import'
 import { downloadJson } from '@/lib/export/json-export'
 import type { TournamentConfig, Schedule } from '@/types'
@@ -117,32 +116,32 @@ export default function ConfigPage() {
         </div>
 
         {tournament.teams.length < 2 && (
-          <Alert>
-            <AlertDescription>Mindestens 2 Teams erforderlich.</AlertDescription>
-          </Alert>
+          <Banner severity="warn">
+            <div>Mindestens 2 Teams erforderlich.</div>
+          </Banner>
         )}
 
         {needsFinalsVariant && (
-          <Alert>
-            <AlertDescription>
+          <Banner severity="warn">
+            <div>
               Bitte zuerst eine Endrunden-Variante auswählen (Abschnitt „Endrunden-Variante" oben) — bei mehreren Gruppen kann sonst kein sinnvoller Spielplan für die Endrunde erzeugt werden.
-            </AlertDescription>
-          </Alert>
+            </div>
+          </Banner>
         )}
 
         {schedule && schedule.games.length === 0 && (
-          <Alert>
-            <AlertDescription>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</AlertDescription>
-          </Alert>
+          <Banner severity="warn">
+            <div>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</div>
+          </Banner>
         )}
 
         {scheduleGenerationError && (
-          <Alert>
-            <AlertDescription>
+          <Banner severity="danger">
+            <div>
               Zeitplan konnte nicht neu generiert werden: {scheduleGenerationError} — der zuletzt
               erfolgreich generierte Zeitplan bleibt unverändert bestehen.
-            </AlertDescription>
-          </Alert>
+            </div>
+          </Banner>
         )}
       </section>
 
@@ -162,9 +161,9 @@ export default function ConfigPage() {
           />
         </div>
         {importError && (
-          <Alert>
-            <AlertDescription>{importError}</AlertDescription>
-          </Alert>
+          <Banner severity="danger">
+            <div>{importError}</div>
+          </Banner>
         )}
         {tournament.name && (
           <p className="text-sm text-muted-foreground">Aktuelles Turnier: {tournament.name}</p>

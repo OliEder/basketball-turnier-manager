@@ -1,5 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Banner } from '@bbv/dss-design-system/react'
 import GameRow from './GameRow'
 
 export default function ScheduleView() {
@@ -7,9 +7,9 @@ export default function ScheduleView() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+      </Banner>
     )
   }
 
@@ -20,9 +20,9 @@ export default function ScheduleView() {
       </p>
 
       {schedule.games.length === 0 && (
-        <Alert>
-          <AlertDescription>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</AlertDescription>
-        </Alert>
+        <Banner severity="warn">
+          <div>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</div>
+        </Banner>
       )}
 
       {schedule.games.length > 0 && (

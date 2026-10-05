@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useTournamentStore, getCurrentSwissRound } from '@/store/tournament-store'
 import { PairingConflictError } from '@/lib/swiss-pairing'
-import { Button } from '@bbv/dss-design-system/react'
+import { Button, Banner } from '@bbv/dss-design-system/react'
 import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import type { Game } from '@/types'
@@ -19,9 +18,9 @@ export default function SwissResultsPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+      </Banner>
     )
   }
 
@@ -124,18 +123,18 @@ export default function SwissResultsPage() {
       </div>
 
       {isViewingPastRound && (
-        <Alert>
-          <AlertDescription className="flex items-center justify-between gap-3">
+        <Banner>
+          <div className="flex items-center justify-between gap-3">
             <span>Du siehst eine bereits abgeschlossene Runde — nicht die aktuell aktive Runde.</span>
             <Button size="sm" onClick={() => setViewedRound(null)}>Zur aktuellen Runde</Button>
-          </AlertDescription>
-        </Alert>
+          </div>
+        </Banner>
       )}
 
       {error && (
-        <Alert>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <Banner severity="danger">
+          <div>{error}</div>
+        </Banner>
       )}
 
       <div className="border border-border rounded-md p-4 bg-card space-y-3">
@@ -279,9 +278,9 @@ export default function SwissResultsPage() {
       </div>
 
       {tournamentFinished ? (
-        <Alert>
-          <AlertDescription>Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.</AlertDescription>
-        </Alert>
+        <Banner>
+          <div>Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.</div>
+        </Banner>
       ) : !isViewingPastRound ? (
         <Button onClick={handleAdvance} disabled={!allEvaluated}>
           {displayRound >= totalRounds ? 'Turnier abschließen' : 'Nächste Runde auslosen'}

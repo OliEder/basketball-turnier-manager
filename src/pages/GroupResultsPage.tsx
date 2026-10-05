@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@bbv/dss-design-system/react'
+import { Banner, Button } from '@bbv/dss-design-system/react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
@@ -22,9 +21,9 @@ export default function GroupResultsPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+      </Banner>
     )
   }
 
@@ -111,14 +110,14 @@ export default function GroupResultsPage() {
       <h1 className="text-2xl text-brand-primary">Ergebnisse erfassen</h1>
 
       {savedGroupId && (
-        <Alert>
-          <AlertDescription>
+        <Banner>
+          <div>
             Ergebnis gespeichert.{' '}
             <Link to="/group-overview" className="underline">
               Tabelle für Gruppe {savedGroupId} ansehen →
             </Link>
-          </AlertDescription>
-        </Alert>
+          </div>
+        </Banner>
       )}
 
       <div className="flex gap-4 flex-wrap items-end">
@@ -166,9 +165,9 @@ export default function GroupResultsPage() {
       </div>
 
       {filteredGames.length === 0 && (
-        <Alert>
-          <AlertDescription>Keine Spiele für die gewählten Filter.</AlertDescription>
-        </Alert>
+        <Banner>
+          <div>Keine Spiele für die gewählten Filter.</div>
+        </Banner>
       )}
 
       <div className="border border-border rounded-md p-4 bg-card space-y-3">

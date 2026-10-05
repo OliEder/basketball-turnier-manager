@@ -1,5 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Banner } from '@bbv/dss-design-system/react'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalStandings, computeEndrunde1Standings } from '@/lib/final-standings'
 
@@ -8,9 +8,9 @@ export default function FinalStandingsPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+      </Banner>
     )
   }
 
@@ -21,9 +21,9 @@ export default function FinalStandingsPage() {
 
   if (standings.length === 0) {
     return (
-      <Alert>
-        <AlertDescription>Noch keine Endrunden-Ergebnisse vorhanden.</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Noch keine Endrunden-Ergebnisse vorhanden.</div>
+      </Banner>
     )
   }
 

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@bbv/dss-design-system/react'
+import { Banner, Button } from '@bbv/dss-design-system/react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
@@ -24,9 +23,9 @@ export default function PlayoffResultsPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+      </Banner>
     )
   }
 
@@ -95,9 +94,9 @@ export default function PlayoffResultsPage() {
       </div>
 
       {filteredGames.length === 0 && (
-        <Alert>
-          <AlertDescription>Keine Spiele für die gewählten Filter.</AlertDescription>
-        </Alert>
+        <Banner>
+          <div>Keine Spiele für die gewählten Filter.</div>
+        </Banner>
       )}
 
       <div className="border border-border rounded-md p-4 bg-card space-y-3">

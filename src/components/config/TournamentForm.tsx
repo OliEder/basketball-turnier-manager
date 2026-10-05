@@ -2,7 +2,7 @@ import { useTournamentStore } from '@/store/tournament-store'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Banner } from '@bbv/dss-design-system/react'
 import { calcGameDurationMin, timeToMinutes, addMinutes } from '@/lib/game-duration'
 import type { TournamentMode } from '@/types'
 
@@ -81,12 +81,12 @@ export default function TournamentForm({ disabled = false }: { disabled?: boolea
             const availabilityEnd = addMinutes(venueClose, -tournament.venue.teardownBufferMin)
             const fitsInVenue = timeToMinutes(firstStart) + totalMin <= timeToMinutes(availabilityEnd)
             return (
-              <Alert>
-                <AlertDescription className={fitsInVenue ? '' : 'text-red-600'}>
+              <Banner severity={fitsInVenue ? 'info' : 'danger'}>
+                <div>
                   Geschätzte Gesamtdauer: {totalMin} Minuten.
                   {!fitsInVenue && ' Das passt nicht in die verfügbare Hallenzeit — Rundenzahl reduzieren oder mehr Felder einplanen.'}
-                </AlertDescription>
-              </Alert>
+                </div>
+              </Banner>
             )
           })()}
         </div>
