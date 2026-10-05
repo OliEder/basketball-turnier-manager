@@ -30,7 +30,7 @@ export default function SwissOverviewPage() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }

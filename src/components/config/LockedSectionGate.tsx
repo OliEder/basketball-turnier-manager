@@ -15,7 +15,7 @@ export function LockedSectionGate({ locked, unlocked, onUnlock, children }: Lock
   return (
     <div className="space-y-3">
       {showBanner && (
-        <Banner severity="warn">
+        <Banner severity="warn" role="status">
           <div className="flex items-center justify-between gap-3">
             <span>Turnier läuft bereits — Änderungen können den bisherigen Verlauf beeinträchtigen.</span>
             <Button size="sm" variant="ghost" onClick={onUnlock}>

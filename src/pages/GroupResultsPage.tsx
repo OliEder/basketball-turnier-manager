@@ -20,7 +20,7 @@ export default function GroupResultsPage() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }
@@ -109,12 +109,10 @@ export default function GroupResultsPage() {
 
       {savedGroupId && (
         <Banner>
-          <div>
-            Ergebnis gespeichert.{' '}
-            <Link to="/group-overview" className="underline">
-              Tabelle für Gruppe {savedGroupId} ansehen →
-            </Link>
-          </div>
+          Ergebnis gespeichert.{' '}
+          <Link to="/group-overview" className="underline">
+            Tabelle für Gruppe {savedGroupId} ansehen →
+          </Link>
         </Banner>
       )}
 
@@ -164,7 +162,7 @@ export default function GroupResultsPage() {
 
       {filteredGames.length === 0 && (
         <Banner>
-          <div>Keine Spiele für die gewählten Filter.</div>
+          Keine Spiele für die gewählten Filter.
         </Banner>
       )}
 

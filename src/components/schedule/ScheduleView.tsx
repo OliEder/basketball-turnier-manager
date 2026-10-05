@@ -8,7 +8,7 @@ export default function ScheduleView() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }
@@ -20,8 +20,8 @@ export default function ScheduleView() {
       </p>
 
       {schedule.games.length === 0 && (
-        <Banner severity="warn">
-          <div>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</div>
+        <Banner severity="warn" role="status">
+          Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.
         </Banner>
       )}
 

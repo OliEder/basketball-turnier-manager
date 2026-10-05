@@ -116,31 +116,27 @@ export default function ConfigPage() {
         </div>
 
         {tournament.teams.length < 2 && (
-          <Banner severity="warn">
-            <div>Mindestens 2 Teams erforderlich.</div>
+          <Banner severity="warn" role="status">
+            Mindestens 2 Teams erforderlich.
           </Banner>
         )}
 
         {needsFinalsVariant && (
-          <Banner severity="warn">
-            <div>
-              Bitte zuerst eine Endrunden-Variante auswählen (Abschnitt „Endrunden-Variante" oben) — bei mehreren Gruppen kann sonst kein sinnvoller Spielplan für die Endrunde erzeugt werden.
-            </div>
+          <Banner severity="warn" role="status">
+            Bitte zuerst eine Endrunden-Variante auswählen (Abschnitt „Endrunden-Variante" oben) — bei mehreren Gruppen kann sonst kein sinnvoller Spielplan für die Endrunde erzeugt werden.
           </Banner>
         )}
 
         {schedule && schedule.games.length === 0 && (
-          <Banner severity="warn">
-            <div>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</div>
+          <Banner severity="warn" role="status">
+            Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.
           </Banner>
         )}
 
         {scheduleGenerationError && (
           <Banner severity="danger">
-            <div>
-              Zeitplan konnte nicht neu generiert werden: {scheduleGenerationError} — der zuletzt
-              erfolgreich generierte Zeitplan bleibt unverändert bestehen.
-            </div>
+            Zeitplan konnte nicht neu generiert werden: {scheduleGenerationError} — der zuletzt
+            erfolgreich generierte Zeitplan bleibt unverändert bestehen.
           </Banner>
         )}
       </section>
@@ -162,7 +158,7 @@ export default function ConfigPage() {
         </div>
         {importError && (
           <Banner severity="danger">
-            <div>{importError}</div>
+            {importError}
           </Banner>
         )}
         {tournament.name && (

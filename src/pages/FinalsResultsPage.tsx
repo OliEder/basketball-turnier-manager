@@ -18,7 +18,7 @@ export default function FinalsResultsPage() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }
@@ -98,10 +98,8 @@ export default function FinalsResultsPage() {
 
       {saved && (
         <Banner>
-          <div>
-            Ergebnis gespeichert.{' '}
-            <Link to="/final-standings" className="underline">Endstand ansehen →</Link>
-          </div>
+          Ergebnis gespeichert.{' '}
+          <Link to="/final-standings" className="underline">Endstand ansehen →</Link>
         </Banner>
       )}
 
@@ -123,7 +121,7 @@ export default function FinalsResultsPage() {
 
       {filteredGames.length === 0 && (
         <Banner>
-          <div>Keine Spiele für die gewählten Filter.</div>
+          Keine Spiele für die gewählten Filter.
         </Banner>
       )}
 

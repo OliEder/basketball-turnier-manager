@@ -60,21 +60,17 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
 
       {hasUnevenGroups && (
         <Banner>
-          <div>
-            Die Gruppen sind unterschiedlich groß. Die Anzahl der Rangstufen richtet sich nach der
-            kleinsten Gruppe — Teams auf niedrigeren Rängen in größeren Gruppen nehmen an keiner
-            Platzierungsgruppe teil.
-          </div>
+          Die Gruppen sind unterschiedlich groß. Die Anzahl der Rangstufen richtet sich nach der
+          kleinsten Gruppe — Teams auf niedrigeren Rängen in größeren Gruppen nehmen an keiner
+          Platzierungsgruppe teil.
         </Banner>
       )}
 
       {showCapacityWarning && (
         <Banner severity="warn">
-          <div>
-            Diese Konfiguration erzeugt schätzungsweise {estimatedExtraGames} zusätzliche Spiele für
-            die Endrunde. Prüfe, ob die verfügbare Hallenzeit und Feldanzahl dafür ausreichen —
-            ansonsten Gruppenanzahl reduzieren oder mehr Felder/Zeit einplanen.
-          </div>
+          Diese Konfiguration erzeugt schätzungsweise {estimatedExtraGames} zusätzliche Spiele für
+          die Endrunde. Prüfe, ob die verfügbare Hallenzeit und Feldanzahl dafür ausreichen —
+          ansonsten Gruppenanzahl reduzieren oder mehr Felder/Zeit einplanen.
         </Banner>
       )}
 

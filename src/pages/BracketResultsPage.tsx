@@ -30,7 +30,7 @@ export default function BracketResultsPage() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }
@@ -118,7 +118,7 @@ export default function BracketResultsPage() {
 
       {filteredGames.length === 0 && (
         <Banner>
-          <div>Keine Spiele für die gewählten Filter.</div>
+          Keine Spiele für die gewählten Filter.
         </Banner>
       )}
 

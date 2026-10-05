@@ -22,7 +22,7 @@ export default function PlayoffResultsPage() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }
@@ -93,7 +93,7 @@ export default function PlayoffResultsPage() {
 
       {filteredGames.length === 0 && (
         <Banner>
-          <div>Keine Spiele für die gewählten Filter.</div>
+          Keine Spiele für die gewählten Filter.
         </Banner>
       )}
 

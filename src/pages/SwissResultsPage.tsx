@@ -18,7 +18,7 @@ export default function SwissResultsPage() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }
@@ -132,7 +132,7 @@ export default function SwissResultsPage() {
 
       {error && (
         <Banner severity="danger">
-          <div>{error}</div>
+          {error}
         </Banner>
       )}
 
@@ -282,7 +282,7 @@ export default function SwissResultsPage() {
 
       {tournamentFinished ? (
         <Banner>
-          <div>Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.</div>
+          Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.
         </Banner>
       ) : !isViewingPastRound ? (
         <Button onClick={handleAdvance} disabled={!allEvaluated}>

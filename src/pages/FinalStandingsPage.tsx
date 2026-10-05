@@ -9,7 +9,7 @@ export default function FinalStandingsPage() {
   if (!schedule) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
       </Banner>
     )
   }
@@ -22,7 +22,7 @@ export default function FinalStandingsPage() {
   if (standings.length === 0) {
     return (
       <Banner>
-        <div>Noch keine Endrunden-Ergebnisse vorhanden.</div>
+        Noch keine Endrunden-Ergebnisse vorhanden.
       </Banner>
     )
   }

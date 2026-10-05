@@ -11,7 +11,7 @@ export default function ExportPanel() {
   if (!ready) {
     return (
       <Banner>
-        <div>Bitte zuerst einen Zeitplan generieren (Seite „Zeitplan“).</div>
+        Bitte zuerst einen Zeitplan generieren (Seite „Zeitplan“).
       </Banner>
     )
   }
