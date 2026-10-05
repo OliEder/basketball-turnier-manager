@@ -54,7 +54,7 @@ export default function TeamForm({ initial, onSubmit, onCancel }: Props) {
             onChange={set('color')}
             className="h-9 w-12 rounded border border-border-ui cursor-pointer"
           />
-          <TextInput value={form.color} onChange={set('color')} fieldClassName="w-32" className="font-mono" />
+          <TextInput value={form.color} onChange={set('color')} fieldClassName="w-32" className="!font-mono" />
         </div>
       </div>
       <TextInput id="team-contact" label="Kontakt" value={form.contact} onChange={set('contact')} />

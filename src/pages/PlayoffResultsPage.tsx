@@ -136,7 +136,7 @@ export default function PlayoffResultsPage() {
                     density="compact"
                     type="number"
                     fieldClassName="w-16"
-                    className="no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     aria-label={isCorrecting ? `Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}` : `Ergebnis Heim, Spiel ${game.gameNumber}`}
                     defaultValue={isCorrecting ? game.periodScores[0].homeScore : undefined}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? (isCorrecting ? String(game.periodScores[0].awayScore) : '') } }))}
@@ -146,7 +146,7 @@ export default function PlayoffResultsPage() {
                     density="compact"
                     type="number"
                     fieldClassName="w-16"
-                    className="no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     aria-label={isCorrecting ? `Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}` : `Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     defaultValue={isCorrecting ? game.periodScores[0].awayScore : undefined}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? (isCorrecting ? String(game.periodScores[0].homeScore) : ''), away: e.target.value } }))}

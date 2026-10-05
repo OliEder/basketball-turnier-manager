@@ -166,7 +166,7 @@ export default function SwissResultsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-xs w-full min-w-0 truncate"
+                    className="!text-xs w-full min-w-0 truncate"
                     title={`${home} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${home} als zurückgezogen markieren?`)) withdrawTeam(game.homeTeamId!)
@@ -186,7 +186,7 @@ export default function SwissResultsPage() {
                   <TextInput
                     density="compact"
                     type="number"
-                    className="no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     aria-label={`Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? '' } }))}
                   />
@@ -194,7 +194,7 @@ export default function SwissResultsPage() {
                   <TextInput
                     density="compact"
                     type="number"
-                    className="no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     defaultValue={game.periodScores[0].homeScore}
                     aria-label={`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? String(game.periodScores[0].awayScore) } }))}
@@ -209,7 +209,7 @@ export default function SwissResultsPage() {
                   <TextInput
                     density="compact"
                     type="number"
-                    className="no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     aria-label={`Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? '', away: e.target.value } }))}
                   />
@@ -217,7 +217,7 @@ export default function SwissResultsPage() {
                   <TextInput
                     density="compact"
                     type="number"
-                    className="no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     defaultValue={game.periodScores[0].awayScore}
                     aria-label={`Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? String(game.periodScores[0].homeScore), away: e.target.value } }))}
@@ -236,7 +236,7 @@ export default function SwissResultsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-xs w-full min-w-0 truncate"
+                    className="!text-xs w-full min-w-0 truncate"
                     title={`${away} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${away} als zurückgezogen markieren?`)) withdrawTeam(game.awayTeamId!)
