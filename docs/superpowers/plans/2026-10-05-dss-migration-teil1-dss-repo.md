@@ -1337,7 +1337,9 @@ describe('TextInput', () => {
 
   it('markiert Pflichtfelder: required am Input, Stern nur visuell', () => {
     render(<TextInput label="Name" required />);
-    const input = screen.getByLabelText('Name');
+    // getByLabelText('Name') würde scheitern: der Label-Text ist "Name*" (Stern-Span). Der zugängliche Name
+    // ist "Name", weil der Stern aria-hidden ist.
+    const input = screen.getByRole('textbox', { name: 'Name' });
     expect(input).toBeRequired();
     expect(document.querySelector('.req')).toHaveAttribute('aria-hidden', 'true');
   });
@@ -1859,6 +1861,21 @@ describe('Card', () => {
     expect(onClick).toHaveBeenCalledTimes(3);
   });
 
+  it.each([['Enter', 'Enter'], ['Space', ' ']])(
+    'löst die Karte nicht aus, wenn %s auf einem Button innerhalb gedrückt wird',
+    (_name, key) => {
+      const onClick = vi.fn();
+      render(
+        <Card variant="hoverable" onClick={onClick}>
+          <button type="button">Innen</button>
+        </Card>,
+      );
+      const notPrevented = fireEvent.keyDown(screen.getByText('Innen'), { key });
+      expect(onClick).not.toHaveBeenCalled();
+      expect(notPrevented).toBe(true);
+    },
+  );
+
   it('hat keine axe-Verstöße', async () => {
     const { container } = render(<Card header="Titel" footer="Fuß">Body</Card>);
     await expectNoA11yViolations(container);
@@ -1872,7 +1889,7 @@ Expected: FAIL — `Cannot find module './Card'`.
 - [ ] **Step 2: `react/Card.tsx` implementieren**
 
 ```tsx
-import { forwardRef, type ElementType, type HTMLAttributes, type KeyboardEvent, type ReactNode, type SyntheticEvent } from 'react';
+import { forwardRef, type ElementType, type HTMLAttributes, type KeyboardEvent, type ReactNode, type Ref, type SyntheticEvent } from 'react';
 import { cn } from './cn';
 
 export type CardVariant = 'default' | 'elevated' | 'flat' | 'hoverable';
@@ -1893,11 +1910,14 @@ export const Card = forwardRef<HTMLElement, CardProps>(function Card(
   { variant = 'default', padding = 'md', as = 'div', href, onClick, onKeyDown, header, footer, className, children, ...rest },
   ref,
 ) {
-  const Tag: ElementType = href ? 'a' : as;
-  const interactiveDiv = Tag === 'div' && Boolean(onClick);
+  const tagName = href ? 'a' : as;
+  const Tag: ElementType = tagName;
+  const interactiveDiv = tagName === 'div' && Boolean(onClick);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     onKeyDown?.(event);
+    // Enter/Space auf interaktiven Kindern (Button, Link) nicht abfangen
+    if (event.target !== event.currentTarget) return;
     if (!event.defaultPrevented && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
       onClick?.(event);
@@ -1906,7 +1926,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(function Card(
 
   return (
     <Tag
-      ref={ref}
+      ref={ref as Ref<never>}
       href={href}
       onClick={onClick}
       onKeyDown={interactiveDiv ? handleKeyDown : onKeyDown}
@@ -2431,6 +2451,8 @@ export { Icon, ICON_NAMES, ensureSprite, type IconProps, type IconName } from '.
 - [ ] **Step 3: `tests/parity.test.ts`** (erzwingt die Dreier-Regel; die Liste `PENDING_REACT` darf nur schrumpfen)
 
 ```ts
+// @vitest-environment node
+// (unter jsdom liefert das globale URL-Objekt eine Variante, die readFileSync(new URL(...)) ablehnt)
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 
