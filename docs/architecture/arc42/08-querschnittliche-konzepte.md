@@ -137,3 +137,16 @@ Es gibt keinen "ungespeicherten Änderungen"-Zustand. Jede Store-Aktion, die `to
 → `localStorage.setItem`). Ein Reload der Seite verliert daher nie den letzten Stand — mit der
 Kehrseite, dass es keine "Rückgängig"-Funktion gibt (außer dem expliziten JSON-Backup vor
 destruktiven Aktionen, siehe Kapitel 1, Qualitätsziel 6).
+
+## 8.13 Design-System-Kopplung (DSS) und Übergangsschicht
+
+- **Kopplung:** `src/main.tsx` importiert Tailwind (`index.css`) **vor** `@bbv/dss-design-system/tokens.css` und
+  `components.css`. Die Reihenfolge ist Pflicht: Tailwinds Preflight setzt `[type='button']`-Hintergründe zurück und
+  würde bei umgekehrter Reihenfolge die `dss-btn--*`-Hintergründe überschreiben.
+- **Übergangsschicht (bis Teil 3 der DSS-Migration):** `tailwind.config.ts` bildet die Alt-Namen (`brand.*`, `muted`,
+  `card`, `border`, `border-ui`, `secondary`, `tint`, `destructive`) auf DSS-Variablen ab. `src/index.css` enthält eine
+  temporäre `:where(...)`-Regel, die rohen `<input>`/`<select>`/`<textarea>` einen Rahmen gibt.
+- **OKLCH und Alpha:** Die DSS-Preset-Farben sind OKLCH-Strings; Tailwind-Alpha-Modifier (`bg-ink-900/50`) funktionieren
+  nicht. Für Transparenz `--dss-*`-Aliase oder eigene Klassen verwenden.
+- **Guard:** `src/styles/no-fbnm-leftovers.test.ts` schlägt fehl, sobald `fbnm`/`INSOLENT`/`ALLER`/`Montserrat` wieder
+  in `src/` auftauchen.

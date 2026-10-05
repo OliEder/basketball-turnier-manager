@@ -155,3 +155,23 @@ TypeScript-Strict-Mode plus Testabdeckung, aber diese Annahme ist NICHT im Code 
   (siehe Kapitel 11).
 - **Beleg**: `docs/superpowers/specs/2026-09-17-pdf-export-design.md`, Abschnitt "Markdown als
   gemeinsame Inhaltsquelle für die Anleitung"; `docs/superpowers/plans/2026-09-17-pdf-export.md`.
+
+### ADR-11: Umstellung auf das DSS-Design-System mit React-Komponenten im DSS-Repo
+
+- **Kontext**: Das Projekt entstand für ein Fibalon-Turnier und trug dessen Branding (FBNM: Blau/Cyan, INSOLENT/ALLER).
+  Das Branding wird nicht mehr gebraucht; als Ersatz dient das eigene DSS-Design-System (Ink · Amber · Sky,
+  WCAG 2.1 AAA). DSS lieferte Tokens, ein Tailwind-Preset, Vanilla-CSS und Svelte-Referenzkomponenten, aber keine
+  React-Komponenten.
+- **Geprüfte Alternativen**: Nur Token-Austausch ohne Komponenten (schnell, aber nur ungefähre DSS-Optik); React-
+  Komponenten ausschließlich im Turnier-Manager (nicht wiederverwendbar, driftet von der Svelte-Referenz);
+  Radix-Select statt nativem Select (mehr Abhängigkeit, die App nutzt sonst native Selects).
+- **Entscheidung**: React-Komponenten liegen im DSS-Repo (`react/`, v0.7.0) und rendern nur die `dss-*`-Klassen aus
+  `css/components.css` (einzige CSS-Quelle). Modal baut auf Radix Dialog (Peer-Dependency), Select ist ein natives
+  `<select>`. Einbindung als Git-Dependency (`git+https://…#v0.7.0`, damit `npm ci` ohne SSH läuft). Schriften werden
+  selbst gehostet (`@fontsource`, keine externen Requests, DSGVO). Dark-Mode vorerst nicht (fest `data-theme="light"`).
+  Migration inkrementell mit temporärer Tailwind-Übergangsschicht.
+- **Konsequenz**: Zwei Repos müssen abgestimmt versioniert werden (Tag + Pin). Die Svelte-Komponenten und
+  `components.css` doppeln teilweise Styles (Schuld im DSS-Repo, siehe dessen CHANGELOG). Controls sind 44 px hoch
+  (vorher 36 px); Ergebnis-Eingabegrids verwenden die Dichte `compact`.
+- **Beleg**: `docs/superpowers/specs/2026-10-05-dss-migration-teil1-design.md`;
+  `docs/superpowers/plans/2026-10-05-dss-migration-teil1-{dss-repo,app}.md`.

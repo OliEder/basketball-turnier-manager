@@ -1,19 +1,51 @@
-@import "./styles/fbnm/index.css";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'ALLER', Arial, sans-serif;
-  background: var(--fbnm-color-background);
-  color: var(--fbnm-color-text);
-}
+@layer base {
+  body {
+    font-family: var(--font-body);
+    background: var(--page-bg);
+    color: var(--dss-fg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
 
-h1, h2, h3 {
-  font-family: 'INSOLENT', 'Arial Black', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  /* DSS-Fokusring (3 px, --ring-color). Komponenten setzen denselben Ring, hier die Absicherung für rohe Elemente. */
+  :focus-visible {
+    outline: var(--ring-w) solid var(--ring-color);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /*
+   * TEMPORÄR (bis Teil 3 der DSS-Migration): rohe <input>/<select>/<textarea> ohne DSS-Komponente
+   * bekommen weiterhin einen sichtbaren Rahmen (Tailwind-Preflight setzt border-width auf 0).
+   * :where() hält die Spezifität bei 0, damit DSS-Klassen und Utilities gewinnen.
+   */
+  :where(
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not(.dss-input),
+    textarea,
+    select:not(.dss-select)
+  ) {
+    border: 2px solid var(--n-500);
+    border-radius: var(--radius-md);
+    background-color: var(--dss-surface);
+    color: var(--dss-fg);
+  }
 }
 
 .no-spinner {

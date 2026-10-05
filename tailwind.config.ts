@@ -1,50 +1,56 @@
 import type { Config } from 'tailwindcss'
+import dssPreset from '@bbv/dss-design-system/tailwind'
 
 /**
- * Farb-Mapping auf das FBNM-Design-System (CSS Custom Properties aus
- * src/styles/fbnm/tokens.css — Quelle: 00-FBNM-design-system).
+ * DSS-Preset (ink-*, amber-*, sky-*, neutral-*) plus eine ÜBERGANGSSCHICHT: die Alt-Namen
+ * (brand.*, muted, card, border, secondary, tint …) zeigen auf DSS-Variablen, damit Seiten, die noch
+ * nicht migriert sind, weiterlaufen. Die Schicht wird in Teil 3 der DSS-Migration gelöscht, sobald
+ * keine Datei mehr `brand-*`, `text-muted-foreground`, `border-border` usw. verwendet.
+ * Hinweis: Die Preset-Farben sind OKLCH-Strings — Alpha-Modifier wie `bg-ink-900/50` funktionieren nicht.
  */
 export default {
+  presets: [dssPreset],
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
         brand: {
-          primary: 'var(--fbnm-color-primary)',        // #004174
-          'primary-dark': 'var(--fbnm-color-primary-dark)',  // #002751
-          'primary-light': 'var(--fbnm-color-primary-light)', // #1a4b76
-          accent: 'var(--fbnm-color-accent)',          // #009fe3 (nur dekorativ)
-          'accent-text': 'var(--fbnm-color-accent-text)', // #005a87 (AAA auf Weiß)
+          primary: 'var(--ink-800)',
+          'primary-dark': 'var(--ink-900)',
+          'primary-light': 'var(--ink-700)',
+          accent: 'var(--amber-400)',
+          'accent-text': 'var(--dss-accent-text)',
         },
-        background: 'var(--fbnm-color-background)',
-        foreground: 'var(--fbnm-color-text)',
+        background: 'var(--page-bg)',
+        foreground: 'var(--dss-fg)',
         muted: {
-          DEFAULT: 'var(--fbnm-color-surface-muted)',
-          foreground: 'var(--fbnm-color-text-muted)',
+          DEFAULT: 'var(--dss-surface-2)',
+          foreground: 'var(--dss-mute)',
         },
-        card: 'var(--fbnm-color-surface)',
-        border: 'var(--fbnm-color-border)',
-        'border-ui': 'var(--fbnm-color-border-ui)',
+        card: 'var(--dss-surface)',
+        border: 'var(--dss-line)',
+        'border-ui': 'var(--n-500)',
         secondary: {
-          DEFAULT: 'var(--fbnm-color-secondary)',
-          hover: 'var(--fbnm-color-secondary-hover)',
-          border: 'var(--fbnm-color-secondary-border)',
+          DEFAULT: 'var(--dss-surface-2)',
+          hover: 'var(--dss-line)',
+          border: 'var(--dss-line-strong)',
         },
         destructive: {
-          DEFAULT: '#b3261e',
+          DEFAULT: 'var(--err-button)',
           foreground: '#ffffff',
         },
-        tint: 'var(--fbnm-color-surface-tint)',
+        tint: 'var(--dss-hover-bg)',
       },
       fontFamily: {
-        display: ['INSOLENT', 'Arial Black', 'sans-serif'],
-        sans: ['ALLER', 'Arial', 'sans-serif'],
-        caption: ['Montserrat', 'Arial', 'sans-serif'],
+        display: ['var(--font-display)'],
+        sans: ['var(--font-body)'],
+        caption: ['var(--font-body)'],
+        mono: ['var(--font-mono)'],
       },
       borderRadius: {
-        sm: 'var(--fbnm-radius-sm)',
-        md: 'var(--fbnm-radius-md)',
-        lg: 'var(--fbnm-radius-lg)',
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
       },
     },
   },
