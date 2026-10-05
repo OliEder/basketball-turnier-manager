@@ -7,7 +7,7 @@
 | Frontend-Framework | React 18 + TypeScript 5.8 (strict, `noUnusedLocals`/`noUnusedParameters`/`noFallthroughCasesInSwitch` aktiv) | `package.json`, `tsconfig.json` |
 | Build-Tool | Vite 6 | `vite.config.ts` |
 | State Management | Zustand 5 (ein einziger globaler Store, `src/store/tournament-store.ts`) | `package.json` |
-| Styling | Tailwind CSS 3 | `package.json`, `tailwind.config.ts` |
+| Styling | Tailwind CSS 3 (Layout/Abstände) + DSS-Design-System `@bbv/dss-design-system` 0.7 (Tokens `tokens.css`, Komponenten-CSS `components.css`, React-Komponenten); Schriften Sora/Manrope/JetBrains Mono selbst gehostet über `@fontsource/*`; Theme fest hell (`data-theme="light"`) | `package.json`, `tailwind.config.ts`, `src/main.tsx`, ADR-11 |
 | Routing | React Router 7 (Client-seitig, `BrowserRouter`) | `src/App.tsx` |
 | UI-Primitives | Radix UI (`react-select`, `react-dialog`) für zugängliche Select-/Dialog-Komponenten | `package.json` |
 | Persistenz | Ausschließlich `localStorage` — kein Server, keine Datenbank, keine externe API-Anbindung außer optionalen Team-Logo-Bild-URLs | `src/lib/storage.ts` |

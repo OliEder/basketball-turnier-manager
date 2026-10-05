@@ -174,3 +174,16 @@ Idee (siehe Memory `react_pdf_fork_idea`), nicht Teil dieses Features.
 
 **Beleg**: `docs/superpowers/specs/2026-09-17-pdf-export-design.md`, Abschnitt
 "Barrierefreiheit (bestmögliche Annäherung)".
+
+## 11.14 DSS-Migration: Übergangsschicht und Folgearbeiten (offen seit 2026-10-05)
+
+Nach Teil 1 der DSS-Migration (Fundament + Basis-Komponenten) bleiben bewusst offen:
+
+- **Teil 3:** Übergangsschicht entfernen — `brand.*`, `muted`, `card`, `border`, `border-ui`, `secondary`, `tint` in
+  `tailwind.config.ts` und die temporäre `:where(...)`-Regel in `src/index.css`; Seiten auf DSS-Komponenten
+  (Table, Stepper, TopBar, EmptyState, Skeleton, MatchCard …) und rohe `<input>`/`<select>` auf `TextInput`/`Select`
+  umstellen. Checkliste: `grep -rn "brand-\|text-muted-foreground\|border-border\|bg-tint" src` muss leer sein.
+- **Teil 4:** react-pdf-Exporte (hartcodierte Farben, `Helvetica`) und Druckansichten auf DSS-Optik; `/anleitung`-
+  Screenshots (zeigen noch das Fibalon-Branding) neu erstellen.
+- **Standard-Teamfarbe** in `TeamForm` ist noch `#004174` (FBNM-Blau).
+- **DSS-Repo:** doppelte Scoped-Styles in den Svelte-Komponenten (Button, TextInput, Modal, Card, Tabs).
