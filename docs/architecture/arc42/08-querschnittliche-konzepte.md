@@ -148,5 +148,9 @@ destruktiven Aktionen, siehe Kapitel 1, Qualitätsziel 6).
   temporäre `:where(...)`-Regel, die rohen `<input>`/`<select>`/`<textarea>` einen Rahmen gibt.
 - **OKLCH und Alpha:** Die DSS-Preset-Farben sind OKLCH-Strings; Tailwind-Alpha-Modifier (`bg-ink-900/50`) funktionieren
   nicht. Für Transparenz `--dss-*`-Aliase oder eigene Klassen verwenden.
+- **Tailwind-Utilities auf DSS-Komponenten:** `index.css` (Tailwind) wird vor `components.css` geladen; bei gleicher
+  Spezifität gewinnt DSS. Tailwind-Klassen, die per `className` eine von DSS gesetzte Eigenschaft überschreiben sollen
+  (Padding, Schriftfamilie, Schriftgröße, Höhe, Farben), brauchen den Important-Modifier (`!px-1`, `!font-mono`,
+  `!text-xs`). Layout-Utilities, die DSS nicht setzt (`w-*`, `flex-1`, `ml-auto`, `truncate`), funktionieren normal.
 - **Guard:** `src/styles/no-fbnm-leftovers.test.ts` schlägt fehl, sobald `fbnm`/`INSOLENT`/`ALLER`/`Montserrat` wieder
   in `src/` auftauchen.

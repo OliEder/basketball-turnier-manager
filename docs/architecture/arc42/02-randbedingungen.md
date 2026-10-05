@@ -9,7 +9,7 @@
 | State Management | Zustand 5 (ein einziger globaler Store, `src/store/tournament-store.ts`) | `package.json` |
 | Styling | Tailwind CSS 3 (Layout/Abstände) + DSS-Design-System `@bbv/dss-design-system` 0.7 (Tokens `tokens.css`, Komponenten-CSS `components.css`, React-Komponenten); Schriften Sora/Manrope/JetBrains Mono selbst gehostet über `@fontsource/*`; Theme fest hell (`data-theme="light"`) | `package.json`, `tailwind.config.ts`, `src/main.tsx`, ADR-11 |
 | Routing | React Router 7 (Client-seitig, `BrowserRouter`) | `src/App.tsx` |
-| UI-Primitives | Radix UI (`react-select`, `react-dialog`) für zugängliche Select-/Dialog-Komponenten | `package.json` |
+| UI-Primitives | DSS-React-Komponenten (`@bbv/dss-design-system/react`); Modal nutzt Radix Dialog (`@radix-ui/react-dialog`), Select ist ein natives `<select>` | `package.json`, ADR-11 |
 | Persistenz | Ausschließlich `localStorage` — kein Server, keine Datenbank, keine externe API-Anbindung außer optionalen Team-Logo-Bild-URLs | `src/lib/storage.ts` |
 | Export-Formate | JSON (Turnierdatensatz), PDF (`@react-pdf/renderer`, vier native Downloads: Zeitplan, Gruppentabellen, Schweizer-System-Übersicht, Anleitung — kein `window.print()` mehr), statisches HTML+ZIP (`jszip`) | `src/lib/export/*`, ADR-10 |
 | Markdown-Verarbeitung | `marked` (Tokenizer, ausschließlich für die Anleitung — eine Quelle für Web-Seite und PDF, siehe ADR-10) | `src/lib/markdown-tokens.ts` |

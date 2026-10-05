@@ -183,7 +183,17 @@ Nach Teil 1 der DSS-Migration (Fundament + Basis-Komponenten) bleiben bewusst of
   `tailwind.config.ts` und die temporäre `:where(...)`-Regel in `src/index.css`; Seiten auf DSS-Komponenten
   (Table, Stepper, TopBar, EmptyState, Skeleton, MatchCard …) und rohe `<input>`/`<select>` auf `TextInput`/`Select`
   umstellen. Checkliste: `grep -rn "brand-\|text-muted-foreground\|border-border\|bg-tint" src` muss leer sein.
+  **Erreichter Stand:** `src/components/ui/` ist gelöscht, `Select`/`Modal`/`Banner`/`TextInput`/`Button` stammen aus
+  DSS; verbleibend sind `Table`-ähnliche Eigenbauten, `TeamCard` (nutzt noch kein DSS-`Card`) und rohe
+  `<input>`/`<select>` (13 Stellen, `grep -rn "<input\|<select" src --include='*.tsx' | grep -v test`).
 - **Teil 4:** react-pdf-Exporte (hartcodierte Farben, `Helvetica`) und Druckansichten auf DSS-Optik; `/anleitung`-
-  Screenshots (zeigen noch das Fibalon-Branding) neu erstellen.
+  Screenshots (zeigen noch das Fibalon-Branding) neu erstellen. Rest: `src/lib/export/html-export.ts` (statischer
+  HTML-Export) nutzt noch `font-family: 'Aller'` und die FBNM-Farbe `#002751`; der Guard-Test fängt das nicht, weil er
+  case-sensitiv nach `ALLER` sucht.
 - **Standard-Teamfarbe** in `TeamForm` ist noch `#004174` (FBNM-Blau).
+- **Fokusring-Kontrast:** Der DSS-Fokusring (`--ring-color`, helles Sky) hat auf weißem Grund vermutlich < 3:1
+  Kontrast (Designfrage im DSS-Repo; axe prüft das nicht).
+- **Hex-Farbfeld in `TeamForm`** hat keinen zugänglichen Namen (vorbestehend).
+- **`npm audit`:** 5 high (braces → micromatch → fast-glob → chokidar → tailwindcss 3), vorbestehend, Build-Toolchain;
+  eigener PR.
 - **DSS-Repo:** doppelte Scoped-Styles in den Svelte-Komponenten (Button, TextInput, Modal, Card, Tabs).
