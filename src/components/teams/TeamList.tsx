@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import TeamCard from './TeamCard'
 import TeamForm from './TeamForm'
-import { Button } from '@bbv/dss-design-system/react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DestructiveConfirmDialog } from '@/components/ui/destructive-confirm-dialog'
+import { Button, Modal } from '@bbv/dss-design-system/react'
+import { DestructiveConfirmDialog } from '@/components/shared/DestructiveConfirmDialog'
 import type { Team } from '@/types'
 
 export default function TeamList() {
@@ -54,31 +53,30 @@ export default function TeamList() {
         ))}
       </div>
 
-      <Dialog open={showAdd} onOpenChange={setShowAdd}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Team hinzufügen</DialogTitle></DialogHeader>
-          <TeamForm
-            onSubmit={(data) => handleAddSubmit({ ...data, abbreviation: data.abbreviation.trim() || undefined })}
-            onCancel={() => setShowAdd(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <Modal open={showAdd} onOpenChange={setShowAdd} title="Team hinzufügen" dismissOnBackdrop={false}>
+        <TeamForm
+          onSubmit={(data) => handleAddSubmit({ ...data, abbreviation: data.abbreviation.trim() || undefined })}
+          onCancel={() => setShowAdd(false)}
+        />
+      </Modal>
 
-      <Dialog open={!!editTeam} onOpenChange={() => setEditTeam(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Team bearbeiten</DialogTitle></DialogHeader>
-          {editTeam && (
-            <TeamForm
-              initial={editTeam}
-              onSubmit={(data) => {
-                updateTeam(editTeam.id, { ...data, abbreviation: data.abbreviation.trim() || undefined })
-                setEditTeam(null)
-              }}
-              onCancel={() => setEditTeam(null)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      <Modal
+        open={!!editTeam}
+        onOpenChange={() => setEditTeam(null)}
+        title="Team bearbeiten"
+        dismissOnBackdrop={false}
+      >
+        {editTeam && (
+          <TeamForm
+            initial={editTeam}
+            onSubmit={(data) => {
+              updateTeam(editTeam.id, { ...data, abbreviation: data.abbreviation.trim() || undefined })
+              setEditTeam(null)
+            }}
+            onCancel={() => setEditTeam(null)}
+          />
+        )}
+      </Modal>
 
       <DestructiveConfirmDialog
         open={pendingAdd !== null || pendingRemoveId !== null}

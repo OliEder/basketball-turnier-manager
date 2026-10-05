@@ -105,4 +105,19 @@ describe('TeamList', () => {
     expect(screen.queryByRole('button', { name: 'Bestätigen' })).not.toBeInTheDocument()
     expect(useTournamentStore.getState().tournament.teams[0].name).toBe('Team A Neu')
   })
+
+  it('keeps the add-team modal open when clicking outside of it', async () => {
+    render(<TeamList />)
+    fireEvent.click(screen.getByRole('button', { name: 'Team hinzufügen' }))
+    expect(screen.getByRole('dialog', { name: 'Team hinzufügen' })).toBeInTheDocument()
+
+    // Radix registriert seinen pointerdown-Listener erst nach einem Tick (setTimeout 0)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const backdrop = document.querySelector('.dss-backdrop')!
+    fireEvent.pointerDown(backdrop, { button: 0, pointerType: 'mouse' })
+    fireEvent.pointerUp(backdrop, { button: 0, pointerType: 'mouse' })
+    fireEvent.click(backdrop)
+
+    expect(screen.getByRole('dialog', { name: 'Team hinzufügen' })).toBeInTheDocument()
+  })
 })
