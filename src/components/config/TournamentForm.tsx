@@ -1,8 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import { Banner } from '@bbv/dss-design-system/react'
+import { TextInput, Select, Banner } from '@bbv/dss-design-system/react'
 import { calcGameDurationMin, timeToMinutes, addMinutes } from '@/lib/game-duration'
 import type { TournamentMode } from '@/types'
 
@@ -14,61 +11,51 @@ export default function TournamentForm({ disabled = false }: { disabled?: boolea
 
   return (
     <div className="space-y-4 max-w-md">
-      <div className="space-y-1">
-        <Label htmlFor="tourney-name">Turniername</Label>
-        <Input
-          id="tourney-name"
-          value={tournament.name}
-          onChange={e => setTournamentName(e.target.value)}
-          placeholder="z.B. Verbands-Einstufungsturnier 2026"
-          disabled={disabled}
-        />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="tourney-mode">Turniermodus</Label>
-        <Select value={tournament.mode} onValueChange={v => setMode(v as TournamentMode)} disabled={disabled}>
-          <SelectTrigger id="tourney-mode">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="round-robin">Jeder gegen Jeden</SelectItem>
-            <SelectItem value="round-robin+finals">Gruppenphase + Endrunde</SelectItem>
-            <SelectItem value="swiss">Einstufungsturnier (Schweizer System)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <TextInput
+        id="tourney-name"
+        label="Turniername"
+        value={tournament.name}
+        onChange={e => setTournamentName(e.target.value)}
+        placeholder="z.B. Verbands-Einstufungsturnier 2026"
+        disabled={disabled}
+      />
+      <Select
+        id="tourney-mode"
+        label="Turniermodus"
+        value={tournament.mode}
+        onChange={e => setMode(e.target.value as TournamentMode)}
+        disabled={disabled}
+        options={[
+          { value: 'round-robin', label: 'Jeder gegen Jeden' },
+          { value: 'round-robin+finals', label: 'Gruppenphase + Endrunde' },
+          { value: 'swiss', label: 'Einstufungsturnier (Schweizer System)' },
+        ]}
+      />
       {tournament.mode === 'round-robin+finals' && (
-        <div className="space-y-1">
-          <Label htmlFor="tourney-bracket-size">Finalrunde</Label>
-          <Select
-            value={String(tournament.finalsBracketSize ?? 4)}
-            onValueChange={v => setFinalsBracketSize(Number(v) as 2 | 4)}
-            disabled={disabled}
-          >
-            <SelectTrigger id="tourney-bracket-size">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="4">Halbfinale + Finale</SelectItem>
-              <SelectItem value="2">Nur Finale</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select
+          id="tourney-bracket-size"
+          label="Finalrunde"
+          value={String(tournament.finalsBracketSize ?? 4)}
+          onChange={e => setFinalsBracketSize(Number(e.target.value) as 2 | 4)}
+          disabled={disabled}
+          options={[
+            { value: '4', label: 'Halbfinale + Finale' },
+            { value: '2', label: 'Nur Finale' },
+          ]}
+        />
       )}
       {tournament.mode === 'swiss' && (
-        <div className="space-y-1">
-          <Label htmlFor="swiss-rounds">Anzahl Runden</Label>
-          <Input
+        <div className="space-y-2">
+          <TextInput
             id="swiss-rounds"
+            label="Anzahl Runden"
             type="number"
             min={1}
             value={rounds}
             onChange={e => setSwissRounds(Number(e.target.value))}
             disabled={disabled}
+            help={`Vorschlag nach Standard-Schweizer-Formel: ${suggestedRounds} Runden — bei Bedarf anpassbar.`}
           />
-          <p className="text-xs text-muted-foreground">
-            Vorschlag nach Standard-Schweizer-Formel: {suggestedRounds} Runden — bei Bedarf anpassbar.
-          </p>
           {(() => {
             const gameDuration = calcGameDurationMin(tournament.gameSettings)
             const gamesPerRound = Math.floor(tournament.teams.length / 2)
@@ -82,28 +69,21 @@ export default function TournamentForm({ disabled = false }: { disabled?: boolea
             const fitsInVenue = timeToMinutes(firstStart) + totalMin <= timeToMinutes(availabilityEnd)
             return (
               <Banner severity={fitsInVenue ? 'info' : 'danger'}>
-                <div>
-                  Geschätzte Gesamtdauer: {totalMin} Minuten.
-                  {!fitsInVenue && ' Das passt nicht in die verfügbare Hallenzeit — Rundenzahl reduzieren oder mehr Felder einplanen.'}
-                </div>
+                Geschätzte Gesamtdauer: {totalMin} Minuten.
+                {!fitsInVenue && ' Das passt nicht in die verfügbare Hallenzeit — Rundenzahl reduzieren oder mehr Felder einplanen.'}
               </Banner>
             )
           })()}
         </div>
       )}
-      <div className="space-y-1">
-        <Label htmlFor="tourney-fields">Anzahl Felder</Label>
-        <Select value={String(tournament.fields)} onValueChange={v => setFields(Number(v))} disabled={disabled}>
-          <SelectTrigger id="tourney-fields">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {[1, 2, 3, 4, 5, 6].map(n => (
-              <SelectItem key={n} value={String(n)}>{n} {n === 1 ? 'Feld' : 'Felder'}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <Select
+        id="tourney-fields"
+        label="Anzahl Felder"
+        value={String(tournament.fields)}
+        onChange={e => setFields(Number(e.target.value))}
+        disabled={disabled}
+        options={[1, 2, 3, 4, 5, 6].map(n => ({ value: String(n), label: `${n} ${n === 1 ? 'Feld' : 'Felder'}` }))}
+      />
     </div>
   )
 }
