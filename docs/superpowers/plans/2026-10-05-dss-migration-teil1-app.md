@@ -58,14 +58,21 @@ Expected: eine Zeile mit `refs/tags/v0.7.0`. Fehlt sie, **stoppen**: zuerst den 
 
 - [ ] **Step 2: Worktree und Branch anlegen**
 
+Der lokale `main` im Haupt-Arbeitsverzeichnis ist von `origin/main` abgewichen (er liegt hinter dem gemergten PDF-Export-PR #21 und trägt unveröffentlichte Doku-Commits sowie uncommittete Änderungen). **Das Haupt-Arbeitsverzeichnis nicht anfassen.** Der Worktree startet von `origin/main`; Spec und Pläne dieser Migration (die Doku-Commits, die diese drei Dateien anlegen oder ändern) werden per `cherry-pick` übernommen:
+
 ```bash
 git fetch origin
 git worktree add ../02-turnier-manager-dss-foundation -b feat/dss-foundation origin/main
 cd ../02-turnier-manager-dss-foundation
+git cherry-pick $(git -C ../02-turnier-manager log --reverse --format=%h origin/main..main -- \
+  docs/superpowers/specs/2026-10-05-dss-migration-teil1-design.md \
+  docs/superpowers/plans/2026-10-05-dss-migration-teil1-dss-repo.md \
+  docs/superpowers/plans/2026-10-05-dss-migration-teil1-app.md)
+git log --oneline -5
 npm ci
 ```
 
-Expected: Worktree liegt neben dem Hauptordner, `npm ci` ohne Fehler. Alle folgenden Schritte laufen in diesem Worktree (`.../02-turnier-manager-dss-foundation`).
+Expected: Der Worktree liegt neben dem Hauptordner; `git log` zeigt oben die Doku-Commits (Spec, Pläne und ihre Anpassungen) auf `origin/main` (PDF-Export `f174801` darunter); `docs/superpowers/specs/2026-10-05-dss-migration-teil1-design.md` und beide Pläne existieren im Worktree; `npm ci` ohne Fehler. Gibt es beim `cherry-pick` einen Konflikt (nicht zu erwarten), stoppen und melden. Alle folgenden Schritte laufen in diesem Worktree (`.../02-turnier-manager-dss-foundation`).
 
 - [ ] **Step 3: Grüne Baseline festhalten**
 
