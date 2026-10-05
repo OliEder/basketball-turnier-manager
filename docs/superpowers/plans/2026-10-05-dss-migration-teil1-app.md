@@ -14,7 +14,7 @@
 
 1. **Keine `legacy-fbnm-aliases.css`.** Außerhalb von `src/styles/fbnm/` verwenden nur `tailwind.config.ts` und `src/index.css` `--fbnm-*`-Variablen. Die Übergangsschicht ist deshalb allein das Tailwind-Mapping; der ganze Ordner `src/styles/fbnm/` wird in T1 gelöscht.
 2. **Select ist natives `<select>`** (DSS `Select`), kein Radix. Betrifft die drei Selects in `TournamentForm`; Unit-Tests und E2E-Helfer werden von Klicken auf `role=option` auf `selectOption` umgestellt.
-3. **`git+https://` statt `github:`** als Dependency-Spezifikation, damit die Lockfile eine HTTPS-URL enthält und `npm ci` in der CI ohne SSH-Schlüssel funktioniert.
+3. **Dependency als `git+https://…#v0.7.0` angegeben, npm speichert sie als `github:OliEder/dss-design-system#v0.7.0`** (Lockfile `git+ssh://…`). Die Sorge, `npm ci` scheitere in der CI ohne SSH-Schlüssel, hat sich in einer Simulation (SSH blockiert, leerer Cache) nicht bestätigt: npm lädt den HTTPS-Tarball.
 
 ## Konventionen
 
@@ -89,32 +89,35 @@ Expected: alles grün. Anzahl der bestehenden Tests notieren (`Tests  N passed` 
 **Files:**
 - Create: `src/styles/no-fbnm-leftovers.test.ts`
 
-- [ ] **Step 1: Test schreiben**
+- [ ] **Step 1: Test schreiben.** Der Test liest über das Dateisystem, **nicht** über `import.meta.glob(…?raw)`: Vitest ersetzt CSS-Dateien auch mit `?raw` durch leere Strings, ein Glob-Test wäre für `src/index.css` und `src/styles/fbnm/*.css` blind (genau dort liegen die Reste).
 
 ```ts
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
-import indexHtml from '../../index.html?raw'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { join } from 'node:path'
 
-// Alle Quelldateien als Rohtext (Vite-Glob), damit der Test ohne Node-fs auskommt.
-const sources = import.meta.glob('/src/**/*.{ts,tsx,css}', {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-}) as Record<string, string>
+// Vitest ersetzt CSS-Dateien durch leere Strings (auch mit ?raw) — deshalb direkt über das Dateisystem lesen.
+function walk(dir: string): string[] {
+  return readdirSync(dir).flatMap(name => {
+    const path = join(dir, name)
+    return statSync(path).isDirectory() ? walk(path) : [path]
+  })
+}
 
 const FORBIDDEN = /fbnm|FBNM|INSOLENT|ALLER|Montserrat/
+const SELF = 'no-fbnm-leftovers.test.ts'
 
 describe('DSS-Fundament', () => {
   it('enthält keine FBNM-Reste (Tokens, Schriften, Klassen) mehr in src/', () => {
-    const offenders = Object.entries(sources)
-      .filter(([path]) => !path.endsWith('no-fbnm-leftovers.test.ts'))
-      .filter(([, content]) => FORBIDDEN.test(content))
-      .map(([path]) => path)
+    const offenders = walk('src')
+      .filter(path => /\.(ts|tsx|css)$/.test(path) && !path.endsWith(SELF))
+      .filter(path => FORBIDDEN.test(readFileSync(path, 'utf8')))
     expect(offenders).toEqual([])
   })
 
   it('setzt das helle DSS-Theme fest auf <html>', () => {
-    expect(indexHtml).toMatch(/<html[^>]*data-theme="light"/)
+    expect(readFileSync('index.html', 'utf8')).toMatch(/<html[^>]*data-theme="light"/)
   })
 })
 ```
@@ -122,7 +125,7 @@ describe('DSS-Fundament', () => {
 - [ ] **Step 2: Test ausführen, Fehlschlag bestätigen**
 
 Run: `npx vitest run src/styles/no-fbnm-leftovers.test.ts`
-Expected: FAIL — beide Tests: `offenders` listet u. a. `/src/index.css`, `/src/styles/fbnm/*.css`; das `data-theme`-Muster fehlt in `index.html`.
+Expected: FAIL — beide Tests: `offenders` listet `src/index.css` und `src/styles/fbnm/{accessibility,index,reset,tokens,typography}.css`; das `data-theme`-Muster fehlt in `index.html`.
 
 - [ ] **Step 3: Commit**
 
@@ -151,7 +154,7 @@ grep -n "dss-design-system" package-lock.json | head -5
 ls node_modules/@bbv/dss-design-system/dist/react/index.js node_modules/@bbv/dss-design-system/css/components.css
 ```
 
-Expected: In `package.json` steht `"@bbv/dss-design-system": "git+https://github.com/OliEder/dss-design-system.git#v0.7.0"`; die Lockfile enthält `git+https://github.com/OliEder/dss-design-system.git#<sha>` (**kein** `git+ssh`); beide Dateien existieren, d. h. `prepare` hat das Paket gebaut.
+Expected: npm 11 normalisiert die Angabe: `package.json` enthält `"@bbv/dss-design-system": "github:OliEder/dss-design-system#v0.7.0"`, die Lockfile `"resolved": "git+ssh://git@github.com/OliEder/dss-design-system.git#<sha>"`. **Das ist in Ordnung**: npm holt ein `github:`-Paket über den HTTPS-Tarball von `codeload.github.com`, die SSH-URL wird nicht benutzt (empirisch geprüft mit `GIT_SSH_COMMAND=/usr/bin/false`, leerem Cache und `npm ci`: Exit 0). Beide Dateien existieren, d. h. `prepare` hat das Paket gebaut. Die Lockfile **nicht** von Hand ändern.
 
 - [ ] **Step 3: Saubere Neuinstallation wie in der CI**
 
