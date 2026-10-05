@@ -169,3 +169,20 @@ Die Doku geht jeweils mit dem PR mit, zu dem sie gehört.
 - Genaue Liste der `--dss-*`-Aliase, die die Übergangsschicht für `--fbnm-color-*` verwendet (Mapping-Tabelle im Plan).
 - Ob `Select` in `components.css` ergänzt werden muss oder `dss-select` ausreicht (beim Bau von D1 zu klären).
 - Konkrete Zielhöhen und `compact`-Einsatzorte werden beim Codemod anhand der Screenshots festgelegt.
+
+## Änderungen aus der Plan-Phase (2026-10-05)
+
+Beim Schreiben der Implementierungspläne (`docs/superpowers/plans/2026-10-05-dss-migration-teil1-{dss-repo,app}.md`)
+haben sich drei Abweichungen vom oben beschriebenen Entwurf ergeben:
+
+1. **Select ist ein natives `<select>`, kein Radix-Select.** `css/components.css` enthält `dss-select` bereits als
+   native Variante, der Rest der App nutzt native Selects, und nur `TournamentForm` hat drei Radix-Selects. Radix
+   bleibt `peerDependency` nur für Modal.
+2. **Keine separate `legacy-fbnm-aliases.css`.** Außerhalb von `src/styles/fbnm/` verwenden nur `tailwind.config.ts`
+   und `src/index.css` `--fbnm-*`-Variablen. Die Übergangsschicht besteht allein aus dem Tailwind-Mapping; der Ordner
+   `src/styles/fbnm/` wird in T1 komplett gelöscht.
+3. **Dependency per `git+https://…#v0.7.0` statt `github:`**, damit die Lockfile eine HTTPS-URL enthält und `npm ci`
+   in der CI ohne SSH-Schlüssel funktioniert.
+
+Außerdem wird `DestructiveConfirmDialog` als projektspezifischer Baustein nach `src/components/shared/` verschoben
+und auf `Modal severity="danger"` aufgesetzt.
