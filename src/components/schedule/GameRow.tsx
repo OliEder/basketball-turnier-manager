@@ -43,7 +43,7 @@ export default function GameRow({ game, showResult = false }: Props) {
             type="time"
             value={game.scheduledStart}
             onChange={e => updateGameTime(game.id, e.target.value)}
-            fieldClassName="w-28"
+            fieldClassName="w-32"
             className="!font-mono"
             aria-label={`Startzeit Spiel ${game.gameNumber}`}
           />

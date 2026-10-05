@@ -166,7 +166,7 @@ export default function SwissResultsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="!text-xs w-full min-w-0 truncate"
+                    className="!text-xs !h-9 !px-3 w-full min-w-0 truncate"
                     title={`${home} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${home} als zurückgezogen markieren?`)) withdrawTeam(game.homeTeamId!)
@@ -236,7 +236,7 @@ export default function SwissResultsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="!text-xs w-full min-w-0 truncate"
+                    className="!text-xs !h-9 !px-3 w-full min-w-0 truncate"
                     title={`${away} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${away} als zurückgezogen markieren?`)) withdrawTeam(game.awayTeamId!)

@@ -92,7 +92,7 @@ export default function GroupResultsPage() {
       <Button
         variant="ghost"
         size="sm"
-        className="!text-xs"
+        className="!text-xs !h-9 !px-3"
         title={`${team.name} zurückziehen`}
         onClick={() => {
           if (confirm(`${team.name} als zurückgezogen markieren?`)) withdrawTeam(team.id)
@@ -178,7 +178,7 @@ export default function GroupResultsPage() {
             <div key={game.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
               <span className="text-xs font-mono text-muted-foreground w-16">{game.scheduledStart}</span>
               <span className="text-xs font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
-              <span className="text-xs font-mono w-8 text-center bg-tint rounded-sm px-1">
+              <span className="text-xs font-mono text-center bg-tint rounded-sm px-1 whitespace-nowrap shrink-0">
                 Gruppe {game.groupId ?? 'A'}
               </span>
               <div className="flex-1 min-w-0 flex items-center gap-2">

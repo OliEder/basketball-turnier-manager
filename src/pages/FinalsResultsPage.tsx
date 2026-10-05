@@ -81,7 +81,7 @@ export default function FinalsResultsPage() {
       <Button
         variant="ghost"
         size="sm"
-        className="!text-xs"
+        className="!text-xs !h-9 !px-3"
         title={`${team.name} zurückziehen`}
         onClick={() => {
           if (confirm(`${team.name} als zurückgezogen markieren?`)) withdrawTeam(team.id)

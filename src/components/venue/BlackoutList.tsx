@@ -31,8 +31,8 @@ export default function BlackoutList({ disabled = false }: { disabled?: boolean 
         </div>
       ))}
       <div className="flex gap-2 items-end flex-wrap">
-        <TextInput id="blackout-start" label="Von" type="time" value={newBlackout.start} onChange={e => setNewBlackout(p => ({ ...p, start: e.target.value }))} fieldClassName="w-32" disabled={disabled} />
-        <TextInput id="blackout-end" label="Bis" type="time" value={newBlackout.end} onChange={e => setNewBlackout(p => ({ ...p, end: e.target.value }))} fieldClassName="w-32" disabled={disabled} />
+        <TextInput id="blackout-start" label="Von" type="time" value={newBlackout.start} onChange={e => setNewBlackout(p => ({ ...p, start: e.target.value }))} fieldClassName="w-36" disabled={disabled} />
+        <TextInput id="blackout-end" label="Bis" type="time" value={newBlackout.end} onChange={e => setNewBlackout(p => ({ ...p, end: e.target.value }))} fieldClassName="w-36" disabled={disabled} />
         <TextInput id="blackout-reason" label="Grund (optional)" fieldClassName="flex-1" value={newBlackout.reason ?? ''} onChange={e => setNewBlackout(p => ({ ...p, reason: e.target.value }))} placeholder="z.B. Mittagspause" disabled={disabled} />
         <Button onClick={add} disabled={disabled}>Hinzufügen</Button>
       </div>
