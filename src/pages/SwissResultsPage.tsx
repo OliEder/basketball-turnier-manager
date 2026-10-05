@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore, getCurrentSwissRound } from '@/store/tournament-store'
 import { PairingConflictError } from '@/lib/swiss-pairing'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getTeamAbbreviation } from '@/lib/utils'
@@ -114,7 +114,7 @@ export default function SwissResultsPage() {
         {Array.from({ length: displayRound }, (_, i) => i + 1).map(r => (
           <Button
             key={r}
-            variant={r === currentViewedRound ? undefined : 'outline'}
+            variant={r === currentViewedRound ? undefined : 'ghost'}
             size="sm"
             onClick={() => setViewedRound(r)}
           >
@@ -166,9 +166,9 @@ export default function SwissResultsPage() {
                   </span>
                 ) : canWithdraw ? (
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
+                    className="text-xs w-full min-w-0 truncate"
                     title={`${home} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${home} als zurückgezogen markieren?`)) withdrawTeam(game.homeTeamId!)
@@ -232,9 +232,9 @@ export default function SwissResultsPage() {
                   </span>
                 ) : canWithdraw ? (
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
+                    className="text-xs w-full min-w-0 truncate"
                     title={`${away} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${away} als zurückgezogen markieren?`)) withdrawTeam(game.awayTeamId!)
@@ -251,7 +251,7 @@ export default function SwissResultsPage() {
                 ) : <span />}
 
                 {hasResult && correctingGameId !== game.id ? (
-                  <Button variant="outline" size="sm" className="text-muted-foreground" onClick={() => setCorrectingGameId(game.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => setCorrectingGameId(game.id)}>
                     Korrigieren
                   </Button>
                 ) : hasResult ? (

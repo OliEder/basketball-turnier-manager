@@ -1,5 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { downloadJson } from '@/lib/export/json-export'
 import { downloadHtmlZip } from '@/lib/export/html-export'
@@ -26,10 +26,10 @@ export default function ExportPanel() {
         <Button onClick={() => downloadPdf(tournament, schedule!)}>
           PDF herunterladen
         </Button>
-        <Button variant="outline" onClick={() => downloadHtmlZip(tournament, schedule!)}>
+        <Button variant="ghost" onClick={() => downloadHtmlZip(tournament, schedule!)}>
           Web-Seite (ZIP) herunterladen
         </Button>
-        <Button variant="outline" onClick={() => downloadJson(tournament, schedule)}>
+        <Button variant="ghost" onClick={() => downloadJson(tournament, schedule)}>
           JSON herunterladen
         </Button>
       </div>

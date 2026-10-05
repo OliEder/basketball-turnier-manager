@@ -9,7 +9,7 @@ import BlackoutList from '@/components/venue/BlackoutList'
 import { LockedSectionGate } from '@/components/config/LockedSectionGate'
 import { DestructiveConfirmDialog } from '@/components/ui/destructive-confirm-dialog'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { parseTournamentImport } from '@/lib/import/json-import'
 import { downloadJson } from '@/lib/export/json-export'
@@ -173,7 +173,7 @@ export default function ConfigPage() {
 
       <section className="space-y-4">
         <h2 className="text-lg text-brand-primary-light">Turnier zurücksetzen</h2>
-        <Button type="button" variant="destructive" onClick={() => setConfirmTarget('reset')}>
+        <Button type="button" variant="danger" onClick={() => setConfirmTarget('reset')}>
           Turnier zurücksetzen
         </Button>
       </section>

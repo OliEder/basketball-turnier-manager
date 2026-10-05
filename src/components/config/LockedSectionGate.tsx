@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 
 interface LockedSectionGateProps {
   locked: boolean
@@ -19,7 +19,7 @@ export function LockedSectionGate({ locked, unlocked, onUnlock, children }: Lock
         <Alert>
           <AlertDescription className="flex items-center justify-between gap-3">
             <span>Turnier läuft bereits — Änderungen können den bisherigen Verlauf beeinträchtigen.</span>
-            <Button size="sm" variant="outline" onClick={onUnlock}>
+            <Button size="sm" variant="ghost" onClick={onUnlock}>
               Bearbeitung freischalten
             </Button>
           </AlertDescription>

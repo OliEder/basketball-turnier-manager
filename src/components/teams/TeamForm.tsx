@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -73,7 +73,7 @@ export default function TeamForm({ initial, onSubmit, onCancel }: Props) {
       </div>
       <div className="flex gap-2">
         <Button type="submit">Speichern</Button>
-        {onCancel && <Button type="button" variant="outline" onClick={onCancel}>Abbrechen</Button>}
+        {onCancel && <Button type="button" variant="ghost" onClick={onCancel}>Abbrechen</Button>}
       </div>
     </form>
   )

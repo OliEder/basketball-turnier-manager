@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { TimeWindow } from '@/types'
@@ -29,7 +29,7 @@ export default function BlackoutList({ disabled = false }: { disabled?: boolean 
         <div key={i} className="flex items-center gap-3 p-3 border border-border rounded-md bg-tint">
           <span className="font-mono text-sm">{b.start}–{b.end}</span>
           {b.reason && <span className="text-sm text-muted-foreground">{b.reason}</span>}
-          <Button size="sm" variant="destructive" className="ml-auto" onClick={() => remove(i)} disabled={disabled}>Entfernen</Button>
+          <Button size="sm" variant="danger" className="ml-auto" onClick={() => remove(i)} disabled={disabled}>Entfernen</Button>
         </div>
       ))}
       <div className="flex gap-2 items-end flex-wrap">

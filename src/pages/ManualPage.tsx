@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import { downloadManualPdf } from '@/lib/export/manual-pdf'
 import manualMarkdown from '@/content/manual.md?raw'
 import { tokenizeManualMarkdown } from '@/lib/markdown-tokens'

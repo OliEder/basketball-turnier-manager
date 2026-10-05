@@ -3,7 +3,7 @@ import { computeStandings } from '@/lib/standings'
 import { downloadSwissOverviewPdf } from '@/lib/export/swiss-overview-pdf'
 import { computeRoundPageBreaks } from '@/lib/print-pagination'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
@@ -129,7 +129,7 @@ export default function PlayoffResultsPage() {
                   <span className="text-sm font-mono w-20 text-center">
                     {finalScore!.home} : {finalScore!.away}
                   </span>
-                  <Button variant="outline" size="sm" onClick={() => setCorrectingGameId(game.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => setCorrectingGameId(game.id)}>
                     Korrigieren
                   </Button>
                 </>

@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@bbv/dss-design-system/react'
 import type { Team } from '@/types'
 
 interface Props {
@@ -27,8 +27,8 @@ export default function TeamCard({ team, onEdit, onDelete }: Props) {
         {team.contact && <p className="text-sm text-muted-foreground truncate">{team.contact}</p>}
       </div>
       <div className="flex gap-2">
-        <Button size="sm" variant="outline" onClick={onEdit}>Bearbeiten</Button>
-        <Button size="sm" variant="destructive" onClick={onDelete}>Löschen</Button>
+        <Button size="sm" variant="ghost" onClick={onEdit}>Bearbeiten</Button>
+        <Button size="sm" variant="danger" onClick={onDelete}>Löschen</Button>
       </div>
     </div>
   )
