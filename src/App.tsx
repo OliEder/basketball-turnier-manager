@@ -13,6 +13,7 @@ import PlayoffResultsPage from '@/pages/PlayoffResultsPage'
 import BracketResultsPage from '@/pages/BracketResultsPage'
 import FinalStandingsPage from '@/pages/FinalStandingsPage'
 import ManualPage from '@/pages/ManualPage'
+import DemosPage from '@/pages/DemosPage'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="bracket-results" element={<BracketResultsPage />} />
           <Route path="final-standings" element={<FinalStandingsPage />} />
           <Route path="export" element={<ExportPage />} />
+          <Route path="demos" element={<DemosPage />} />
           <Route path="anleitung" element={<ManualPage />} />
         </Route>
       </Routes>
