@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { computeGroupStandings } from '@/lib/group-standings'
 import { downloadGroupOverviewPdf } from '@/lib/export/group-overview-pdf'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Banner, Button } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 
@@ -14,9 +13,9 @@ export default function GroupOverviewPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
+      </Banner>
     )
   }
 
@@ -45,7 +44,7 @@ export default function GroupOverviewPage() {
           {groupIds.map(groupId => (
             <Button
               key={groupId}
-              variant={groupId === currentGroupId ? undefined : 'outline'}
+              variant={groupId === currentGroupId ? undefined : 'ghost'}
               size="sm"
               onClick={() => setActiveGroupId(groupId)}
             >
@@ -54,8 +53,8 @@ export default function GroupOverviewPage() {
           ))}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleDownloadCurrentGroupPdf}>Diese Gruppe als PDF herunterladen</Button>
-          <Button variant="outline" size="sm" onClick={handleDownloadAllGroupsPdf}>Alle Gruppen als PDF herunterladen</Button>
+          <Button variant="ghost" size="sm" onClick={handleDownloadCurrentGroupPdf}>Diese Gruppe als PDF herunterladen</Button>
+          <Button variant="ghost" size="sm" onClick={handleDownloadAllGroupsPdf}>Alle Gruppen als PDF herunterladen</Button>
         </div>
       </div>
 

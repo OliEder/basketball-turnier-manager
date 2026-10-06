@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { DestructiveConfirmDialog } from './destructive-confirm-dialog'
+import { DestructiveConfirmDialog } from './DestructiveConfirmDialog'
 
 describe('DestructiveConfirmDialog', () => {
   it('keeps the confirm button disabled until the exact confirmation word is typed', () => {
@@ -78,5 +78,26 @@ describe('DestructiveConfirmDialog', () => {
       />
     )
     expect(screen.getByRole('button', { name: /bestätigen/i })).toBeDisabled()
+  })
+
+  it('does not close when clicking outside the dialog', async () => {
+    const onOpenChange = vi.fn()
+    render(
+      <DestructiveConfirmDialog
+        open
+        onOpenChange={onOpenChange}
+        title="t" description="d" confirmWord="ÄNDERN"
+        onConfirm={() => {}}
+      />
+    )
+    // Radix registriert seinen pointerdown-Listener erst nach einem Tick (setTimeout 0)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    const backdrop = document.querySelector('.dss-backdrop')!
+    fireEvent.pointerDown(backdrop, { button: 0, pointerType: 'mouse' })
+    fireEvent.pointerUp(backdrop, { button: 0, pointerType: 'mouse' })
+    fireEvent.click(backdrop)
+
+    expect(onOpenChange).not.toHaveBeenCalled()
   })
 })

@@ -1,6 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Banner } from '@bbv/dss-design-system/react'
 
 export default function FinalsVariantForm({ disabled = false }: { disabled?: boolean }) {
   const { tournament, setFinalsVariant, setDropoutHandling } = useTournamentStore()
@@ -29,7 +28,7 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
   return (
     <div className="space-y-4 max-w-md">
       <div className="space-y-1">
-        <Label htmlFor="finals-variant">Endrunden-Variante</Label>
+        <label htmlFor="finals-variant" className="dss-field-label">Endrunden-Variante</label>
         <select
           id="finals-variant"
           className="border border-border rounded-sm px-2 py-1 text-sm w-full"
@@ -60,27 +59,23 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
       </div>
 
       {hasUnevenGroups && (
-        <Alert>
-          <AlertDescription>
-            Die Gruppen sind unterschiedlich groß. Die Anzahl der Rangstufen richtet sich nach der
-            kleinsten Gruppe — Teams auf niedrigeren Rängen in größeren Gruppen nehmen an keiner
-            Platzierungsgruppe teil.
-          </AlertDescription>
-        </Alert>
+        <Banner>
+          Die Gruppen sind unterschiedlich groß. Die Anzahl der Rangstufen richtet sich nach der
+          kleinsten Gruppe — Teams auf niedrigeren Rängen in größeren Gruppen nehmen an keiner
+          Platzierungsgruppe teil.
+        </Banner>
       )}
 
       {showCapacityWarning && (
-        <Alert>
-          <AlertDescription>
-            Diese Konfiguration erzeugt schätzungsweise {estimatedExtraGames} zusätzliche Spiele für
-            die Endrunde. Prüfe, ob die verfügbare Hallenzeit und Feldanzahl dafür ausreichen —
-            ansonsten Gruppenanzahl reduzieren oder mehr Felder/Zeit einplanen.
-          </AlertDescription>
-        </Alert>
+        <Banner severity="warn">
+          Diese Konfiguration erzeugt schätzungsweise {estimatedExtraGames} zusätzliche Spiele für
+          die Endrunde. Prüfe, ob die verfügbare Hallenzeit und Feldanzahl dafür ausreichen —
+          ansonsten Gruppenanzahl reduzieren oder mehr Felder/Zeit einplanen.
+        </Banner>
       )}
 
       <div className="space-y-1">
-        <Label htmlFor="dropout-handling">Bei Rückzug in der Endrunde</Label>
+        <label htmlFor="dropout-handling" className="dss-field-label">Bei Rückzug in der Endrunde</label>
         <select
           id="dropout-handling"
           className="border border-border rounded-sm px-2 py-1 text-sm w-full"

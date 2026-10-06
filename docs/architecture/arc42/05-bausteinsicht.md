@@ -178,7 +178,7 @@ Die Sichtbarkeit der jeweiligen Nav-Einträge wird zentral in `AppShell.tsx` anh
 | `schedule/` | Zeitplan-Ansicht, einzelne Spielzeile (`GameRow`), Konflikt-Badge |
 | `export/` | Export-Bedienfeld |
 | `layout/` | `AppShell` (Kopfzeile, Navigation, Routing-Outlet) |
-| `ui/` | Generische, Radix-basierte Primitives (Button, Select, Dialog, Alert, Input, Label) |
+| `shared/` | Projektspezifische, DSS-basierte Bausteine (`DestructiveConfirmDialog` auf `Modal severity="danger"`). Generische UI-Komponenten (Button, TextInput, Select, Modal, Banner, Card, Tabs, Icon) kommen aus dem Paket `@bbv/dss-design-system/react`, nicht mehr aus dem Repo |
 
 ## 5.7 Ebene 2 — PDF-Export (`src/lib/export/*-pdf.ts`)
 

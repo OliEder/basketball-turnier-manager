@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button, TextInput } from '@bbv/dss-design-system/react'
 
 interface TeamFormData {
   name: string
@@ -36,26 +34,18 @@ export default function TeamForm({ initial, onSubmit, onCancel }: Props) {
 
   return (
     <form aria-label="Team-Formular" onSubmit={handleSubmit} className="space-y-4">
+      <TextInput id="team-name" label="Name" value={form.name} onChange={set('name')} required />
+      <TextInput
+        id="team-abbreviation"
+        label="Kürzel (optional)"
+        value={form.abbreviation}
+        onChange={set('abbreviation')}
+        maxLength={4}
+        placeholder="z.B. TSM"
+      />
+      <TextInput id="team-logo" label="Logo-URL" value={form.logoUrl} onChange={set('logoUrl')} placeholder="https://..." />
       <div className="space-y-1">
-        <Label htmlFor="team-name">Name</Label>
-        <Input id="team-name" value={form.name} onChange={set('name')} required />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="team-abbreviation">Kürzel (optional)</Label>
-        <Input
-          id="team-abbreviation"
-          value={form.abbreviation}
-          onChange={set('abbreviation')}
-          maxLength={4}
-          placeholder="z.B. TSM"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="team-logo">Logo-URL</Label>
-        <Input id="team-logo" value={form.logoUrl} onChange={set('logoUrl')} placeholder="https://..." />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="team-color">Farbe</Label>
+        <label htmlFor="team-color" className="dss-field-label">Farbe</label>
         <div className="flex gap-2 items-center">
           <input
             id="team-color"
@@ -64,16 +54,13 @@ export default function TeamForm({ initial, onSubmit, onCancel }: Props) {
             onChange={set('color')}
             className="h-9 w-12 rounded border border-border-ui cursor-pointer"
           />
-          <Input value={form.color} onChange={set('color')} className="w-32 font-mono" />
+          <TextInput value={form.color} onChange={set('color')} fieldClassName="w-32" className="!font-mono" />
         </div>
       </div>
-      <div className="space-y-1">
-        <Label htmlFor="team-contact">Kontakt</Label>
-        <Input id="team-contact" value={form.contact} onChange={set('contact')} />
-      </div>
+      <TextInput id="team-contact" label="Kontakt" value={form.contact} onChange={set('contact')} />
       <div className="flex gap-2">
         <Button type="submit">Speichern</Button>
-        {onCancel && <Button type="button" variant="outline" onClick={onCancel}>Abbrechen</Button>}
+        {onCancel && <Button type="button" variant="ghost" onClick={onCancel}>Abbrechen</Button>}
       </div>
     </form>
   )

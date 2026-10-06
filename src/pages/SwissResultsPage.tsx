@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore, getCurrentSwissRound } from '@/store/tournament-store'
 import { PairingConflictError } from '@/lib/swiss-pairing'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button, Banner, TextInput } from '@bbv/dss-design-system/react'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import type { Game } from '@/types'
@@ -19,9 +17,9 @@ export default function SwissResultsPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
+      </Banner>
     )
   }
 
@@ -114,7 +112,7 @@ export default function SwissResultsPage() {
         {Array.from({ length: displayRound }, (_, i) => i + 1).map(r => (
           <Button
             key={r}
-            variant={r === currentViewedRound ? undefined : 'outline'}
+            variant={r === currentViewedRound ? undefined : 'ghost'}
             size="sm"
             onClick={() => setViewedRound(r)}
           >
@@ -124,18 +122,18 @@ export default function SwissResultsPage() {
       </div>
 
       {isViewingPastRound && (
-        <Alert>
-          <AlertDescription className="flex items-center justify-between gap-3">
+        <Banner>
+          <div className="flex items-center justify-between gap-3">
             <span>Du siehst eine bereits abgeschlossene Runde — nicht die aktuell aktive Runde.</span>
             <Button size="sm" onClick={() => setViewedRound(null)}>Zur aktuellen Runde</Button>
-          </AlertDescription>
-        </Alert>
+          </div>
+        </Banner>
       )}
 
       {error && (
-        <Alert>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <Banner severity="danger">
+          {error}
+        </Banner>
       )}
 
       <div className="border border-border rounded-md p-4 bg-card space-y-3">
@@ -166,9 +164,9 @@ export default function SwissResultsPage() {
                   </span>
                 ) : canWithdraw ? (
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
+                    className="!text-xs !h-9 !px-3 w-full min-w-0 truncate"
                     title={`${home} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${home} als zurückgezogen markieren?`)) withdrawTeam(game.homeTeamId!)
@@ -185,16 +183,18 @@ export default function SwissResultsPage() {
                 {hasResult && correctingGameId !== game.id ? (
                   <span className="text-sm text-muted-foreground text-right">{game.periodScores[0].homeScore}</span>
                 ) : !hasResult ? (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     aria-label={`Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? '' } }))}
                   />
                 ) : (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     defaultValue={game.periodScores[0].homeScore}
                     aria-label={`Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? String(game.periodScores[0].awayScore) } }))}
@@ -206,16 +206,18 @@ export default function SwissResultsPage() {
                 {hasResult && correctingGameId !== game.id ? (
                   <span className="text-sm text-muted-foreground text-left">{game.periodScores[0].awayScore}</span>
                 ) : !hasResult ? (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     aria-label={`Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? '', away: e.target.value } }))}
                   />
                 ) : (
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-full no-spinner px-1 text-center"
+                    className="no-spinner !px-1 text-center"
                     defaultValue={game.periodScores[0].awayScore}
                     aria-label={`Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? String(game.periodScores[0].homeScore), away: e.target.value } }))}
@@ -232,9 +234,9 @@ export default function SwissResultsPage() {
                   </span>
                 ) : canWithdraw ? (
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="text-xs text-muted-foreground border-dashed border-destructive w-full min-w-0 truncate"
+                    className="!text-xs !h-9 !px-3 w-full min-w-0 truncate"
                     title={`${away} zurückziehen`}
                     onClick={() => {
                       if (confirm(`${away} als zurückgezogen markieren?`)) withdrawTeam(game.awayTeamId!)
@@ -251,7 +253,7 @@ export default function SwissResultsPage() {
                 ) : <span />}
 
                 {hasResult && correctingGameId !== game.id ? (
-                  <Button variant="outline" size="sm" className="text-muted-foreground" onClick={() => setCorrectingGameId(game.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => setCorrectingGameId(game.id)}>
                     Korrigieren
                   </Button>
                 ) : hasResult ? (
@@ -279,9 +281,9 @@ export default function SwissResultsPage() {
       </div>
 
       {tournamentFinished ? (
-        <Alert>
-          <AlertDescription>Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.</AlertDescription>
-        </Alert>
+        <Banner>
+          Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.
+        </Banner>
       ) : !isViewingPastRound ? (
         <Button onClick={handleAdvance} disabled={!allEvaluated}>
           {displayRound >= totalRounds ? 'Turnier abschließen' : 'Nächste Runde auslosen'}

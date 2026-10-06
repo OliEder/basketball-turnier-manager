@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Banner, Button, TextInput } from '@bbv/dss-design-system/react'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalScore } from '@/lib/standings'
 import type { Game, Team } from '@/types'
@@ -22,9 +19,9 @@ export default function GroupResultsPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
+      </Banner>
     )
   }
 
@@ -93,9 +90,9 @@ export default function GroupResultsPage() {
     }
     return (
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
-        className="text-xs text-muted-foreground border-dashed border-destructive"
+        className="!text-xs !h-9 !px-3"
         title={`${team.name} zurückziehen`}
         onClick={() => {
           if (confirm(`${team.name} als zurückgezogen markieren?`)) withdrawTeam(team.id)
@@ -111,19 +108,17 @@ export default function GroupResultsPage() {
       <h1 className="text-2xl text-brand-primary">Ergebnisse erfassen</h1>
 
       {savedGroupId && (
-        <Alert>
-          <AlertDescription>
-            Ergebnis gespeichert.{' '}
-            <Link to="/group-overview" className="underline">
-              Tabelle für Gruppe {savedGroupId} ansehen →
-            </Link>
-          </AlertDescription>
-        </Alert>
+        <Banner>
+          Ergebnis gespeichert.{' '}
+          <Link to="/group-overview" className="underline">
+            Tabelle für Gruppe {savedGroupId} ansehen →
+          </Link>
+        </Banner>
       )}
 
       <div className="flex gap-4 flex-wrap items-end">
         <div className="space-y-1">
-          <Label htmlFor="status-filter">Status</Label>
+          <label htmlFor="status-filter" className="dss-field-label">Status</label>
           <select
             id="status-filter"
             className="border border-border rounded-sm px-2 py-1 text-sm"
@@ -136,7 +131,7 @@ export default function GroupResultsPage() {
           </select>
         </div>
         <div className="space-y-1">
-          <Label htmlFor="group-filter">Gruppe</Label>
+          <label htmlFor="group-filter" className="dss-field-label">Gruppe</label>
           <select
             id="group-filter"
             className="border border-border rounded-sm px-2 py-1 text-sm"
@@ -150,7 +145,7 @@ export default function GroupResultsPage() {
           </select>
         </div>
         <div className="space-y-1">
-          <Label htmlFor="field-filter">Feld</Label>
+          <label htmlFor="field-filter" className="dss-field-label">Feld</label>
           <select
             id="field-filter"
             className="border border-border rounded-sm px-2 py-1 text-sm"
@@ -166,9 +161,9 @@ export default function GroupResultsPage() {
       </div>
 
       {filteredGames.length === 0 && (
-        <Alert>
-          <AlertDescription>Keine Spiele für die gewählten Filter.</AlertDescription>
-        </Alert>
+        <Banner>
+          Keine Spiele für die gewählten Filter.
+        </Banner>
       )}
 
       <div className="border border-border rounded-md p-4 bg-card space-y-3">
@@ -183,7 +178,7 @@ export default function GroupResultsPage() {
             <div key={game.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
               <span className="text-xs font-mono text-muted-foreground w-16">{game.scheduledStart}</span>
               <span className="text-xs font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
-              <span className="text-xs font-mono w-8 text-center bg-tint rounded-sm px-1">
+              <span className="text-xs font-mono text-center bg-tint rounded-sm px-1 whitespace-nowrap shrink-0">
                 Gruppe {game.groupId ?? 'A'}
               </span>
               <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -199,23 +194,27 @@ export default function GroupResultsPage() {
                   <span className="text-sm font-mono w-20 text-center">
                     {finalScore!.home} : {finalScore!.away}
                   </span>
-                  <Button variant="outline" size="sm" onClick={() => setCorrectingGameId(game.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => setCorrectingGameId(game.id)}>
                     Korrigieren
                   </Button>
                 </>
               ) : (
                 <>
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-16 no-spinner px-1 text-center"
+                    fieldClassName="w-16"
+                    className="no-spinner !px-1 text-center"
                     aria-label={isCorrecting ? `Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}` : `Ergebnis Heim, Spiel ${game.gameNumber}`}
                     defaultValue={isCorrecting ? game.periodScores[0].homeScore : undefined}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? (isCorrecting ? String(game.periodScores[0].awayScore) : '') } }))}
                   />
                   <span>:</span>
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-16 no-spinner px-1 text-center"
+                    fieldClassName="w-16"
+                    className="no-spinner !px-1 text-center"
                     aria-label={isCorrecting ? `Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}` : `Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     defaultValue={isCorrecting ? game.periodScores[0].awayScore : undefined}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? (isCorrecting ? String(game.periodScores[0].homeScore) : ''), away: e.target.value } }))}

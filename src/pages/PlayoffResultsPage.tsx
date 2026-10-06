@@ -1,9 +1,6 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Banner, Button, TextInput } from '@bbv/dss-design-system/react'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalScore } from '@/lib/standings'
 import type { Game } from '@/types'
@@ -24,9 +21,9 @@ export default function PlayoffResultsPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
+      </Banner>
     )
   }
 
@@ -80,7 +77,7 @@ export default function PlayoffResultsPage() {
 
       <div className="flex gap-4 flex-wrap items-end">
         <div className="space-y-1">
-          <Label htmlFor="status-filter">Status</Label>
+          <label htmlFor="status-filter" className="dss-field-label">Status</label>
           <select
             id="status-filter"
             className="border border-border rounded-sm px-2 py-1 text-sm"
@@ -95,9 +92,9 @@ export default function PlayoffResultsPage() {
       </div>
 
       {filteredGames.length === 0 && (
-        <Alert>
-          <AlertDescription>Keine Spiele für die gewählten Filter.</AlertDescription>
-        </Alert>
+        <Banner>
+          Keine Spiele für die gewählten Filter.
+        </Banner>
       )}
 
       <div className="border border-border rounded-md p-4 bg-card space-y-3">
@@ -129,23 +126,27 @@ export default function PlayoffResultsPage() {
                   <span className="text-sm font-mono w-20 text-center">
                     {finalScore!.home} : {finalScore!.away}
                   </span>
-                  <Button variant="outline" size="sm" onClick={() => setCorrectingGameId(game.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => setCorrectingGameId(game.id)}>
                     Korrigieren
                   </Button>
                 </>
               ) : (
                 <>
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-16 no-spinner px-1 text-center"
+                    fieldClassName="w-16"
+                    className="no-spinner !px-1 text-center"
                     aria-label={isCorrecting ? `Korrigiertes Ergebnis Heim, Spiel ${game.gameNumber}` : `Ergebnis Heim, Spiel ${game.gameNumber}`}
                     defaultValue={isCorrecting ? game.periodScores[0].homeScore : undefined}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: e.target.value, away: s[game.id]?.away ?? (isCorrecting ? String(game.periodScores[0].awayScore) : '') } }))}
                   />
                   <span>:</span>
-                  <Input
+                  <TextInput
+                    density="compact"
                     type="number"
-                    className="w-16 no-spinner px-1 text-center"
+                    fieldClassName="w-16"
+                    className="no-spinner !px-1 text-center"
                     aria-label={isCorrecting ? `Korrigiertes Ergebnis Auswärts, Spiel ${game.gameNumber}` : `Ergebnis Auswärts, Spiel ${game.gameNumber}`}
                     defaultValue={isCorrecting ? game.periodScores[0].awayScore : undefined}
                     onChange={e => setScores(s => ({ ...s, [game.id]: { home: s[game.id]?.home ?? (isCorrecting ? String(game.periodScores[0].homeScore) : ''), away: e.target.value } }))}

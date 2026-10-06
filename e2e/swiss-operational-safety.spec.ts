@@ -149,7 +149,11 @@ test('withdrawal that makes the active team count odd reshapes a not-yet-drawn f
   // Datei) und eines der beiden beteiligten Teams zurückziehen. 6 -> 5 aktive
   // Teams macht die Teamzahl ungerade.
   const openInput = page.getByLabel(/^Ergebnis Heim, Spiel/).first()
-  const withdrawRow = page.locator('div').filter({ has: openInput }).last()
+  const withdrawRow = page
+    .locator('div')
+    .filter({ has: openInput })
+    .filter({ has: page.getByRole('button', { name: /zurückziehen$/ }) })
+    .last()
   const withdrawButtons = withdrawRow.getByRole('button', { name: /zurückziehen$/ })
   await expect(withdrawButtons).toHaveCount(2)
   page.once('dialog', dialog => dialog.accept())

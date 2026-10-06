@@ -2,14 +2,13 @@ import { getCurrentSwissRound, isRoundFullyEvaluated, useTournamentStore } from 
 import { computeStandings } from '@/lib/standings'
 import { downloadSwissOverviewPdf } from '@/lib/export/swiss-overview-pdf'
 import { computeRoundPageBreaks } from '@/lib/print-pagination'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Banner, Button } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 
 function TableOfContents({ rounds }: { rounds: number[] }) {
   return (
-    <nav aria-label="Inhalt" className="rounded-md border border-brand-primary/30 bg-tint p-4 text-sm">
+    <nav aria-label="Inhalt" className="rounded-md border border-border bg-tint p-4 text-sm">
       <p className="font-semibold text-brand-primary mb-2">Inhalt</p>
       <ul className="space-y-1">
         <li>
@@ -30,9 +29,9 @@ export default function SwissOverviewPage() {
 
   if (!schedule) {
     return (
-      <Alert>
-        <AlertDescription>Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).</AlertDescription>
-      </Alert>
+      <Banner>
+        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
+      </Banner>
     )
   }
 

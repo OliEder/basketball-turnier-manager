@@ -9,15 +9,14 @@ test('the field-count dropdown offers up to 6 fields, not just 4', async ({ page
   for (let i = 1; i <= 2; i++) await addTeam(page, `Team ${i}`)
 
   await page.getByRole('link', { name: 'Konfiguration' }).click()
-  await page.locator('#tourney-fields').click()
 
   // Regression test: this dropdown was hardcoded to only 1-4 fields, so once an organizer
   // touched it they could never select more than 4 fields again -- with many groups but a
   // starved field count, games queue up almost entirely sequentially, which looks like a
   // group-to-field mapping bug but is really just this artificial cap.
-  await expect(page.getByRole('option', { name: '6 Felder' })).toBeVisible()
-  await page.getByRole('option', { name: '6 Felder' }).click()
-  await expect(page.locator('#tourney-fields')).toContainText('6 Felder')
+  await expect(page.locator('#tourney-fields option', { hasText: '6 Felder' })).toHaveCount(1)
+  await page.locator('#tourney-fields').selectOption({ label: '6 Felder' })
+  await expect(page.locator('#tourney-fields')).toHaveValue('6')
 })
 
 test('organizer cannot generate a schedule for multiple groups without choosing a finals variant', async ({ page }) => {

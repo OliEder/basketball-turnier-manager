@@ -24,7 +24,7 @@ describe('TeamForm', () => {
   it('includes the abbreviation field in the submitted data', () => {
     const onSubmit = vi.fn()
     render(<TeamForm onSubmit={onSubmit} />)
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Team A' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Team A' } })
     fireEvent.change(screen.getByLabelText('Kürzel (optional)'), { target: { value: 'TMA' } })
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
     expect(onSubmit).toHaveBeenCalledWith(

@@ -80,7 +80,7 @@ function renderImageToken(token: Tokens.Image, key: number): ReactNode {
 
 function renderCalloutToken(token: CalloutToken, key: number): ReactNode {
   return (
-    <div key={key} className="rounded-md border border-brand-primary/30 bg-tint p-4 text-sm">
+    <div key={key} className="rounded-md border border-border bg-tint p-4 text-sm">
       <p className="font-semibold text-brand-primary mb-1">{token.title}</p>
       <div>{renderManualMarkdownToJsx(token.tokens as ManualToken[])}</div>
     </div>

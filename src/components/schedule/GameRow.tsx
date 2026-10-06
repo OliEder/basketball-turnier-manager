@@ -1,5 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Input } from '@/components/ui/input'
+import { TextInput } from '@bbv/dss-design-system/react'
 import ConflictBadge from './ConflictBadge'
 import { overlapsBlackout } from '@/lib/game-duration'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
@@ -38,11 +38,13 @@ export default function GameRow({ game, showResult = false }: Props) {
         </span>
       ) : (
         <>
-          <Input
+          <TextInput
+            density="compact"
             type="time"
             value={game.scheduledStart}
             onChange={e => updateGameTime(game.id, e.target.value)}
-            className="w-28 font-mono"
+            fieldClassName="w-32"
+            className="!font-mono"
             aria-label={`Startzeit Spiel ${game.gameNumber}`}
           />
           <span className="text-sm text-muted-foreground">–{game.scheduledEnd}</span>

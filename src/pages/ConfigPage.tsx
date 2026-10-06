@@ -7,10 +7,9 @@ import GameSettingsForm from '@/components/config/GameSettingsForm'
 import VenueForm from '@/components/venue/VenueForm'
 import BlackoutList from '@/components/venue/BlackoutList'
 import { LockedSectionGate } from '@/components/config/LockedSectionGate'
-import { DestructiveConfirmDialog } from '@/components/ui/destructive-confirm-dialog'
+import { DestructiveConfirmDialog } from '@/components/shared/DestructiveConfirmDialog'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button, Banner } from '@bbv/dss-design-system/react'
 import { parseTournamentImport } from '@/lib/import/json-import'
 import { downloadJson } from '@/lib/export/json-export'
 import type { TournamentConfig, Schedule } from '@/types'
@@ -117,32 +116,28 @@ export default function ConfigPage() {
         </div>
 
         {tournament.teams.length < 2 && (
-          <Alert>
-            <AlertDescription>Mindestens 2 Teams erforderlich.</AlertDescription>
-          </Alert>
+          <Banner severity="warn" role="status">
+            Mindestens 2 Teams erforderlich.
+          </Banner>
         )}
 
         {needsFinalsVariant && (
-          <Alert>
-            <AlertDescription>
-              Bitte zuerst eine Endrunden-Variante auswählen (Abschnitt „Endrunden-Variante" oben) — bei mehreren Gruppen kann sonst kein sinnvoller Spielplan für die Endrunde erzeugt werden.
-            </AlertDescription>
-          </Alert>
+          <Banner severity="warn" role="status">
+            Bitte zuerst eine Endrunden-Variante auswählen (Abschnitt „Endrunden-Variante" oben) — bei mehreren Gruppen kann sonst kein sinnvoller Spielplan für die Endrunde erzeugt werden.
+          </Banner>
         )}
 
         {schedule && schedule.games.length === 0 && (
-          <Alert>
-            <AlertDescription>Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.</AlertDescription>
-          </Alert>
+          <Banner severity="warn" role="status">
+            Kein Zeitplan möglich — Halle zu kurz oder zu viele Sperrzeiten.
+          </Banner>
         )}
 
         {scheduleGenerationError && (
-          <Alert>
-            <AlertDescription>
-              Zeitplan konnte nicht neu generiert werden: {scheduleGenerationError} — der zuletzt
-              erfolgreich generierte Zeitplan bleibt unverändert bestehen.
-            </AlertDescription>
-          </Alert>
+          <Banner severity="danger">
+            Zeitplan konnte nicht neu generiert werden: {scheduleGenerationError} — der zuletzt
+            erfolgreich generierte Zeitplan bleibt unverändert bestehen.
+          </Banner>
         )}
       </section>
 
@@ -162,9 +157,9 @@ export default function ConfigPage() {
           />
         </div>
         {importError && (
-          <Alert>
-            <AlertDescription>{importError}</AlertDescription>
-          </Alert>
+          <Banner severity="danger">
+            {importError}
+          </Banner>
         )}
         {tournament.name && (
           <p className="text-sm text-muted-foreground">Aktuelles Turnier: {tournament.name}</p>
@@ -173,7 +168,7 @@ export default function ConfigPage() {
 
       <section className="space-y-4">
         <h2 className="text-lg text-brand-primary-light">Turnier zurücksetzen</h2>
-        <Button type="button" variant="destructive" onClick={() => setConfirmTarget('reset')}>
+        <Button type="button" variant="danger" onClick={() => setConfirmTarget('reset')}>
           Turnier zurücksetzen
         </Button>
       </section>
