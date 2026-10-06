@@ -10,7 +10,7 @@ function renderImageToken(image: Tokens.Image, images: Record<string, string>, k
     View,
     { key, style: { marginBottom: 8 } },
     src ? createElement(Image, { src, style: { maxWidth: '100%' } }) : null,
-    createElement(Text, { style: { fontSize: 8, color: pdfColors.textDark, marginTop: 2 } }, image.text),
+    createElement(Text, { style: { fontSize: 8, color: pdfColors.textMuted, marginTop: 2 } }, image.text),
   )
 }
 
@@ -82,7 +82,7 @@ export function renderManualMarkdownToPdf(tokens: ManualToken[], images: Record<
           key: i,
           style: { backgroundColor: pdfColors.zebra, borderRadius: 4, padding: 8, marginBottom: 8 },
         },
-          createElement(Text, { style: { fontWeight: 'bold', color: pdfColors.brandBlue, marginBottom: 4, fontSize: 9 } }, callout.title),
+          createElement(Text, { style: { fontWeight: 'bold', color: pdfColors.text, marginBottom: 4, fontSize: 9 } }, callout.title),
           ...renderManualMarkdownToPdf(callout.tokens as ManualToken[], images),
         ))
         break

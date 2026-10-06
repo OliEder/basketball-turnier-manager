@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { isValidElement } from 'react'
 import { tokenizeManualMarkdown } from './markdown-tokens'
 import { renderManualMarkdownToPdf } from './manual-markdown-pdf'
+import { pdfColors } from './export/pdf-theme'
 
 function toPlainJson(el: unknown): unknown {
   return JSON.stringify(el, (_key, value) =>
@@ -32,7 +33,7 @@ describe('renderManualMarkdownToPdf', () => {
     const json = toPlainJson(elements)
     expect(json).toContain('Hinweis')
     expect(json).toContain('Wichtig.')
-    expect(json).toContain('#f0f7fc')
+    expect(json).toContain(pdfColors.zebra)
   })
 
   it('renders a list as one Text per item prefixed with a bullet', () => {

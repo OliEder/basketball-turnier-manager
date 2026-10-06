@@ -7,7 +7,7 @@ import { pdfBaseStyles, pdfColors } from './pdf-theme'
 // pdf-theme.ts; the colors, headings, and table row/cell styles below all come from the shared
 // theme so this export stays visually consistent with the other three PDF exports.
 const styles = StyleSheet.create({
-  subtitle: { fontSize: 11, color: pdfColors.textDark, marginBottom: 20 },
+  subtitle: { fontSize: 11, color: pdfColors.textMuted, marginBottom: 20 },
   col1: { width: '8%' },
   col2: { width: '12%' },
   col3: { width: '20%' },
