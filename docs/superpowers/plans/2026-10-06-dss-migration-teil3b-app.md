@@ -15,7 +15,7 @@
 **Konventionen (einhalten):**
 - E2E zuerst: Für jeden neuen Nutzerfluss steht ein roter Playwright-Test vor der Umsetzung (Memory: e2e-first).
 - Commit-Footer: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` (zweites `-m`); PR-Texte enden mit `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
-- Das Wort `innerHTML` darf in keiner Datei vorkommen.
+- Keine HTML-Zuweisung per String-Property (Security-Hook blockiert das); DOM in Tests per `DOMParser` + `importNode`.
 - Vitest stubbt CSS-Imports (auch `?raw`): Dateien in Tests per `node:fs` lesen.
 - Pflichtfeld-Stern im Label: `getByRole('textbox', { name: 'Name' })` statt `getByLabelText('Name')`.
 - DSS-Steuerelemente sind 44 px hoch (kompakt 36 px). Tailwind lädt VOR dem DSS-CSS: Utilities, die eine von DSS gesetzte Eigenschaft überschreiben, brauchen `!` (`!px-1`, `!font-mono`, `!h-9`).
@@ -1674,7 +1674,7 @@ Expected: Unit grün, `tsc` still, Build ok, E2E grün (41 alt + 5 Navigation + 
 
 ```bash
 grep -rnE "brand-|text-muted-foreground|border-border|bg-tint|bg-card" src | grep -v legacy-classes.test.ts   # leer
-grep -rn "innerHTML" src e2e docs scripts                                                              # leer
+grep -rn "inner""HTML" src e2e scripts   # leer (Muster geteilt, damit der Plan selbst nicht trifft)
 git diff origin/main --stat | tail -3
 ```
 
