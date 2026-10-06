@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { addTeam, selectMode } from './helpers'
+import { addTeam, selectMode, goTo } from './helpers'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/teams')
@@ -15,7 +15,7 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
   await expect(page.getByText('5 Teams')).toBeVisible()
 
   // Konfiguration: Swiss-Modus
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
   await expect(page.getByLabel('Anzahl Runden')).toBeVisible()
 
@@ -27,7 +27,7 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(new RegExp(`Runde 1 von ${totalRounds}`))).toBeVisible()
 
   for (let round = 1; round <= totalRounds; round++) {
@@ -48,7 +48,7 @@ test('plays through a full 5-team swiss tournament including a bye', async ({ pa
 
   await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).toBeVisible()
 
-  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await goTo(page, 'Turnierübersicht')
   await expect(page.getByRole('table')).toBeVisible()
   // Kurze Teamnamen wie "Team A".."Team E" passen ohne Overflow in die Tabellenspalte, daher
   // zeigt die Tabelle den vollen Namen, nicht mehr das Kürzel.
@@ -77,12 +77,12 @@ test('shows the team abbreviation instead of the full name once the viewport is 
   }
   await expect(page.getByText('2 Teams')).toBeVisible()
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await goTo(page, 'Turnierübersicht')
   await expect(page.getByRole('table')).toBeVisible()
 
   // Bei der Standard-Desktop-Breite (>= md, 768px) ist der volle Name sichtbar, das Kürzel
@@ -103,14 +103,14 @@ test('lets the organizer navigate back to a completed round and correct a result
   }
   await expect(page.getByText('4 Teams')).toBeVisible()
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
   await page.getByLabel('Anzahl Runden').fill('2')
 
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(/Runde 1 von 2/)).toBeVisible()
 
   const homeInputs = page.getByLabel(/^Ergebnis Heim, Spiel/)

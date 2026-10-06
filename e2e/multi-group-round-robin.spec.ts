@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { addTeam, selectMode } from './helpers'
+import { addTeam, selectMode, goTo } from './helpers'
 
 test('organizer sets up a multi-group round-robin tournament and sees per-group standings', async ({ page }) => {
   await page.goto('/teams')
@@ -10,7 +10,7 @@ test('organizer sets up a multi-group round-robin tournament and sees per-group 
     await addTeam(page, `Team ${i}`)
   }
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
 
   // 8 teams -> the group-count suggestion should default to 2 groups of 4.
@@ -29,7 +29,7 @@ test('organizer sets up a multi-group round-robin tournament and sees per-group 
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Gruppentabellen' }).click()
+  await goTo(page, 'Gruppentabellen')
   // Groups are shown one at a time via tabs; group A is active by default.
   await expect(page.getByRole('heading', { name: 'Gruppe A' })).toBeVisible()
   await expect(page.getByRole('table')).toHaveCount(1)
@@ -56,7 +56,7 @@ test('a single-group round-robin+finals tournament does not show the group-overv
     await addTeam(page, name)
   }
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
@@ -64,6 +64,8 @@ test('a single-group round-robin+finals tournament does not show the group-overv
   // All 4 teams stay in the default group A -- only one group exists, so the
   // dedicated group-standings page must not appear in the nav (the existing
   // schedule view is enough for a single group).
-  await expect(page.getByRole('link', { name: 'Gruppentabellen' })).not.toBeVisible()
-  await expect(page.getByRole('link', { name: 'Zeitplan' })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Hauptnavigation' }).getByRole('button', { name: 'Ansehen', exact: true }).click()
+  const viewNav = page.getByRole('navigation', { name: 'Hauptnavigation' })
+  await expect(viewNav.getByRole('link', { name: 'Gruppentabellen' })).toHaveCount(0)
+  await expect(viewNav.getByRole('link', { name: 'Zeitplan' })).toBeVisible()
 })

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { addTeam, selectMode } from './helpers'
+import { addTeam, selectMode, goTo } from './helpers'
 
 // This suite plays through every tournament-mode variant this app supports, end-to-end in a
 // real browser, to catch regressions that only show up when comparing variants side by side
@@ -25,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 test('Variante 1: Jeder gegen Jeden (round-robin, eine Gruppe)', async ({ page }) => {
   await addTeams(page, 8)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Jeder gegen Jeden')
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
@@ -34,16 +34,17 @@ test('Variante 1: Jeder gegen Jeden (round-robin, eine Gruppe)', async ({ page }
   const gamesText = await page.getByText(/\d+ Spiele · Ende ca\./).textContent()
   expect(Number(gamesText!.match(/(\d+) Spiele/)![1])).toBe(28)
 
-  await page.getByRole('link', { name: 'Zeitplan' }).click()
+  await goTo(page, 'Zeitplan')
   await expect(page.getByText(/28 Spiele/)).toBeVisible()
   // No group-overview link exists at all for plain round-robin mode.
-  await expect(page.getByRole('link', { name: 'Gruppentabellen' })).not.toBeVisible()
+  await page.getByRole('navigation', { name: 'Hauptnavigation' }).getByRole('button', { name: 'Ansehen', exact: true }).click()
+  await expect(page.getByRole('navigation', { name: 'Hauptnavigation' }).getByRole('link', { name: 'Gruppentabellen' })).toHaveCount(0)
 })
 
 test('Variante 2: Gruppenphase + Endrunde, eine Gruppe (unverändertes Altverhalten)', async ({ page }) => {
   await addTeams(page, 8)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   // 8 teams suggest 2 groups by default (see group-suggestion.ts) -- explicitly force a single
   // group here, since that's what this test actually intends to exercise ("eine Gruppe"). Without
@@ -57,10 +58,12 @@ test('Variante 2: Gruppenphase + Endrunde, eine Gruppe (unverändertes Altverhal
 
   // All 8 teams stay in the default group A -> the group-overview link must NOT appear,
   // this must behave exactly like the pre-existing single-pool round-robin+finals mode.
-  await expect(page.getByRole('link', { name: 'Gruppentabellen' })).not.toBeVisible()
-  await expect(page.getByRole('link', { name: 'Zeitplan' })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Hauptnavigation' }).getByRole('button', { name: 'Ansehen', exact: true }).click()
+  const viewNav = page.getByRole('navigation', { name: 'Hauptnavigation' })
+  await expect(viewNav.getByRole('link', { name: 'Gruppentabellen' })).toHaveCount(0)
+  await expect(viewNav.getByRole('link', { name: 'Zeitplan' })).toBeVisible()
 
-  await page.getByRole('link', { name: 'Zeitplan' }).click()
+  await goTo(page, 'Zeitplan')
   // 8 teams, single round-robin (28 games) + finalsBracketSize: 4 (2 semifinals + 1 third-place
   // game + 1 final -- see generatePlayoffGames in playoff-generator.ts) = 32.
   const gamesText = await page.getByText(/\d+ Spiele/).first().textContent()
@@ -70,7 +73,7 @@ test('Variante 2: Gruppenphase + Endrunde, eine Gruppe (unverändertes Altverhal
 test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) => {
   await addTeams(page, 8)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
 
   // 8 teams -> suggested group count is 2 (see group-suggestion.ts), confirm and accept it.
@@ -87,7 +90,7 @@ test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) =>
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Gruppentabellen' }).click()
+  await goTo(page, 'Gruppentabellen')
   // Groups are shown one at a time via tabs; group A is active by default.
   await expect(page.getByRole('heading', { name: 'Gruppe A' })).toBeVisible()
   await expect(page.getByRole('table')).toHaveCount(1)
@@ -127,14 +130,14 @@ test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) =>
 test('Variante 4: Gruppenphase + Endrunde mit Doppelrunde (Hin- und Rückrunde)', async ({ page }) => {
   await addTeams(page, 4)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   await page.getByLabel('Mit Rückspiel (Hin- und Rückrunde)').check()
 
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Zeitplan' }).click()
+  await goTo(page, 'Zeitplan')
   // 4 teams, double round-robin: C(4,2)*2 = 12 group games + finalsBracketSize: 4
   // (2 semifinals + 1 third-place game + 1 final) = 16.
   const gamesText = await page.getByText(/\d+ Spiele/).first().textContent()
@@ -152,14 +155,14 @@ test('Variante 4: Gruppenphase + Endrunde mit Doppelrunde (Hin- und Rückrunde)'
 test('Variante 5: Schweizer System mit 6 Runden', async ({ page }) => {
   await addTeams(page, 8)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
   await page.getByLabel('Anzahl Runden').fill('6')
 
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(/Runde 1 von 6/)).toBeVisible()
 
   const homeInputs = page.getByLabel(/^Ergebnis Heim, Spiel/)
@@ -177,7 +180,7 @@ test('Variante 5: Schweizer System mit 6 Runden', async ({ page }) => {
 test('Variante 6: Schweizer System mit empfohlener Rundenzahl', async ({ page }) => {
   await addTeams(page, 8)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
 
   // 8 teams -> ceil(log2(8)) = 3 recommended rounds (TournamentForm.tsx's suggestedRounds).
@@ -187,7 +190,7 @@ test('Variante 6: Schweizer System mit empfohlener Rundenzahl', async ({ page })
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(/Runde 1 von 3/)).toBeVisible()
 
   for (let round = 1; round <= 3; round++) {
@@ -203,6 +206,6 @@ test('Variante 6: Schweizer System mit empfohlener Rundenzahl', async ({ page })
   }
 
   await expect(page.getByText('Turnier abgeschlossen. Siehe Turnierübersicht für das Endergebnis.')).toBeVisible()
-  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await goTo(page, 'Turnierübersicht')
   await expect(page.getByRole('table')).toBeVisible()
 })

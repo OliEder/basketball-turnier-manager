@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { setupSwissTournament } from './helpers'
+import { setupSwissTournament, goTo } from './helpers'
 
 test('plays through a full 13-team swiss tournament with a bye every round', async ({ page }) => {
   const teamNames = Array.from({ length: 13 }, (_, i) => `Team ${i + 1}`)
@@ -53,7 +53,7 @@ test('plays through a full 13-team swiss tournament with a bye every round', asy
   const distinctByeTeams = new Set(byeTeamsPerRound)
   expect(distinctByeTeams.size).toBe(totalRounds)
 
-  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await goTo(page, 'Turnierübersicht')
   await expect(page.getByRole('table')).toBeVisible()
   // "Team 1".."Team 13" passen ohne Overflow in die Tabellenspalte, daher zeigt die Tabelle
   // die vollen Namen statt der Kürzel.

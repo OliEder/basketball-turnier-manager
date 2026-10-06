@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { addTeam, selectMode } from './helpers'
+import { addTeam, selectMode, goTo } from './helpers'
 
 test('the field-count dropdown offers up to 6 fields, not just 4', async ({ page }) => {
   await page.goto('/teams')
@@ -8,7 +8,7 @@ test('the field-count dropdown offers up to 6 fields, not just 4', async ({ page
 
   for (let i = 1; i <= 2; i++) await addTeam(page, `Team ${i}`)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
 
   // Regression test: this dropdown was hardcoded to only 1-4 fields, so once an organizer
   // touched it they could never select more than 4 fields again -- with many groups but a
@@ -26,7 +26,7 @@ test('organizer cannot generate a schedule for multiple groups without choosing 
 
   for (let i = 1; i <= 8; i++) await addTeam(page, `Team ${i}`)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   await page.getByLabel('Anzahl Gruppen').fill('4')
 
@@ -52,7 +52,7 @@ test('a failed schedule regeneration shows an explanatory alert instead of silen
   // comfortably within the default venue hours.
   for (let i = 1; i <= 12; i++) await addTeam(page, `Team ${i}`)
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   await page.getByLabel('Anzahl Gruppen').fill('4')
   for (let i = 4; i <= 6; i++) await page.getByLabel(`Gruppe für Team ${i}`).selectOption('B')

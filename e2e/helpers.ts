@@ -33,7 +33,7 @@ export async function setupSwissTournament(page: Page, teamNames: string[], swis
     await addTeam(page, name)
   }
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
   if (swissRounds !== undefined) {
     await page.getByLabel('Anzahl Runden').fill(String(swissRounds))
@@ -42,7 +42,7 @@ export async function setupSwissTournament(page: Page, teamNames: string[], swis
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(/Runde 1 von/)).toBeVisible()
 }
 

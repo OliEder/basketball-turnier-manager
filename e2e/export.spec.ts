@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { addTeam, selectMode } from './helpers'
+import { addTeam, selectMode, goTo } from './helpers'
 
 // UC6 (docs/use-cases-und-kritikalitaet.md) is rated critical -- the JSON export is the only
 // backup path, since the app is otherwise localStorage-only (see arc42 ADR-01). This was
@@ -15,12 +15,12 @@ test('organizer downloads a full JSON backup of the tournament', async ({ page }
   await addTeam(page, 'Team A')
   await addTeam(page, 'Team B')
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Jeder gegen Jeden')
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Export' }).click()
+  await goTo(page, 'Export')
   await expect(page.getByRole('button', { name: 'JSON herunterladen' })).toBeVisible()
 
   const downloadPromise = page.waitForEvent('download')
