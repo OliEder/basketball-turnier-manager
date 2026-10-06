@@ -20,7 +20,7 @@ export default function TeamForm({ initial, onSubmit, onCancel }: Props) {
     name: initial?.name ?? '',
     abbreviation: initial?.abbreviation ?? '',
     logoUrl: initial?.logoUrl ?? '',
-    color: initial?.color ?? '#004174',
+    color: initial?.color ?? '#00569d',
     contact: initial?.contact ?? '',
   })
 

@@ -31,4 +31,9 @@ describe('TeamForm', () => {
       expect.objectContaining({ abbreviation: 'TMA' })
     )
   })
+
+  it('preselects a DSS sky blue as the default team color', () => {
+    render(<TeamForm onSubmit={vi.fn()} />)
+    expect(screen.getByLabelText('Farbe')).toHaveValue('#00569d')
+  })
 })
