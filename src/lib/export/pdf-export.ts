@@ -1,6 +1,7 @@
 import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import type { TournamentConfig, Schedule } from '@/types'
+import { PageTitle } from './pdf-title'
 import { pdfBaseStyles, pdfColors } from './pdf-theme'
 
 // Column widths are specific to this export's 4-column table and have no shared equivalent in
@@ -19,7 +20,7 @@ function SchedulePdf({ tournament, schedule }: { tournament: TournamentConfig; s
   return createElement(Document, {},
     createElement(Page, { size: 'A4', style: pdfBaseStyles.page },
       createElement(View, {},
-        createElement(Text, { style: pdfBaseStyles.h1 }, tournament.name),
+        PageTitle(tournament.name),
         createElement(Text, { style: styles.subtitle },
           `${schedule.games.length} Spiele · Ende ca. ${schedule.estimatedEnd}`
         ),

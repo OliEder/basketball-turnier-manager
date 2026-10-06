@@ -18,9 +18,9 @@ function renderInlineText(tokens: Tokens.Generic[], images: Record<string, strin
   return tokens.map((token, i) => {
     switch (token.type) {
       case 'strong':
-        return createElement(Text, { key: i, style: { fontWeight: 'bold' } }, ...renderInlineText((token as Tokens.Strong).tokens, images))
+        return createElement(Text, { key: i, style: { fontWeight: 700 } }, ...renderInlineText((token as Tokens.Strong).tokens, images))
       case 'em':
-        return createElement(Text, { key: i, style: { fontStyle: 'italic' } }, ...renderInlineText((token as Tokens.Em).tokens, images))
+        return createElement(Text, { key: i, style: { fontWeight: 600 } }, ...renderInlineText((token as Tokens.Em).tokens, images))
       case 'link':
         return createElement(Text, { key: i, style: { textDecoration: 'underline' } }, ...renderInlineText((token as Tokens.Link).tokens, images))
       case 'image':
@@ -82,7 +82,7 @@ export function renderManualMarkdownToPdf(tokens: ManualToken[], images: Record<
           key: i,
           style: { backgroundColor: pdfColors.zebra, borderRadius: 4, padding: 8, marginBottom: 8 },
         },
-          createElement(Text, { style: { fontWeight: 'bold', color: pdfColors.text, marginBottom: 4, fontSize: 9 } }, callout.title),
+          createElement(Text, { style: { fontWeight: 700, color: pdfColors.text, marginBottom: 4, fontSize: 9 } }, callout.title),
           ...renderManualMarkdownToPdf(callout.tokens as ManualToken[], images),
         ))
         break

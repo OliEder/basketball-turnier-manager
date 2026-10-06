@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
 import SwissOverviewPage from './SwissOverviewPage'
+import { registerPdfFontsForTests } from '@/test-utils/pdf-fonts'
+
+beforeAll(() => registerPdfFontsForTests())
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
   const store = useTournamentStore.getState()

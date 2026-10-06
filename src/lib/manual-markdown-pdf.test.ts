@@ -44,12 +44,13 @@ describe('renderManualMarkdownToPdf', () => {
     expect(json).toContain('• second')
   })
 
-  it('renders italic inline text with a fontStyle: italic Text element', () => {
+  it('renders emphasis as semi-bold (fontWeight 600) because Sora/Manrope have no italic', () => {
     const tokens = tokenizeManualMarkdown('Some *italic* text.\n')
     const elements = renderManualMarkdownToPdf(tokens, {})
     const json = toPlainJson(elements)
     expect(json).toContain('italic')
-    expect(json).toContain('fontStyle')
+    expect(json).toContain('"fontWeight":600')
+    expect(json).not.toContain('fontStyle')
   })
 
   it('renders an inline link as underlined text', () => {

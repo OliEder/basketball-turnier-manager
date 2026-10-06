@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { pdf, Document, Page, Text } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import fs from 'node:fs'
@@ -7,6 +7,9 @@ import { fetchImagesAsDataUris } from './manual-pdf'
 import { pdfBaseStyles } from './pdf-theme'
 import { tokenizeManualMarkdown } from '@/lib/markdown-tokens'
 import { renderManualMarkdownToPdf } from '@/lib/manual-markdown-pdf'
+import { registerPdfFontsForTests } from '@/test-utils/pdf-fonts'
+
+beforeAll(() => registerPdfFontsForTests())
 
 describe('fetchImagesAsDataUris', () => {
   beforeEach(() => {
