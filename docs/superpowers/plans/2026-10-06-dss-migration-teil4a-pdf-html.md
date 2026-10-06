@@ -233,7 +233,7 @@ export function oklchToHex(lightness: number, chroma: number, hueDegrees: number
 ```
 
 Run: `npx vitest run src/lib/export/oklch.test.ts`
-Expected: PASS (10 Tests). Weicht ein Wert um eine Stelle ab, ist das ein Rundungsunterschied zur Python-Referenz: Konverter und Test **nicht** aneinander anpassen, sondern die Rechnung prüfen (Matrixkoeffizienten) und berichten.
+Expected: PASS (9 Tests). Weicht ein Wert um eine Stelle ab, ist das ein Rundungsunterschied zur Python-Referenz: Konverter und Test **nicht** aneinander anpassen, sondern die Rechnung prüfen (Matrixkoeffizienten) und berichten.
 
 - [ ] **Step 3: Commit**
 
@@ -954,7 +954,7 @@ npm run typecheck && npm test 2>&1 | tail -6 && npm run build 2>&1 | tail -4 && 
 git checkout -- tsconfig.tsbuildinfo; rm -rf dist
 ```
 
-Expected: alles grün; Unit-Anzahl = Baseline + neue Tests (oklch 10, theme-Drift 8 minus alte 3 plus 4 Stil-Tests, fonts 3, title 1, html 4, TeamForm 1; Zahl nennen und mit der Rechnung abgleichen); E2E-Anzahl unverändert (41), inklusive `accessibility.spec.ts` und der vier PDF-Downloads.
+Expected: alles grün; Unit-Anzahl = Baseline + neue Tests (oklch 9, theme-Drift 8 minus alte 3 plus 4 Stil-Tests, fonts 3, title 1, html 4, TeamForm 1; Zahl nennen und mit der Rechnung abgleichen); E2E-Anzahl unverändert (41), inklusive `accessibility.spec.ts` und der vier PDF-Downloads.
 
 - [ ] **Step 2: Neue PDFs erzeugen und mit der Baseline vergleichen**
 
