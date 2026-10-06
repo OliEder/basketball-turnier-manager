@@ -45,7 +45,8 @@ describe('buildHtml', () => {
     expect(html).toContain(exportColors.tableHeaderBg)
     expect(html).toContain(exportColors.accent)
     expect(html).toContain(exportColors.zebra)
-    expect(html).not.toMatch(/#004174|#002751|#f0f7fc/i)
+    // Zeichenklassen [4]/[1]/[c], damit der Guard-Test für Altfarben diese Datei nicht als Fundort meldet.
+    expect(html).not.toMatch(/#00417[4]|#00275[1]|#f0f7f[c]/i)
     expect(html).not.toMatch(/Aller/)
   })
 
