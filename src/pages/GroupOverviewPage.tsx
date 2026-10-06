@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { computeGroupStandings } from '@/lib/group-standings'
 import { downloadGroupOverviewPdf } from '@/lib/export/group-overview-pdf'
-import { Banner, Button } from '@bbv/dss-design-system/react'
+import { Button } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
 
 export default function GroupOverviewPage() {
   const { tournament, schedule } = useTournamentStore()
@@ -12,11 +13,7 @@ export default function GroupOverviewPage() {
   const [activeGroupId, setActiveGroupId] = useState(groupIds[0] ?? 'A')
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const currentGroupId = groupIds.includes(activeGroupId) ? activeGroupId : (groupIds[0] ?? 'A')

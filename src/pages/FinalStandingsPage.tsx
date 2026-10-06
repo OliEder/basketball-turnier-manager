@@ -1,17 +1,14 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Banner } from '@bbv/dss-design-system/react'
+import { EmptyState } from '@bbv/dss-design-system/react'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalStandings, computeEndrunde1Standings } from '@/lib/final-standings'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
 
 export default function FinalStandingsPage() {
   const { tournament, schedule } = useTournamentStore()
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
@@ -20,11 +17,7 @@ export default function FinalStandingsPage() {
     : computeFinalStandings(tournament.teams, schedule.games)
 
   if (standings.length === 0) {
-    return (
-      <Banner>
-        Noch keine Endrunden-Ergebnisse vorhanden.
-      </Banner>
-    )
+    return <EmptyState title="Noch keine Endrunden-Ergebnisse vorhanden." />
   }
 
   return (

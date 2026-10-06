@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Banner, Button, TextInput } from '@bbv/dss-design-system/react'
+import { Banner, Button, TextInput, EmptyState } from '@bbv/dss-design-system/react'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalScore } from '@/lib/standings'
 import type { Game, Team } from '@/types'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
 
 type StatusFilter = 'open' | 'played' | 'all'
 
@@ -16,11 +17,7 @@ export default function FinalsResultsPage() {
   const [saved, setSaved] = useState(false)
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
@@ -120,9 +117,7 @@ export default function FinalsResultsPage() {
       </div>
 
       {filteredGames.length === 0 && (
-        <Banner>
-          Keine Spiele für die gewählten Filter.
-        </Banner>
+        <EmptyState title="Keine Spiele für die gewählten Filter." />
       )}
 
       <div className="border border-border rounded-md p-4 bg-card space-y-3">

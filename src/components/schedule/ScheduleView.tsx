@@ -1,16 +1,13 @@
 import { useTournamentStore } from '@/store/tournament-store'
 import { Banner } from '@bbv/dss-design-system/react'
 import GameRow from './GameRow'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
 
 export default function ScheduleView() {
   const { schedule } = useTournamentStore()
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   return (

@@ -5,6 +5,7 @@ import { Button, Banner, TextInput } from '@bbv/dss-design-system/react'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import type { Game } from '@/types'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
 
 export default function SwissResultsPage() {
   const { tournament, schedule, submitGameResult, advanceSwissRound, advanceSwissRoundManually, withdrawTeam, correctGameResult } = useTournamentStore()
@@ -16,11 +17,7 @@ export default function SwissResultsPage() {
   const [viewedRound, setViewedRound] = useState<number | null>(null)
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const displayRound = getCurrentSwissRound(schedule.games) || 1

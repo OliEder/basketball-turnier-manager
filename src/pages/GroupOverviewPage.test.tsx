@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, beforeAll } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
+import { MemoryRouter } from 'react-router-dom'
 import GroupOverviewPage from './GroupOverviewPage'
 import { registerPdfFontsForTests } from '@/test-utils/pdf-fonts'
 
@@ -43,7 +44,7 @@ beforeEach(() => {
 
 describe('GroupOverviewPage', () => {
   it('shows a message when no schedule exists yet', () => {
-    render(<GroupOverviewPage />)
+    render(<MemoryRouter><GroupOverviewPage /></MemoryRouter>)
     expect(screen.getByText(/bitte zuerst einen zeitplan generieren/i)).toBeInTheDocument()
   })
 

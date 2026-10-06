@@ -2,9 +2,10 @@ import { getCurrentSwissRound, isRoundFullyEvaluated, useTournamentStore } from 
 import { computeStandings } from '@/lib/standings'
 import { downloadSwissOverviewPdf } from '@/lib/export/swiss-overview-pdf'
 import { computeRoundPageBreaks } from '@/lib/print-pagination'
-import { Banner, Button } from '@bbv/dss-design-system/react'
+import { Button } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
 
 function TableOfContents({ rounds }: { rounds: number[] }) {
   return (
@@ -28,11 +29,7 @@ export default function SwissOverviewPage() {
   const { tournament, schedule } = useTournamentStore()
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const currentRound = getCurrentSwissRound(schedule.games)

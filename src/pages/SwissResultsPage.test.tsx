@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
 import { getTeamAbbreviation } from '@/lib/utils'
+import { MemoryRouter } from 'react-router-dom'
 import SwissResultsPage from './SwissResultsPage'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
@@ -39,7 +40,7 @@ beforeEach(() => {
 
 describe('SwissResultsPage', () => {
   it('shows a message when no schedule exists yet', () => {
-    render(<SwissResultsPage />)
+    render(<MemoryRouter><SwissResultsPage /></MemoryRouter>)
     expect(screen.getByText(/bitte zuerst einen zeitplan generieren/i)).toBeInTheDocument()
   })
 

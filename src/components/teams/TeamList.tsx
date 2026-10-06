@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import TeamCard from './TeamCard'
 import TeamForm from './TeamForm'
-import { Button, Modal } from '@bbv/dss-design-system/react'
+import { Link } from 'react-router-dom'
+import { Button, EmptyState, Modal } from '@bbv/dss-design-system/react'
 import { DestructiveConfirmDialog } from '@/components/shared/DestructiveConfirmDialog'
 import type { Team } from '@/types'
 
@@ -39,7 +40,11 @@ export default function TeamList() {
       </div>
 
       {tournament.teams.length === 0 && (
-        <p className="text-muted-foreground text-center py-8">Noch keine Teams. Füge das erste Team hinzu.</p>
+        <EmptyState
+          title="Noch keine Teams"
+          body="Füge das erste Team hinzu (Button oben rechts) oder sieh dir ein Demo-Turnier an."
+          actions={<Link to="/demos" className="dss-btn dss-btn--md dss-btn--ghost">Demo ansehen</Link>}
+        />
       )}
 
       <div className="space-y-2">
