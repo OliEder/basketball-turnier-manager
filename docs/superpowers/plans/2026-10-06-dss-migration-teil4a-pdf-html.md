@@ -675,6 +675,81 @@ git add src/lib/export
 git commit -m "feat(export): register the DSS fonts before every PDF download"
 ```
 
+### Task 5b: Zwei vorbestehende Darstellungsfehler im Anleitungs-PDF (TDD)
+
+Die Sichtprüfung nach Batch B (Task 5) hat zwei Fehler gezeigt, die schon vor 4a bestanden, aber dasselbe PDF betreffen, das hier neu gestaltet wird: (b) das Zeichen „→“ (U+2192) fehlt im Latin-Subset von Sora und Manrope (per `cmap` bestätigt), react-pdf weicht auf Helvetica aus, die das Zeichen ebenfalls nicht hat; (c) in Listeneinträgen erscheinen literale `**Teams**`, weil `renderInlineText` bei einem `text`-Token mit verschachtelten Tokens nur das Roh-Markdown ausgibt.
+
+**Files:**
+- Modify: `src/lib/manual-markdown-pdf.ts`, `src/lib/manual-markdown-pdf.test.ts`
+
+- [ ] **Step 1: Tests ergänzen** — am Ende des bestehenden `describe('renderManualMarkdownToPdf', …)` in `src/lib/manual-markdown-pdf.test.ts` (vor der schließenden `})`):
+
+```ts
+  it('renders bold text inside list items as styled text without literal asterisks', () => {
+    const tokens = tokenizeManualMarkdown('1. **Teams** und mehr\n1. **Export** fertig\n')
+    const json = toPlainJson(renderManualMarkdownToPdf(tokens, {})) as string
+    expect(json).toContain('Teams')
+    expect(json).toContain('"fontWeight":700')
+    expect(json).not.toContain('**')
+  })
+
+  it('replaces the arrow glyph that Sora/Manrope do not contain, so no fallback font is needed', () => {
+    const tokens = tokenizeManualMarkdown('1. **Teams** → alle Teams anlegen\n')
+    const json = toPlainJson(renderManualMarkdownToPdf(tokens, {})) as string
+    expect(json).not.toContain('→')
+    expect(json).toContain('›')
+    expect(json).toContain('alle Teams anlegen')
+  })
+```
+
+Run: `npx vitest run src/lib/manual-markdown-pdf.test.ts`
+Expected: FAIL — der erste Test findet `**` im Ergebnis, der zweite findet `→`.
+
+- [ ] **Step 2: Implementieren** — in `src/lib/manual-markdown-pdf.ts`: oberhalb von `renderInlineText` ergänzen:
+
+```ts
+// U+2192 (→) liegt nicht im Latin-Subset von Sora/Manrope (und auch nicht in Helvetica/WinAnsi). › (U+203A)
+// ist abgedeckt und liest sich in den Ablauf-Listen der Anleitung als Pfeil.
+const pdfSafeText = (text: string): string => text.replace(/→/g, '›')
+```
+
+und die beiden Fälle `text` und `default` ersetzen:
+
+```ts
+      case 'text': {
+        const textToken = token as Tokens.Text
+        // Listeneinträge bestehen aus einem text-Token mit verschachtelten Inline-Tokens (z. B. strong);
+        // ohne Rekursion bliebe das Roh-Markdown (`**Teams**`) stehen.
+        if (textToken.tokens && textToken.tokens.length > 0) return renderInlineText(textToken.tokens, images)
+        return pdfSafeText(textToken.text ?? '')
+      }
+      default:
+        return createElement(Text, { key: i }, pdfSafeText((token as Tokens.Text).text ?? ''))
+```
+
+Run: `npx vitest run src/lib/manual-markdown-pdf.test.ts && npm run typecheck`
+Expected: PASS (alle bisherigen Tests plus 2 neue), Typecheck grün. Falls ein bestehender Listen-Test durch die Rekursion bricht (z. B. weil er `text` eines Eintrags wörtlich erwartet), die Ursache im Listen-Zweig von `renderManualMarkdownToPdf` prüfen (dort werden die Items mit `renderInlineText` zusammengeführt) und die kleinste Korrektur wählen; keine Assertion abschwächen.
+
+- [ ] **Step 3: Echtes PDF prüfen**
+
+```bash
+SP=/private/tmp/claude-501/-Users-oliver-marcuseder-01-vibe-coding-00-Basektball-08-Fibalon-Baskets-02-turnier-manager/c5eb9565-c502-4a38-ae43-0427395e75c2/scratchpad
+NODE_PATH=$PWD/node_modules node $SP/pdf-capture.cjs $SP/pdf-5b
+pdffonts $SP/pdf-5b/anleitung.pdf
+pdftotext -f 1 -l 2 $SP/pdf-5b/anleitung.pdf - | sed -n 1,25p
+pdftotext $SP/pdf-5b/anleitung.pdf - | grep -c '\*\*' || echo "keine literalen ** mehr"
+pgrep -fl "vite --port 5189" || echo "kein Dev-Server mehr aktiv"
+```
+
+Expected: `pdffonts` zeigt nur Sora und Manrope (**keine Helvetica mehr**); der Textauszug der ersten Seiten zeigt die Kurzreferenz mit „›“ statt „→“ und ohne `**`; `keine literalen ** mehr`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add src/lib/manual-markdown-pdf.ts src/lib/manual-markdown-pdf.test.ts
+git commit -m "fix(export): render nested bold in manual PDF lists and replace the missing arrow glyph"
+```
+
 ### Task 6: HTML-Export mit DSS-Optik und Schriften in der ZIP (TDD)
 
 **Files:**
