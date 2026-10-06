@@ -17,7 +17,7 @@
 - Farben, die im Dark-Modus wechseln sollen, laufen über `--dss-*`-Aliase; rein dunkle Flächen (TopBar, dunkler Table-Frame) nutzen die Roh-Tokens wie die Svelte-Vorlage.
 - React-Komponenten: benannte Exporte, `cn()` aus `./cn`, deutsche Texte für Screenshot-/Screenreader-Strings, `forwardRef` bei Formularelementen, jeder Test endet mit `expectNoA11yViolations`.
 - Commit-Footer: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` (zweites `-m`).
-- Das Wort `innerHTML` darf in keiner Datei vorkommen (Security-Hook); DOM in Tests per `DOMParser` + `importNode` aufbauen.
+- Keine HTML-Zuweisung per String-Property (Security-Hook blockiert das); DOM in Tests per `DOMParser` + `importNode` aufbauen.
 
 ---
 
