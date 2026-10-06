@@ -2,6 +2,7 @@ import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer
 import { createElement } from 'react'
 import type { TournamentConfig, Schedule } from '@/types'
 import { PageTitle } from './pdf-title'
+import { registerPdfFonts } from './pdf-fonts'
 import { pdfBaseStyles, pdfColors } from './pdf-theme'
 
 // Column widths are specific to this export's 4-column table and have no shared equivalent in
@@ -55,6 +56,7 @@ export function buildSchedulePdfDocument(tournament: TournamentConfig, schedule:
 }
 
 export async function downloadPdf(tournament: TournamentConfig, schedule: Schedule): Promise<void> {
+  registerPdfFonts()
   const doc = buildSchedulePdfDocument(tournament, schedule)
   const instance = pdf(doc)
   const blob = await instance.toBlob()

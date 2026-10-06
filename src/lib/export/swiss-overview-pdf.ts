@@ -5,6 +5,7 @@ import type { TeamStanding } from '@/lib/standings'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { computeRoundPageBreaks } from '@/lib/print-pagination'
 import { PageTitle } from './pdf-title'
+import { registerPdfFonts } from './pdf-fonts'
 import { pdfBaseStyles } from './pdf-theme'
 import { RoundTable } from './pdf-round-table'
 
@@ -78,6 +79,7 @@ export async function downloadSwissOverviewPdf(
   schedule: Schedule,
   standings: TeamStanding[],
 ): Promise<void> {
+  registerPdfFonts()
   const doc = buildSwissOverviewDocument(tournament, schedule, standings)
   const blob = await pdf(doc as Parameters<typeof pdf>[0]).toBlob()
   const url = URL.createObjectURL(blob)

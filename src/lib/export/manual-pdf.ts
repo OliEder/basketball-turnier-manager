@@ -4,6 +4,7 @@ import manualMarkdown from '@/content/manual.md?raw'
 import { tokenizeManualMarkdown, type ManualToken, type CalloutToken } from '@/lib/markdown-tokens'
 import { renderManualMarkdownToPdf } from '@/lib/manual-markdown-pdf'
 import { PageTitle } from './pdf-title'
+import { registerPdfFonts } from './pdf-fonts'
 import { pdfBaseStyles } from './pdf-theme'
 
 async function fileToDataUri(url: string): Promise<string> {
@@ -67,6 +68,7 @@ function collectImageFilenames(tokens: ManualToken[]): string[] {
 }
 
 export async function downloadManualPdf(): Promise<void> {
+  registerPdfFonts()
   const tokens = tokenizeManualMarkdown(manualMarkdown)
   const images = await fetchImagesAsDataUris(collectImageFilenames(tokens))
 
