@@ -94,4 +94,20 @@ describe('renderManualMarkdownToPdf', () => {
     expect(json).toContain('data:image/png;base64,CCCC')
     expect(json).toContain('Direktes Bild')
   })
+
+  it('renders bold text inside list items as styled text without literal asterisks', () => {
+    const tokens = tokenizeManualMarkdown('1. **Teams** und mehr\n1. **Export** fertig\n')
+    const json = toPlainJson(renderManualMarkdownToPdf(tokens, {})) as string
+    expect(json).toContain('Teams')
+    expect(json).toContain('"fontWeight":700')
+    expect(json).not.toContain('**')
+  })
+
+  it('replaces the arrow glyph that Sora/Manrope do not contain, so no fallback font is needed', () => {
+    const tokens = tokenizeManualMarkdown('1. **Teams** → alle Teams anlegen\n')
+    const json = toPlainJson(renderManualMarkdownToPdf(tokens, {})) as string
+    expect(json).not.toContain('→')
+    expect(json).toContain('›')
+    expect(json).toContain('alle Teams anlegen')
+  })
 })
