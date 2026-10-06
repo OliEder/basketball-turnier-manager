@@ -154,3 +154,20 @@ destruktiven Aktionen, siehe Kapitel 1, Qualitätsziel 6).
   `!text-xs`). Layout-Utilities, die DSS nicht setzt (`w-*`, `flex-1`, `ml-auto`, `truncate`), funktionieren normal.
 - **Guard:** `src/styles/no-fbnm-leftovers.test.ts` schlägt fehl, sobald `fbnm`/`INSOLENT`/`ALLER`/`Montserrat` wieder
   in `src/` auftauchen.
+
+## 8.14 Export-Palette und Schriften (PDF, HTML-ZIP)
+
+- **Eine Palette, ein Drift-Test:** `src/lib/export/export-colors.ts` enthält die Hex-Werte der DSS-Tokens (Ink-900,
+  Grau 50/100/200/600, Amber-400), abgeleitet über `src/lib/export/oklch.ts` (react-pdf und der HTML-Export kennen kein
+  `oklch()`). `pdf-theme.test.ts` liest `node_modules/@bbv/dss-design-system/tokens/tokens.css` per `node:fs`
+  (Vitest ersetzt CSS-Dateien beim Import durch leere Strings) und vergleicht jede Farbe mit dem umgerechneten Token.
+  Ändert DSS einen dieser Töne, schlägt der Test an. Amber ist nie Textfarbe (nur Linie/Fläche).
+- **Schriften:** `src/lib/export/pdf-fonts.ts` registriert Sora (600, 700) und Manrope (400, 600, 700) bei react-pdf
+  (statische WOFF aus `@fontsource`; react-pdf liest kein WOFF2 und keine Variable-Fonts). Jeder Download ruft
+  `registerPdfFonts()` vor dem Rendern auf. Es gibt keine Italic-Schnitte; die Betonung im Anleitungs-PDF ist halbfett.
+  Tests, die PDFs wirklich rendern, nutzen `registerPdfFontsForTests()` (Data-URI aus dem Dateisystem).
+- **HTML-Export:** die ZIP enthält `index.html` und `fonts/*.woff2` (Sora 700, Manrope 400/600), per `@font-face` mit
+  relativem Pfad; sie funktioniert offline.
+- **Zeichen außerhalb des Latin-Subsets:** Sora/Manrope enthalten kein U+2192 (→); react-pdf wich dafür auf Helvetica
+  aus (die das Zeichen ebenfalls nicht hat). Der Anleitungs-PDF-Renderer ersetzt → durch › (U+203A). Listeneinträge
+  werden rekursiv gerendert, damit verschachteltes Fett/Betonung (statt literaler `**`) ankommt.
