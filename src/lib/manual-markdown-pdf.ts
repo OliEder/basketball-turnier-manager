@@ -10,17 +10,22 @@ function renderImageToken(image: Tokens.Image, images: Record<string, string>, k
     View,
     { key, style: { marginBottom: 8 } },
     src ? createElement(Image, { src, style: { maxWidth: '100%' } }) : null,
-    createElement(Text, { style: { fontSize: 8, color: pdfColors.textDark, marginTop: 2 } }, image.text),
+    createElement(Text, { style: { fontSize: 8, color: pdfColors.textMuted, marginTop: 2 } }, image.text),
   )
 }
 
+// U+2192 (→) liegt nicht im Latin-Subset von Sora/Manrope (und auch nicht in Helvetica/WinAnsi). › (U+203A)
+// ist abgedeckt und liest sich in den Ablauf-Listen der Anleitung als Pfeil.
+const pdfSafeText = (text: string): string => text.replace(/→/g, '›')
+
 function renderInlineText(tokens: Tokens.Generic[], images: Record<string, string>): ReactNode[] {
-  return tokens.map((token, i) => {
+  // flatMap: der text-Zweig liefert bei verschachtelten Tokens ein Array, das hier abgeflacht wird.
+  return tokens.flatMap((token, i) => {
     switch (token.type) {
       case 'strong':
-        return createElement(Text, { key: i, style: { fontWeight: 'bold' } }, ...renderInlineText((token as Tokens.Strong).tokens, images))
+        return createElement(Text, { key: i, style: { fontWeight: 700 } }, ...renderInlineText((token as Tokens.Strong).tokens, images))
       case 'em':
-        return createElement(Text, { key: i, style: { fontStyle: 'italic' } }, ...renderInlineText((token as Tokens.Em).tokens, images))
+        return createElement(Text, { key: i, style: { fontWeight: 600 } }, ...renderInlineText((token as Tokens.Em).tokens, images))
       case 'link':
         return createElement(Text, { key: i, style: { textDecoration: 'underline' } }, ...renderInlineText((token as Tokens.Link).tokens, images))
       case 'image':
@@ -29,10 +34,15 @@ function renderInlineText(tokens: Tokens.Generic[], images: Record<string, strin
         // manual-markdown-jsx.tsx for the same discovery). Render it the same way we'd
         // render a top-level image token so it still gets its data-URI + caption box.
         return renderImageToken(token as Tokens.Image, images, i)
-      case 'text':
-        return (token as Tokens.Text).text ?? ''
+      case 'text': {
+        const textToken = token as Tokens.Text
+        // Listeneinträge bestehen aus einem text-Token mit verschachtelten Inline-Tokens (z. B. strong);
+        // ohne Rekursion bliebe das Roh-Markdown (`**Teams**`) stehen.
+        if (textToken.tokens && textToken.tokens.length > 0) return renderInlineText(textToken.tokens, images)
+        return pdfSafeText(textToken.text ?? '')
+      }
       default:
-        return createElement(Text, { key: i }, (token as Tokens.Text).text ?? '')
+        return createElement(Text, { key: i }, pdfSafeText((token as Tokens.Text).text ?? ''))
     }
   })
 }
@@ -82,7 +92,7 @@ export function renderManualMarkdownToPdf(tokens: ManualToken[], images: Record<
           key: i,
           style: { backgroundColor: pdfColors.zebra, borderRadius: 4, padding: 8, marginBottom: 8 },
         },
-          createElement(Text, { style: { fontWeight: 'bold', color: pdfColors.brandBlue, marginBottom: 4, fontSize: 9 } }, callout.title),
+          createElement(Text, { style: { fontWeight: 700, color: pdfColors.text, marginBottom: 4, fontSize: 9 } }, callout.title),
           ...renderManualMarkdownToPdf(callout.tokens as ManualToken[], images),
         ))
         break

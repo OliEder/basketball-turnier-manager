@@ -186,14 +186,17 @@ Nach Teil 1 der DSS-Migration (Fundament + Basis-Komponenten) bleiben bewusst of
   **Erreichter Stand:** `src/components/ui/` ist gelöscht, `Select`/`Modal`/`Banner`/`TextInput`/`Button` stammen aus
   DSS; verbleibend sind `Table`-ähnliche Eigenbauten, `TeamCard` (nutzt noch kein DSS-`Card`) und rohe
   `<input>`/`<select>` (13 Stellen, `grep -rn "<input\|<select" src --include='*.tsx' | grep -v test`).
-- **Teil 4:** react-pdf-Exporte (hartcodierte Farben, `Helvetica`) und Druckansichten auf DSS-Optik; `/anleitung`-
-  Screenshots (zeigen noch das Fibalon-Branding) neu erstellen. Rest: `src/lib/export/html-export.ts` (statischer
-  HTML-Export) nutzt noch `font-family: 'Aller'` und die FBNM-Farbe `#002751`; der Guard-Test fängt das nicht, weil er
-  case-sensitiv nach `ALLER` sucht.
-- **Standard-Teamfarbe** in `TeamForm` ist noch `#004174` (FBNM-Blau).
+- **Teil 4 (nur noch Anleitungs-Screenshots):** die `/anleitung`-Screenshots (zeigen noch das Fibalon-Branding)
+  neu erstellen. Die PDF-/HTML-Exporte und die Standard-Teamfarbe sind umgestellt (siehe 8.14, ADR-12).
 - **Fokusring-Kontrast:** Der DSS-Fokusring (`--ring-color`, helles Sky) hat auf weißem Grund vermutlich < 3:1
   Kontrast (Designfrage im DSS-Repo; axe prüft das nicht).
 - **Hex-Farbfeld in `TeamForm`** hat keinen zugänglichen Namen (vorbestehend).
 - **`npm audit`:** 5 high (braces → micromatch → fast-glob → chokidar → tailwindcss 3), vorbestehend, Build-Toolchain;
   eigener PR.
 - **DSS-Repo:** doppelte Scoped-Styles in den Svelte-Komponenten (Button, TextInput, Modal, Card, Tabs).
+- **Konsolenfehler `Buffer is not defined` beim Anleitungs-PDF** (vorbestehend): Beim Erzeugen des Anleitungs-PDFs im
+  Browser erscheinen Konsolenfehler `Buffer is not defined` (react-pdf nutzt im Browser das Node-Global `Buffer`, Vite
+  stellt keinen Polyfill bereit; das PDF wird trotzdem erzeugt). Behebung (z. B. `vite-plugin-node-polyfills` oder
+  gezieltes `globalThis.Buffer`) als eigener Task.
+- **Download-Fehler ohne Hinweis:** Scheitert das Laden der Schrift oder die PDF-Erzeugung, erscheint kein Fehlerhinweis;
+  die Download-Handler haben kein `catch`.

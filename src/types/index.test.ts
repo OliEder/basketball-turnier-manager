@@ -7,7 +7,7 @@ describe('Type shapes', () => {
       id: 'uuid-1',
       name: 'Musterstadt Baskets',
       logoUrl: 'https://example.com/logo.png',
-      color: '#004174',
+      color: '#00569d',
       contact: 'Max Mustermann',
       players: [],
     }
@@ -90,7 +90,7 @@ describe('Type shapes', () => {
 
   it('Team can have an optional groupId', () => {
     const team: Team = {
-      id: 'uuid-1', name: 'Musterstadt Baskets', logoUrl: '', color: '#004174',
+      id: 'uuid-1', name: 'Musterstadt Baskets', logoUrl: '', color: '#00569d',
       contact: '', players: [], groupId: 'B',
     }
     expect(team.groupId).toBe('B')

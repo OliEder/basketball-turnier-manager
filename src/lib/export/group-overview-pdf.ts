@@ -3,6 +3,8 @@ import { createElement } from 'react'
 import type { TournamentConfig, Schedule } from '@/types'
 import type { GroupStanding } from '@/lib/group-standings'
 import { getTeamAbbreviation } from '@/lib/utils'
+import { PageTitle } from './pdf-title'
+import { registerPdfFonts } from './pdf-fonts'
 import { pdfBaseStyles } from './pdf-theme'
 import { RoundTable } from './pdf-round-table'
 
@@ -52,7 +54,7 @@ export function buildGroupOverviewDocument(
       const groupGames = schedule.games.filter(g => g.stage === 'group' && (g.groupId ?? 'A') === groupId)
       const rounds = [...new Set(groupGames.map(g => g.round))].sort((a, b) => a - b)
       return createElement(Page, { key: groupId, size: 'A4', style: pdfBaseStyles.page },
-        createElement(Text, { style: pdfBaseStyles.h1 }, tournament.name),
+        PageTitle(tournament.name),
         createElement(Text, { style: pdfBaseStyles.h2 }, `Gruppe ${groupId}`),
         StandingsTable({ standings, teamMap }),
         ...rounds.map(round => RoundTable({ round, games: groupGames, teamMap })),
@@ -66,6 +68,7 @@ export async function downloadGroupOverviewPdf(
   schedule: Schedule,
   sections: GroupOverviewSection[],
 ): Promise<void> {
+  registerPdfFonts()
   const doc = buildGroupOverviewDocument(tournament, schedule, sections)
   const blob = await pdf(doc as Parameters<typeof pdf>[0]).toBlob()
   const url = URL.createObjectURL(blob)

@@ -12,13 +12,19 @@ function walk(dir: string): string[] {
 }
 
 const FORBIDDEN = /fbnm|FBNM|INSOLENT|ALLER|Montserrat/
+// FBNM-Farben und die Schrift 'Aller' (mit kleinem l): case-insensitiv, aber nur in dieser engen Form,
+// weil "aller" auch ein deutsches Wort ist.
+const FORBIDDEN_LITERALS = /#004174|#002751|#f0f7fc|font-family:\s*['"]Aller['"]/i
 const SELF = 'no-fbnm-leftovers.test.ts'
 
 describe('DSS-Fundament', () => {
   it('enthält keine FBNM-Reste (Tokens, Schriften, Klassen) mehr in src/', () => {
     const offenders = walk('src')
       .filter(path => /\.(ts|tsx|css)$/.test(path) && !path.endsWith(SELF))
-      .filter(path => FORBIDDEN.test(readFileSync(path, 'utf8')))
+      .filter(path => {
+        const content = readFileSync(path, 'utf8')
+        return FORBIDDEN.test(content) || FORBIDDEN_LITERALS.test(content)
+      })
     expect(offenders).toEqual([])
   })
 

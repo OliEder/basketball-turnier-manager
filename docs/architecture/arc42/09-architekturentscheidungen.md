@@ -175,3 +175,22 @@ TypeScript-Strict-Mode plus Testabdeckung, aber diese Annahme ist NICHT im Code 
   (vorher 36 px); Ergebnis-Eingabegrids verwenden die Dichte `compact`.
 - **Beleg**: `docs/superpowers/specs/2026-10-05-dss-migration-teil1-design.md`;
   `docs/superpowers/plans/2026-10-05-dss-migration-teil1-{dss-repo,app}.md`.
+
+### ADR-12: DSS-Schriften und -Farben in PDF- und HTML-Export einbetten
+
+- **Kontext**: Nach der DSS-Umstellung der App (ADR-11) zeigten die PDF-Exporte und der HTML-Export noch das
+  Fibalon-Branding (Blau, `Helvetica`/`Aller`). react-pdf kennt kein `oklch()` und keine Systemschriften außer
+  den 14 PDF-Standardschriften.
+- **Geprüfte Alternativen**: `Helvetica` behalten und nur Farben tauschen (robust, aber typografisch nicht DSS);
+  nur Überschriften in Sora (gemischtes Schriftbild); im HTML-Export nur eine Systemschrift (klein, aber ohne
+  installierte Schrift nicht DSS).
+- **Entscheidung**: Sora und Manrope werden eingebettet: in die PDFs über `Font.register` (statische WOFF aus
+  `@fontsource`, nur genutzte Zeichen werden eingebettet), in die HTML-ZIP als WOFF2-Dateien. Die Farben stehen als
+  Hex in `export-colors.ts`, per OKLCH-Konverter aus den Tokens abgeleitet und durch einen Drift-Test an `tokens.css`
+  gebunden. Tabellenköpfe sind hell mit Amber-Linie (druckfreundlich).
+- **Konsequenz**: Kein Italic (die Betonung im Anleitungs-PDF ist halbfett); die Registrierung ist eine zusätzliche
+  Fehlerquelle beim Download und in Tests (daher Test-Helfer und Registrierungstest); PDFs wachsen um die
+  eingebetteten Zeichen (gemessen in der Sichtprüfung: je ca. 8 bis 20 KB, Anleitung +28 KB). Zeichen außerhalb des
+  Latin-Subsets (z. B. →) werden im Anleitungs-PDF ersetzt.
+- **Beleg**: `docs/superpowers/specs/2026-10-06-dss-migration-teil4-design.md`,
+  `docs/superpowers/plans/2026-10-06-dss-migration-teil4a-pdf-html.md`.

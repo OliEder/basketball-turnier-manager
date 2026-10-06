@@ -17,7 +17,7 @@ function buildLargeTournamentFixture(teamCount: number, groupCount: number) {
       id: `t${i + 1}`,
       name: `Team ${i + 1}`,
       logoUrl: '',
-      color: '#004174',
+      color: '#00569d',
       contact: '',
       players: [],
       groupId: String.fromCharCode(65 + groupIndex),

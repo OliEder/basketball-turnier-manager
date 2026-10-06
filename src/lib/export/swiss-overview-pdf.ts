@@ -4,6 +4,8 @@ import type { TournamentConfig, Schedule } from '@/types'
 import type { TeamStanding } from '@/lib/standings'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { computeRoundPageBreaks } from '@/lib/print-pagination'
+import { PageTitle } from './pdf-title'
+import { registerPdfFonts } from './pdf-fonts'
 import { pdfBaseStyles } from './pdf-theme'
 import { RoundTable } from './pdf-round-table'
 
@@ -61,7 +63,7 @@ export function buildSwissOverviewDocument(
 
   return createElement(Document, { title: `${tournament.name} — Turnierübersicht` },
     createElement(Page, { key: 'standings', size: 'A4', style: pdfBaseStyles.page },
-      createElement(Text, { style: pdfBaseStyles.h1 }, tournament.name),
+      PageTitle(tournament.name),
       createElement(Text, { style: pdfBaseStyles.h2 }, 'Tabelle'),
       StandingsTable({ standings, teamMap }),
     ),
@@ -77,6 +79,7 @@ export async function downloadSwissOverviewPdf(
   schedule: Schedule,
   standings: TeamStanding[],
 ): Promise<void> {
+  registerPdfFonts()
   const doc = buildSwissOverviewDocument(tournament, schedule, standings)
   const blob = await pdf(doc as Parameters<typeof pdf>[0]).toBlob()
   const url = URL.createObjectURL(blob)

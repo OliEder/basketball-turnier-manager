@@ -9,7 +9,7 @@ export interface Team {
   id: string
   name: string
   logoUrl: string
-  color: string   // hex, e.g. "#004174"
+  color: string   // hex, e.g. "#00569d"
   contact: string
   players: Player[]
   abbreviation?: string  // optional, max. 4 Zeichen; wird in platzbeschränkten Ansichten anstelle des vollen Namens angezeigt

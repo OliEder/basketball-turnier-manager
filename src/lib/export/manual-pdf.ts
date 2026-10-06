@@ -1,8 +1,10 @@
-import { pdf, Document, Page, Text } from '@react-pdf/renderer'
+import { pdf, Document, Page } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import manualMarkdown from '@/content/manual.md?raw'
 import { tokenizeManualMarkdown, type ManualToken, type CalloutToken } from '@/lib/markdown-tokens'
 import { renderManualMarkdownToPdf } from '@/lib/manual-markdown-pdf'
+import { PageTitle } from './pdf-title'
+import { registerPdfFonts } from './pdf-fonts'
 import { pdfBaseStyles } from './pdf-theme'
 
 async function fileToDataUri(url: string): Promise<string> {
@@ -66,6 +68,7 @@ function collectImageFilenames(tokens: ManualToken[]): string[] {
 }
 
 export async function downloadManualPdf(): Promise<void> {
+  registerPdfFonts()
   const tokens = tokenizeManualMarkdown(manualMarkdown)
   const images = await fetchImagesAsDataUris(collectImageFilenames(tokens))
 
@@ -78,7 +81,7 @@ export async function downloadManualPdf(): Promise<void> {
   // never silently losing content.
   const doc = createElement(Document, { title: 'Nutzeranleitung: Basketball Turnier-Manager' },
     createElement(Page, { size: 'A4', style: pdfBaseStyles.page },
-      createElement(Text, { style: pdfBaseStyles.h1 }, 'Nutzeranleitung: Basketball Turnier-Manager'),
+      PageTitle('Nutzeranleitung: Basketball Turnier-Manager'),
       ...renderManualMarkdownToPdf(tokens, images),
     ),
   )

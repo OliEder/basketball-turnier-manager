@@ -1,13 +1,15 @@
 import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import type { TournamentConfig, Schedule } from '@/types'
+import { PageTitle } from './pdf-title'
+import { registerPdfFonts } from './pdf-fonts'
 import { pdfBaseStyles, pdfColors } from './pdf-theme'
 
 // Column widths are specific to this export's 4-column table and have no shared equivalent in
 // pdf-theme.ts; the colors, headings, and table row/cell styles below all come from the shared
 // theme so this export stays visually consistent with the other three PDF exports.
 const styles = StyleSheet.create({
-  subtitle: { fontSize: 11, color: pdfColors.textDark, marginBottom: 20 },
+  subtitle: { fontSize: 11, color: pdfColors.textMuted, marginBottom: 20 },
   col1: { width: '8%' },
   col2: { width: '12%' },
   col3: { width: '20%' },
@@ -19,7 +21,7 @@ function SchedulePdf({ tournament, schedule }: { tournament: TournamentConfig; s
   return createElement(Document, {},
     createElement(Page, { size: 'A4', style: pdfBaseStyles.page },
       createElement(View, {},
-        createElement(Text, { style: pdfBaseStyles.h1 }, tournament.name),
+        PageTitle(tournament.name),
         createElement(Text, { style: styles.subtitle },
           `${schedule.games.length} Spiele · Ende ca. ${schedule.estimatedEnd}`
         ),
@@ -54,6 +56,7 @@ export function buildSchedulePdfDocument(tournament: TournamentConfig, schedule:
 }
 
 export async function downloadPdf(tournament: TournamentConfig, schedule: Schedule): Promise<void> {
+  registerPdfFonts()
   const doc = buildSchedulePdfDocument(tournament, schedule)
   const instance = pdf(doc)
   const blob = await instance.toBlob()

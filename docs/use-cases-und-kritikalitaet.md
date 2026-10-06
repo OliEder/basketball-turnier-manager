@@ -92,7 +92,7 @@ bleibt als schnelles Nachschlage-Cockpit über alle Use Cases hinweg erhalten.
 | UC3 | Ergebnis korrigieren | 🔴 | siehe Slices unten | ✅ |
 | UC4 | Team zurückziehen | 🔴 (Swiss) / 🟡 (Nicht-Swiss) | siehe Slices unten | 🟡 teilweise, siehe Risiko R1 |
 | UC5 | Bei erschöpfter automatischer Paarung manuell paaren (Swiss) | 🟡 | siehe Slices unten | ✅ |
-| UC6 | Turnierstand exportieren (PDF/HTML/JSON) | 🔴 (JSON) / ⚪ (PDF/HTML) | siehe Slices unten | ✅ (JSON) / 🟡 teilweise (PDF/HTML) |
+| UC6 | Turnierstand exportieren (PDF/HTML/JSON) | 🔴 (JSON) / ⚪ (PDF/HTML) | siehe Slices unten | ✅ (JSON) / 🟡 teilweise (PDF/HTML: Drift-/Registrierungs-/ZIP-Tests, E2E-Downloads) |
 | UC7 | Turnier aus JSON importieren | 🟡 | siehe Slices unten | 🟡 teilweise |
 | N1 | Team-Logos in Spielplan/Ergebnissen | ⚪ | Unit-Tests für Alt-Text-Behandlung | ✅ |
 | N2 | Eingebautes Anleitungs-Handbuch (`/anleitung`) | ⚪ | Kein Test (statischer Inhalt) | — |
@@ -405,6 +405,10 @@ Download ab und prüft den tatsächlichen Dateiinhalt (Teams, Zeitplan, `exporte
 **Ablauf:** Statische, druckfertige HTML-Version (ZIP) des Turniers zum Weitergeben.
 
 **Akzeptanzkriterium:** Nicht formal festgelegt (Komfortfunktion).
+
+**Optik und Tests:** PDF- und HTML-Export nutzen die DSS-Palette und die eingebetteten Schriften Sora/Manrope (siehe
+arc42 8.14, ADR-12). Abgesichert durch Drift-Test gegen `tokens.css`, Schrift-Registrierungstest, ZIP-Test des
+HTML-Exports und die E2E-Downloads der PDFs; die Optik selbst wird per Sichtprüfung kontrolliert.
 
 **Testabsicherung:** Kein E2E-Test bekannt.
 

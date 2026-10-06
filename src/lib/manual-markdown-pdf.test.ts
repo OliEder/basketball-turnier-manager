@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { isValidElement } from 'react'
 import { tokenizeManualMarkdown } from './markdown-tokens'
 import { renderManualMarkdownToPdf } from './manual-markdown-pdf'
+import { pdfColors } from './export/pdf-theme'
 
 function toPlainJson(el: unknown): unknown {
   return JSON.stringify(el, (_key, value) =>
@@ -32,7 +33,7 @@ describe('renderManualMarkdownToPdf', () => {
     const json = toPlainJson(elements)
     expect(json).toContain('Hinweis')
     expect(json).toContain('Wichtig.')
-    expect(json).toContain('#f0f7fc')
+    expect(json).toContain(pdfColors.zebra)
   })
 
   it('renders a list as one Text per item prefixed with a bullet', () => {
@@ -43,12 +44,13 @@ describe('renderManualMarkdownToPdf', () => {
     expect(json).toContain('• second')
   })
 
-  it('renders italic inline text with a fontStyle: italic Text element', () => {
+  it('renders emphasis as semi-bold (fontWeight 600) because Sora/Manrope have no italic', () => {
     const tokens = tokenizeManualMarkdown('Some *italic* text.\n')
     const elements = renderManualMarkdownToPdf(tokens, {})
     const json = toPlainJson(elements)
     expect(json).toContain('italic')
-    expect(json).toContain('fontStyle')
+    expect(json).toContain('"fontWeight":600')
+    expect(json).not.toContain('fontStyle')
   })
 
   it('renders an inline link as underlined text', () => {
@@ -91,5 +93,21 @@ describe('renderManualMarkdownToPdf', () => {
     const json = toPlainJson(elements)
     expect(json).toContain('data:image/png;base64,CCCC')
     expect(json).toContain('Direktes Bild')
+  })
+
+  it('renders bold text inside list items as styled text without literal asterisks', () => {
+    const tokens = tokenizeManualMarkdown('1. **Teams** und mehr\n1. **Export** fertig\n')
+    const json = toPlainJson(renderManualMarkdownToPdf(tokens, {})) as string
+    expect(json).toContain('Teams')
+    expect(json).toContain('"fontWeight":700')
+    expect(json).not.toContain('**')
+  })
+
+  it('replaces the arrow glyph that Sora/Manrope do not contain, so no fallback font is needed', () => {
+    const tokens = tokenizeManualMarkdown('1. **Teams** → alle Teams anlegen\n')
+    const json = toPlainJson(renderManualMarkdownToPdf(tokens, {})) as string
+    expect(json).not.toContain('→')
+    expect(json).toContain('›')
+    expect(json).toContain('alle Teams anlegen')
   })
 })
