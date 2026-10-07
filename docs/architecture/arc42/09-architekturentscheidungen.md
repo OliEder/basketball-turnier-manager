@@ -202,8 +202,8 @@ TypeScript-Strict-Mode plus Testabdeckung, aber diese Annahme ist NICHT im Code 
   DSS 0.8.0 liefert `TopBar` und `AppNav` (Liste mit Drill-down).
 - **Geprüfte Alternativen**: Unterstrichene Leiste ohne Gruppen (einfach, skaliert nicht und bleibt auf dem Handy
   unübersichtlich); Seitenleiste (braucht dauerhaft Breite, die Druck-/Hallenansichten nicht haben).
-- **Entscheidung**: Die Navigation besteht aus `TopBar` + `AppNav`, gruppiert nach Zweck (Vorbereiten, Spielen,
-  Ansehen, Export, Hilfe). Das Modell ist rein und getestet: `buildNavigation` (`src/lib/navigation.ts`) liefert die
+- **Entscheidung**: Die Navigation besteht aus `TopBar` + `AppNav`, gruppiert nach Zweck (Gruppen Vorbereiten,
+  Spielen, Ansehen und Hilfe, dazu der direkte Link Export). Das Modell ist rein und getestet: `buildNavigation` (`src/lib/navigation.ts`) liefert die
   Gruppen samt gesperrten Einträgen (je nach Modus/Zustand) und nimmt einen `basePath` entgegen. Die URLs bleiben
   vorerst flach (`/teams`, `/config`, `/demos` ...); eine spätere Struktur `/turniere/:id/...` wird über `basePath`
   möglich, ohne das Modell umzuschreiben.
