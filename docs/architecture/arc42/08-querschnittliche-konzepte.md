@@ -116,10 +116,11 @@ klickt.
 
 `e2e/accessibility.spec.ts` prüft mit `@axe-core/playwright` gegen `wcag2a`, `wcag2aa`, `wcag21a`,
 `wcag21aa`-Regelsätze, gefiltert auf `impact === 'serious' \|\| impact === 'critical'` — kleinere
-(`moderate`/`minor`) Verstöße lassen den Test NICHT scheitern. Geprüft werden zwölf kuratierte
+(`moderate`/`minor`) Verstöße lassen den Test NICHT scheitern. Geprüft werden sechzehn kuratierte
 Seiten-/Zustandskombinationen (Teams leer/mit Team, Konfiguration, Schweizer Ergebniserfassung,
 -Übersicht, Score-Entry-Zustand, manuelle Paarungsdialog-Zustand, Export-Seite, Endrunde-4-
-Ergebnisseite, Endrunde-1-Bracket-Ergebnisseite, kombinierte Endstand-Seite) — nicht jede
+Ergebnisseite, Endrunde-1-Bracket-Ergebnisseite, kombinierte Endstand-Seite, Navigation mit geöffnetem Gruppen-Dropdown, mobiles Navigationsmenü, Demo-Turniere-Seite,
+Teams-Leerzustand mit Demo-Link) — nicht jede
 Seite/jeder Zustand der App ist abgedeckt (siehe Kapitel 10, 11.8). Diese Liste soll bei jeder
 neuen Seite/jedem signifikanten neuen UI-Zustand erweitert werden (siehe `AGENTS.md`).
 
@@ -138,14 +139,15 @@ Es gibt keinen "ungespeicherten Änderungen"-Zustand. Jede Store-Aktion, die `to
 Kehrseite, dass es keine "Rückgängig"-Funktion gibt (außer dem expliziten JSON-Backup vor
 destruktiven Aktionen, siehe Kapitel 1, Qualitätsziel 6).
 
-## 8.13 Design-System-Kopplung (DSS) und Übergangsschicht
+## 8.13 Design-System-Kopplung (DSS) und semantische Klassen
 
 - **Kopplung:** `src/main.tsx` importiert Tailwind (`index.css`) **vor** `@bbv/dss-design-system/tokens.css` und
   `components.css`. Die Reihenfolge ist Pflicht: Tailwinds Preflight setzt `[type='button']`-Hintergründe zurück und
   würde bei umgekehrter Reihenfolge die `dss-btn--*`-Hintergründe überschreiben.
-- **Übergangsschicht (bis Teil 3 der DSS-Migration):** `tailwind.config.ts` bildet die Alt-Namen (`brand.*`, `muted`,
-  `card`, `border`, `border-ui`, `secondary`, `tint`, `destructive`) auf DSS-Variablen ab. `src/index.css` enthält eine
-  temporäre `:where(...)`-Regel, die rohen `<input>`/`<select>`/`<textarea>` einen Rahmen gibt.
+- **Übergangsschicht entfernt (Teil 3b):** Die Alt-Namen (`brand.*`, `muted`, `card`, `border`, `tint` …) und die
+  temporäre `:where(...)`-Regel sind weg. Dauerhaft gelten die semantischen Klassen `text-fg`, `text-mute`,
+  `border-line`, `bg-surface`, `bg-hover`, `bg-page`, `bg-err`, die auf `--dss-*`-Variablen zeigen. Guard-Test:
+  `src/lib/legacy-classes.test.ts` verbietet die alten Namen.
 - **OKLCH und Alpha:** Die DSS-Preset-Farben sind OKLCH-Strings; Tailwind-Alpha-Modifier (`bg-ink-900/50`) funktionieren
   nicht. Für Transparenz `--dss-*`-Aliase oder eigene Klassen verwenden.
 - **Tailwind-Utilities auf DSS-Komponenten:** `index.css` (Tailwind) wird vor `components.css` geladen; bei gleicher

@@ -197,4 +197,33 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     await expect(page.getByText('1.', { exact: true })).toBeVisible()
     await expectNoSeriousViolations(page)
   })
+
+  test('navigation with a group dropdown open', async ({ page }) => {
+    await page.goto('/teams')
+    await page.getByRole('navigation', { name: 'Hauptnavigation' }).getByRole('button', { name: 'Vorbereiten', exact: true }).click()
+    await expect(page.getByRole('link', { name: 'Konfiguration', exact: true })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('mobile navigation menu open', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 })
+    await page.goto('/teams')
+    const nav = page.getByRole('navigation', { name: 'Hauptnavigation' })
+    await nav.getByRole('button', { name: 'Menü' }).click()
+    await nav.getByRole('button', { name: 'Hilfe', exact: true }).click()
+    await expect(nav.getByRole('link', { name: 'Demo-Turniere', exact: true })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('demo tournaments page', async ({ page }) => {
+    await page.goto('/demos')
+    await expect(page.getByRole('heading', { name: 'Demo-Turniere', level: 1 })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('teams page empty state with demo link', async ({ page }) => {
+    await page.goto('/teams')
+    await expect(page.getByText('Noch keine Teams')).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
 })
