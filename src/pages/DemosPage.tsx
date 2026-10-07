@@ -47,8 +47,8 @@ export default function DemosPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl text-brand-primary">Demo-Turniere</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl text-fg">Demo-Turniere</h1>
+        <p className="text-mute">
           Lade ein Beispielturnier, um die App auszuprobieren. Ein bestehendes Turnier wird dabei ersetzt.
         </p>
       </div>
@@ -73,7 +73,7 @@ export default function DemosPage() {
               }
             >
               <p className="mb-2">{entry.description}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-mute">
                 {MODE_LABEL[entry.mode]} · {entry.teams} Teams · {entry.games} Spiele · {entry.played} erfasst
               </p>
             </Card>

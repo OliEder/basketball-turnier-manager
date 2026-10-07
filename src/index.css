@@ -30,22 +30,6 @@
       scroll-behavior: auto !important;
     }
   }
-
-  /*
-   * TEMPORÄR (bis Teil 3 der DSS-Migration): rohe <input>/<select>/<textarea> ohne DSS-Komponente
-   * bekommen weiterhin einen sichtbaren Rahmen (Tailwind-Preflight setzt border-width auf 0).
-   * :where() hält die Spezifität bei 0, damit DSS-Klassen und Utilities gewinnen.
-   */
-  :where(
-    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not(.dss-input),
-    textarea,
-    select:not(.dss-select)
-  ) {
-    border: 2px solid var(--n-500);
-    border-radius: var(--radius-md);
-    background-color: var(--dss-surface);
-    color: var(--dss-fg);
-  }
 }
 
 .no-spinner {

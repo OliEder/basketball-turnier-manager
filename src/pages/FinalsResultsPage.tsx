@@ -91,7 +91,7 @@ export default function FinalsResultsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl text-brand-primary">Endrunde: Ergebnisse erfassen</h1>
+      <h1 className="text-2xl text-fg">Endrunde: Ergebnisse erfassen</h1>
 
       {saved && (
         <Banner>
@@ -129,8 +129,8 @@ export default function FinalsResultsPage() {
           const finalScore = hasResult ? computeFinalScore(game) : null
 
           return (
-            <div key={game.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-              <span className="text-xs font-mono text-muted-foreground w-16">{game.scheduledStart}</span>
+            <div key={game.id} className="flex items-center gap-3 px-4 py-3 border-b border-line last:border-0">
+              <span className="text-xs font-mono text-mute w-16">{game.scheduledStart}</span>
               <span className="dss-chip dss-chip--mono">F{game.field}</span>
               <span className="dss-chip dss-chip--mono">
                 Rangstufe {game.rankTier} — Platz {game.placementFrom}+
@@ -138,13 +138,13 @@ export default function FinalsResultsPage() {
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 {homeTeam ? <TeamNameDisplay team={homeTeam} /> : <span>{`Platz ${game.homeSourceRank?.rank} der Gruppe ${game.homeSourceRank?.groupId}`}</span>}
                 {renderWithdrawControl(homeTeam)}
-                <span className="text-muted-foreground text-sm">vs</span>
+                <span className="text-mute text-sm">vs</span>
                 {awayTeam ? <TeamNameDisplay team={awayTeam} /> : <span>{`Platz ${game.awaySourceRank?.rank} der Gruppe ${game.awaySourceRank?.groupId}`}</span>}
                 {renderWithdrawControl(awayTeam)}
               </div>
 
               {isUnresolved ? (
-                <span className="text-xs text-muted-foreground">Wartet auf Gruppenphase</span>
+                <span className="text-xs text-mute">Wartet auf Gruppenphase</span>
               ) : hasResult && !isCorrecting ? (
                 <>
                   <span className="text-sm font-mono w-20 text-center">

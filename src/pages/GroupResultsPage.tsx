@@ -102,7 +102,7 @@ export default function GroupResultsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl text-brand-primary">Ergebnisse erfassen</h1>
+      <h1 className="text-2xl text-fg">Ergebnisse erfassen</h1>
 
       {savedGroupId && (
         <Banner>
@@ -163,8 +163,8 @@ export default function GroupResultsPage() {
           const finalScore = hasResult ? computeFinalScore(game) : null
 
           return (
-            <div key={game.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-              <span className="text-xs font-mono text-muted-foreground w-16">{game.scheduledStart}</span>
+            <div key={game.id} className="flex items-center gap-3 px-4 py-3 border-b border-line last:border-0">
+              <span className="text-xs font-mono text-mute w-16">{game.scheduledStart}</span>
               <span className="dss-chip dss-chip--mono">F{game.field}</span>
               <span className="dss-chip dss-chip--mono whitespace-nowrap shrink-0">
                 Gruppe {game.groupId ?? 'A'}
@@ -172,7 +172,7 @@ export default function GroupResultsPage() {
               <div className="flex-1 min-w-0 flex flex-wrap items-center gap-2">
                 {homeTeam ? <TeamNameDisplay team={homeTeam} /> : <span>{game.homeLabel ?? '?'}</span>}
                 {renderWithdrawControl(homeTeam)}
-                <span className="text-muted-foreground text-sm">vs</span>
+                <span className="text-mute text-sm">vs</span>
                 {awayTeam ? <TeamNameDisplay team={awayTeam} /> : <span>{game.awayLabel ?? '?'}</span>}
                 {renderWithdrawControl(awayTeam)}
               </div>

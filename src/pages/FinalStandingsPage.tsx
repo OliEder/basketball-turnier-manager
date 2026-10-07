@@ -28,13 +28,13 @@ export default function FinalStandingsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl text-brand-primary">Endstand</h1>
+      <h1 className="text-2xl text-fg">Endstand</h1>
       <Table density="compact" caption="Endstand" columns={COLUMNS}>
         {standings.map(s => (
           <tr key={s.teamId}>
             <td>{s.place}.</td>
             <td>{teamMap.get(s.teamId) && <TeamNameDisplay team={teamMap.get(s.teamId)!} />}</td>
-            <td className="text-xs text-muted-foreground">{s.pending ? 'ausstehend' : ''}</td>
+            <td className="text-xs text-mute">{s.pending ? 'ausstehend' : ''}</td>
           </tr>
         ))}
       </Table>

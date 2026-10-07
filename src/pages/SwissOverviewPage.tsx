@@ -17,15 +17,15 @@ const STANDINGS_COLUMNS: TableColumn[] = [
 
 function TableOfContents({ rounds }: { rounds: number[] }) {
   return (
-    <nav aria-label="Inhalt" className="rounded-md border border-border bg-tint p-4 text-sm">
-      <p className="font-semibold text-brand-primary mb-2">Inhalt</p>
+    <nav aria-label="Inhalt" className="rounded-md border border-line bg-hover p-4 text-sm">
+      <p className="font-semibold text-fg mb-2">Inhalt</p>
       <ul className="space-y-1">
         <li>
-          <a href="#tabelle" className="text-brand-primary hover:underline">Tabelle</a>
+          <a href="#tabelle" className="text-fg hover:underline">Tabelle</a>
         </li>
         {rounds.map(round => (
           <li key={round}>
-            <a href={`#runde-${round}`} className="text-brand-primary hover:underline">Runde {round}</a>
+            <a href={`#runde-${round}`} className="text-fg hover:underline">Runde {round}</a>
           </li>
         ))}
       </ul>
@@ -66,7 +66,7 @@ export default function SwissOverviewPage() {
 
       <div>
         <h2 id="tabelle" className="font-display text-lg uppercase mb-2">Tabelle</h2>
-        <p className="text-xs text-muted-foreground mb-2">
+        <p className="text-xs text-mute mb-2">
           Sortierung: 1. Punkte, 2. Buchholz-Zahl, 3. Korbdifferenz. Die Buchholz-Zahl ist die Summe der
           Punkte aller bisherigen Gegner (zeigt, wie stark die bisherigen Gegner abgeschnitten haben; bei
           einem Freilos zählen die eigenen Punkte, bei einem Gegner, der zurückgezogen wurde, zählt die
@@ -96,11 +96,11 @@ export default function SwissOverviewPage() {
           <div key={round} className="mb-4">
             <h3
               id={`runde-${round}`}
-              className={`text-sm font-semibold text-muted-foreground mb-1${roundPageBreaks.has(round) ? ' print:break-before-page' : ''}`}
+              className={`text-sm font-semibold text-mute mb-1${roundPageBreaks.has(round) ? ' print:break-before-page' : ''}`}
             >
               Runde {round}
             </h3>
-            <div className="border border-border rounded-md p-4 bg-card">
+            <div className="border border-line rounded-md p-4 bg-surface">
               {schedule.games
                 .filter(g => g.round === round && g.field > 0)
                 .map(game => <GameRow key={game.id} game={game} showResult />)}

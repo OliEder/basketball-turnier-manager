@@ -79,7 +79,7 @@ export default function BracketResultsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl text-brand-primary">Endrunde: K.-o.-Ergebnisse</h1>
+      <h1 className="text-2xl text-fg">Endrunde: K.-o.-Ergebnisse</h1>
 
       <div className="flex gap-1 flex-wrap">
         {rankTiers.map(rankTier => {
@@ -126,20 +126,20 @@ export default function BracketResultsPage() {
           const finalScore = hasResult ? computeFinalScore(game) : null
 
           return (
-            <div key={game.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-              <span className="text-xs font-mono text-muted-foreground w-16">{game.scheduledStart}</span>
+            <div key={game.id} className="flex items-center gap-3 px-4 py-3 border-b border-line last:border-0">
+              <span className="text-xs font-mono text-mute w-16">{game.scheduledStart}</span>
               <span className="dss-chip dss-chip--mono">F{game.field}</span>
               <span className="dss-chip dss-chip--mono">
                 {STAGE_LABELS[game.stage] ?? game.stage}
               </span>
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 {homeTeam ? <TeamNameDisplay team={homeTeam} /> : <span>{game.homeLabel ?? '?'}</span>}
-                <span className="text-muted-foreground text-sm">vs</span>
+                <span className="text-mute text-sm">vs</span>
                 {awayTeam ? <TeamNameDisplay team={awayTeam} /> : <span>{game.awayLabel ?? '?'}</span>}
               </div>
 
               {isUnresolved ? (
-                <span className="text-xs text-muted-foreground">Wartet auf vorherige Runde</span>
+                <span className="text-xs text-mute">Wartet auf vorherige Runde</span>
               ) : hasResult && !isCorrecting ? (
                 <>
                   <span className="text-sm font-mono w-20 text-center">

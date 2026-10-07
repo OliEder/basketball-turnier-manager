@@ -35,7 +35,7 @@ export default function TeamList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">{tournament.teams.length} Teams</p>
+        <p className="text-sm text-mute">{tournament.teams.length} Teams</p>
         <Button onClick={() => setShowAdd(true)}>Team hinzufügen</Button>
       </div>
 

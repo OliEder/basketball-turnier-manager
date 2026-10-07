@@ -20,7 +20,7 @@ export default function GameSettingsForm({ disabled = false }: { disabled?: bool
         <TextInput id="buffer" label="Wechselzeit zwischen Spielen (Min)" type="number" min={0} max={30} value={gs.bufferBetweenGamesMin} onChange={numField('bufferBetweenGamesMin')} disabled={disabled} />
         <TextInput id="round-break" label="Pause zwischen Runden (Min)" type="number" min={0} max={60} value={gs.breakBetweenRoundsMin} onChange={numField('breakBetweenRoundsMin')} disabled={disabled} />
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-mute">
         Spielzeit gesamt: <strong>{totalMin} Minuten</strong> (ohne Wechselzeit)
       </p>
     </div>

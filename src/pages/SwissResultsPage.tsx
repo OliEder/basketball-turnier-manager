@@ -143,7 +143,7 @@ export default function SwissResultsPage() {
         {roundGames.map(game => {
           if (game.byeTeamId) {
             return (
-              <div key={game.id} className="px-4 py-3 text-sm text-muted-foreground border-b border-border last:border-0">
+              <div key={game.id} className="px-4 py-3 text-sm text-mute border-b border-line last:border-0">
                 Freilos: {teamMap.get(game.byeTeamId)?.name ?? '?'}
               </div>
             )
@@ -155,7 +155,7 @@ export default function SwissResultsPage() {
           const hasResult = game.periodScores.length > 0
           const canWithdraw = game.homeTeamId && game.awayTeamId
           return (
-            <div key={game.id} className="px-4 py-3 border-b border-border last:border-0">
+            <div key={game.id} className="px-4 py-3 border-b border-line last:border-0">
               <span className="dss-chip dss-chip--mono">F{game.field}</span>
               <div
                 className="grid items-center gap-2"
@@ -184,7 +184,7 @@ export default function SwissResultsPage() {
                 </div>
 
                 {hasResult && correctingGameId !== game.id ? (
-                  <span className="text-sm text-muted-foreground text-right">{game.periodScores[0].homeScore}</span>
+                  <span className="text-sm text-mute text-right">{game.periodScores[0].homeScore}</span>
                 ) : !hasResult ? (
                   <TextInput
                     density="compact"
@@ -207,7 +207,7 @@ export default function SwissResultsPage() {
                 <span className="text-center">:</span>
 
                 {hasResult && correctingGameId !== game.id ? (
-                  <span className="text-sm text-muted-foreground text-left">{game.periodScores[0].awayScore}</span>
+                  <span className="text-sm text-mute text-left">{game.periodScores[0].awayScore}</span>
                 ) : !hasResult ? (
                   <TextInput
                     density="compact"
@@ -294,7 +294,7 @@ export default function SwissResultsPage() {
       ) : null}
 
       {!isViewingPastRound && manualPairingNeeded && (
-        <div className="border border-border rounded-md p-4 bg-card space-y-3">
+        <div className="border border-line rounded-md p-4 bg-surface space-y-3">
           <p className="text-sm font-medium">
             Automatische Paarung nicht möglich — bitte Paarungen für die nächste Runde manuell zuweisen.
           </p>

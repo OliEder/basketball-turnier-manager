@@ -78,8 +78,8 @@ export default function GroupOverviewPage() {
         <h2 className="font-display text-lg uppercase mb-2">Zeitplan</h2>
         {rounds.map(round => (
           <div key={round} className="mb-4">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-1">Runde {round}</h3>
-            <div className="border border-border rounded-md p-4 bg-card">
+            <h3 className="text-sm font-semibold text-mute mb-1">Runde {round}</h3>
+            <div className="border border-line rounded-md p-4 bg-surface">
               {groupGames
                 .filter(g => g.round === round && g.field > 0)
                 .map(game => <GameRow key={game.id} game={game} showResult />)}

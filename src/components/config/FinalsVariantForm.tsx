@@ -41,12 +41,12 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
           ]}
         />
         {!canUseEndrunde3 && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-mute">
             Endrunde 3 benötigt genau 4 Gruppen (aktuell: {groupCount}).
           </p>
         )}
         {!canUseEndrunde1 && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-mute">
             Endrunde 1 benötigt 2, 4, 8, 16 oder 32 Gruppen (aktuell: {groupCount}).
           </p>
         )}
@@ -80,7 +80,7 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
             { value: 'walkover', label: 'Gegner rückt kampflos vor (Walkover)' },
           ]}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-mute">
           Ein Rückzug in der Endrunde wird aktuell immer als Walkover gewertet — Nachrücker-Logik
           ist noch nicht implementiert.
         </p>

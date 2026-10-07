@@ -12,7 +12,7 @@ export default function ScheduleView() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-mute">
         {schedule.games.length} Spiele · Ende ca. {schedule.estimatedEnd}
       </p>
 

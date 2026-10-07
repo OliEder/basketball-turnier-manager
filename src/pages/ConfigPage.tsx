@@ -60,16 +60,16 @@ export default function ConfigPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl text-brand-primary">Turnierkonfiguration</h1>
+      <h1 className="text-2xl text-fg">Turnierkonfiguration</h1>
       <section className="space-y-4">
-        <h2 className="text-lg text-brand-primary-light">Allgemein</h2>
+        <h2 className="text-lg text-fg-soft">Allgemein</h2>
         <LockedSectionGate locked={locked} unlocked={tournamentUnlocked} onUnlock={() => setConfirmTarget('tournament')}>
           {(disabled) => <TournamentForm disabled={disabled} />}
         </LockedSectionGate>
       </section>
       {tournament.mode === 'round-robin+finals' && (
         <section className="space-y-4">
-          <h2 className="text-lg text-brand-primary-light">Gruppen</h2>
+          <h2 className="text-lg text-fg-soft">Gruppen</h2>
           <LockedSectionGate locked={locked} unlocked={tournamentUnlocked} onUnlock={() => setConfirmTarget('tournament')}>
             {(disabled) => <GroupAssignmentForm disabled={disabled} />}
           </LockedSectionGate>
@@ -77,20 +77,20 @@ export default function ConfigPage() {
       )}
       {tournament.mode === 'round-robin+finals' && (tournament.groupCount ?? 1) > 1 && (
         <section className="space-y-4">
-          <h2 className="text-lg text-brand-primary-light">Endrunden-Variante</h2>
+          <h2 className="text-lg text-fg-soft">Endrunden-Variante</h2>
           <LockedSectionGate locked={locked} unlocked={tournamentUnlocked} onUnlock={() => setConfirmTarget('tournament')}>
             {(disabled) => <FinalsVariantForm disabled={disabled} />}
           </LockedSectionGate>
         </section>
       )}
       <section className="space-y-4">
-        <h2 className="text-lg text-brand-primary-light">Spieleinstellungen</h2>
+        <h2 className="text-lg text-fg-soft">Spieleinstellungen</h2>
         <LockedSectionGate locked={locked} unlocked={tournamentUnlocked} onUnlock={() => setConfirmTarget('tournament')}>
           {(disabled) => <GameSettingsForm disabled={disabled} />}
         </LockedSectionGate>
       </section>
       <section className="space-y-4">
-        <h2 className="text-lg text-brand-primary-light">Halle</h2>
+        <h2 className="text-lg text-fg-soft">Halle</h2>
         <LockedSectionGate locked={locked} unlocked={venueUnlocked} onUnlock={() => setConfirmTarget('venue')}>
           {(disabled) => (
             <>
@@ -101,11 +101,11 @@ export default function ConfigPage() {
         </LockedSectionGate>
       </section>
       <section className="space-y-4">
-        <h2 className="text-lg text-brand-primary-light">Spielplan generieren</h2>
+        <h2 className="text-lg text-fg-soft">Spielplan generieren</h2>
         <div className="flex justify-between items-center">
           <div>
             {schedule && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-mute">
                 {schedule.games.length} Spiele · Ende ca. {schedule.estimatedEnd}
               </p>
             )}
@@ -142,7 +142,7 @@ export default function ConfigPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg text-brand-primary-light">Turnier importieren</h2>
+        <h2 className="text-lg text-fg-soft">Turnier importieren</h2>
         <div className="space-y-1">
           <Button type="button" onClick={() => fileInputRef.current?.click()}>
             JSON importieren
@@ -162,12 +162,12 @@ export default function ConfigPage() {
           </Banner>
         )}
         {tournament.name && (
-          <p className="text-sm text-muted-foreground">Aktuelles Turnier: {tournament.name}</p>
+          <p className="text-sm text-mute">Aktuelles Turnier: {tournament.name}</p>
         )}
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg text-brand-primary-light">Turnier zurücksetzen</h2>
+        <h2 className="text-lg text-fg-soft">Turnier zurücksetzen</h2>
         <Button type="button" variant="danger" onClick={() => setConfirmTarget('reset')}>
           Turnier zurücksetzen
         </Button>

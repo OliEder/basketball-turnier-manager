@@ -9,7 +9,7 @@ export default function AppShell() {
   const items = buildNavigation({ tournament, schedule })
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-page text-fg">
       <TopBar as="header" brand="Basketball Turnier-Manager" mark="T" />
       <AppNav
         items={items}
