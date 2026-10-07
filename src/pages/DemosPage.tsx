@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Banner, Button, Card } from '@bbv/dss-design-system/react'
 import { DestructiveConfirmDialog } from '@/components/shared/DestructiveConfirmDialog'
@@ -24,6 +24,14 @@ export default function DemosPage() {
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState<Pending | null>(null)
+  const mounted = useRef(true)
+
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
 
   const apply = ({ entry, tournament, schedule }: Pending) => {
     importTournament(tournament, schedule)
@@ -34,6 +42,8 @@ export default function DemosPage() {
     setError(null)
     setLoadingId(entry.id)
     const result = await loadDemo(entry)
+    // Wurde die Seite währenddessen verlassen, soll das Demo das Turnier nicht mehr ersetzen.
+    if (!mounted.current) return
     setLoadingId(null)
     if (!result.ok) {
       setError(result.error)
