@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
+import { MemoryRouter } from 'react-router-dom'
 import TeamList from './TeamList'
 
 beforeEach(() => {
@@ -25,8 +26,14 @@ beforeEach(() => {
 })
 
 describe('TeamList', () => {
+  it('zeigt ohne Teams einen Leerzustand mit Link zu den Demo-Turnieren', () => {
+    render(<MemoryRouter><TeamList /></MemoryRouter>)
+    expect(screen.getByText('Noch keine Teams')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Demo ansehen' })).toHaveAttribute('href', '/demos')
+  })
+
   it('adds a team immediately when the tournament is not locked', () => {
-    render(<TeamList />)
+    render(<MemoryRouter><TeamList /></MemoryRouter>)
     fireEvent.click(screen.getByRole('button', { name: 'Team hinzufügen' }))
     fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Team C' } })
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
@@ -44,7 +51,7 @@ describe('TeamList', () => {
     const game = useTournamentStore.getState().schedule!.games[0]
     useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
 
-    render(<TeamList />)
+    render(<MemoryRouter><TeamList /></MemoryRouter>)
     fireEvent.click(screen.getByRole('button', { name: 'Team hinzufügen' }))
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Team C' } })
@@ -61,7 +68,7 @@ describe('TeamList', () => {
     const { addTeam } = useTournamentStore.getState()
     addTeam({ name: 'A', logoUrl: '', color: '#000', contact: '' })
 
-    render(<TeamList />)
+    render(<MemoryRouter><TeamList /></MemoryRouter>)
     fireEvent.click(screen.getAllByRole('button', { name: /löschen/i })[0])
 
     expect(screen.queryByRole('button', { name: 'Bestätigen' })).not.toBeInTheDocument()
@@ -77,7 +84,7 @@ describe('TeamList', () => {
     const game = useTournamentStore.getState().schedule!.games[0]
     useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
 
-    render(<TeamList />)
+    render(<MemoryRouter><TeamList /></MemoryRouter>)
     fireEvent.click(screen.getAllByRole('button', { name: /löschen/i })[0])
 
     expect(screen.getByRole('button', { name: 'Bestätigen' })).toBeInTheDocument()
@@ -97,7 +104,7 @@ describe('TeamList', () => {
     const game = useTournamentStore.getState().schedule!.games[0]
     useTournamentStore.getState().submitGameResult(game.id, [{ period: 1, homeScore: 10, awayScore: 5 }])
 
-    render(<TeamList />)
+    render(<MemoryRouter><TeamList /></MemoryRouter>)
     fireEvent.click(screen.getAllByRole('button', { name: /bearbeiten/i })[0])
     fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Team A Neu' } })
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
@@ -107,7 +114,7 @@ describe('TeamList', () => {
   })
 
   it('keeps the add-team modal open when clicking outside of it', async () => {
-    render(<TeamList />)
+    render(<MemoryRouter><TeamList /></MemoryRouter>)
     fireEvent.click(screen.getByRole('button', { name: 'Team hinzufügen' }))
     expect(screen.getByRole('dialog', { name: 'Team hinzufügen' })).toBeInTheDocument()
 

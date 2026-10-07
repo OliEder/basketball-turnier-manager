@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
-import { TextInput } from '@bbv/dss-design-system/react'
+import { Checkbox, Select, TextInput } from '@bbv/dss-design-system/react'
 import { suggestGroupCount } from '@/lib/group-suggestion'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 
@@ -42,31 +42,25 @@ export default function GroupAssignmentForm({ disabled = false }: { disabled?: b
         disabled={disabled}
         help={`Vorschlag: ${suggestedGroupCount} Gruppen (ca. ${Math.round(tournament.teams.length / suggestedGroupCount)} Teams je Gruppe) — bei Bedarf anpassbar.`}
       />
-      <div className="flex items-center gap-2">
-        <input
-          id="double-round-robin"
-          type="checkbox"
-          checked={doubleRoundRobin}
-          onChange={e => setDoubleRoundRobin(e.target.checked)}
-          disabled={disabled}
-        />
-        <label htmlFor="double-round-robin" className="dss-field-label">Mit Rückspiel (Hin- und Rückrunde)</label>
-      </div>
+      <Checkbox
+        id="double-round-robin"
+        label="Mit Rückspiel (Hin- und Rückrunde)"
+        checked={doubleRoundRobin}
+        onChange={e => setDoubleRoundRobin(e.target.checked)}
+        disabled={disabled}
+      />
       <div className="space-y-2">
         {tournament.teams.map(team => (
           <div key={team.id} className="flex items-center justify-between gap-3">
             <TeamNameDisplay team={team} className="text-sm" />
-            <select
+            <Select
               aria-label={`Gruppe für ${team.name}`}
-              className="border border-border rounded-sm px-2 py-1 text-sm"
+              density="compact"
               value={team.groupId ?? 'A'}
               onChange={e => setTeamGroup(team.id, e.target.value)}
               disabled={disabled}
-            >
-              {groupLetters.map(letter => (
-                <option key={letter} value={letter}>Gruppe {letter}</option>
-              ))}
-            </select>
+              options={groupLetters.map(letter => ({ value: letter, label: `Gruppe ${letter}` }))}
+            />
           </div>
         ))}
       </div>

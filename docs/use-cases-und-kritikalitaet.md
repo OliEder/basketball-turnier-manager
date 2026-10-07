@@ -55,6 +55,7 @@ flowchart LR
     subgraph Abschluss
         UC6[UC6: Turnierstand\nexportieren]
         UC7[UC7: Turnier aus\nJSON importieren]
+        UC8[UC8: Demo-Turnier\nladen]
     end
 
     O --> UC1
@@ -64,6 +65,8 @@ flowchart LR
     O --> UC5
     O --> UC6
     O --> UC7
+    O --> UC8
+    UC8 -.->|include| UC7
     UC6 -.->|konsumiert Ausdruck/Export,\nkeine Interaktion| Z
 
     UC2 -.->|include| RES[Platzhalter automatisch\nauflösen]
@@ -94,9 +97,10 @@ bleibt als schnelles Nachschlage-Cockpit über alle Use Cases hinweg erhalten.
 | UC5 | Bei erschöpfter automatischer Paarung manuell paaren (Swiss) | 🟡 | siehe Slices unten | ✅ |
 | UC6 | Turnierstand exportieren (PDF/HTML/JSON) | 🔴 (JSON) / ⚪ (PDF/HTML) | siehe Slices unten | ✅ (JSON) / 🟡 teilweise (PDF/HTML: Drift-/Registrierungs-/ZIP-Tests, E2E-Downloads) |
 | UC7 | Turnier aus JSON importieren | 🟡 | siehe Slices unten | 🟡 teilweise |
+| UC8 | Demo-Turnier laden | 🟡 | `e2e/demo-tournaments.spec.ts`, `src/pages/DemosPage.test.tsx`, `src/lib/demos.test.ts` | ✅ |
 | N1 | Team-Logos in Spielplan/Ergebnissen | ⚪ | Unit-Tests für Alt-Text-Behandlung | ✅ |
 | N2 | Eingebautes Anleitungs-Handbuch (`/anleitung`) | ⚪ | Kein Test (statischer Inhalt) | — |
-| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | 🟡 (querschnittlich, kein eigener Use Case) | `e2e/accessibility.spec.ts` | ✅ (12 kuratierte Seiten) |
+| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | 🟡 (querschnittlich, kein eigener Use Case) | `e2e/accessibility.spec.ts` | ✅ (16 kuratierte Seiten) |
 
 ---
 
@@ -450,13 +454,39 @@ beschädigen oder teilweise überschreiben.
 
 ---
 
+## UC8: Demo-Turnier laden
+
+**Ziel:** Der Organisator probiert die App mit vorbereiteten Beispieldaten aus (fünf Demo-Turniere), ohne
+selbst Teams und Ergebnisse erfassen zu müssen.
+
+**Vorbedingung:** Keine. Läuft bereits ein Turnier, wird der Organisator vor dem Überschreiben gewarnt.
+
+**Akteur:** Turnier-Organisator.
+
+### Kern-Slice: Happy Path
+
+1. Organisator öffnet „Demo-Turniere" (Navigationsgruppe „Hilfe") oder folgt dem Link im Leerzustand der
+   Teamseite (`/demos`).
+2. Organisator klickt bei einem Demo-Turnier auf „Laden".
+3. *(Nur bei bereits vorhandenem Turnier)* System fragt per Bestätigungsdialog nach, ob das bestehende
+   Turnier überschrieben werden soll.
+4. System übernimmt das Demo-Turnier über denselben Pfad wie UC7 (`parseTournamentImport`, `importTournament`)
+   und leitet auf die Übersicht weiter.
+
+**Akzeptanzkriterium:** Nach dem Laden zeigt die App den Stand des gewählten Demo-Turniers; ein bestehendes
+Turnier wird nie ohne Bestätigung überschrieben.
+
+**Testabsicherung:** `e2e/demo-tournaments.spec.ts`, `src/pages/DemosPage.test.tsx`, `src/lib/demos.test.ts`.
+
+---
+
 ## Nice-to-have- und querschnittliche Use Cases (kompakt)
 
 | # | Use Case | Kurzbeschreibung | Testabsicherung |
 | --- | --- | --- | --- |
 | N1 | Team-Logos in Spielplan/Ergebnissen | Rein visuelle Aufwertung, dekorativ (`alt=""`). | Unit-Tests für die Alt-Text-Behandlung |
 | N2 | Eingebautes Anleitungs-Handbuch (`/anleitung`) | Statische Hilfeseite in der App. | Kein Test (rein statischer Inhalt) |
-| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | Kein eigener Use Case, sondern eine querschnittliche Qualitätsanforderung an UC1-UC7 (siehe arc42 Kapitel 10, QS-4). | `e2e/accessibility.spec.ts`, 12 kuratierte Seiten-/Zustandskombinationen |
+| N3 | Barrierefreiheit der zentralen Seiten (WCAG 2.1 AA) | Kein eigener Use Case, sondern eine querschnittliche Qualitätsanforderung an UC1-UC8 (siehe arc42 Kapitel 10, QS-4). | `e2e/accessibility.spec.ts`, 16 kuratierte Seiten-/Zustandskombinationen |
 
 ## Bekannte Vorfälle (Beispiele, warum diese Übersicht existiert)
 

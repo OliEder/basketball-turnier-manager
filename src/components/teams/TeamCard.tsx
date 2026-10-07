@@ -9,7 +9,7 @@ interface Props {
 
 export default function TeamCard({ team, onEdit, onDelete }: Props) {
   return (
-    <div className="flex items-center gap-4 p-4 border border-border rounded-md bg-card">
+    <div className="flex items-center gap-4 p-4 border border-line rounded-md bg-surface">
       <div
         className="w-10 h-10 rounded-full flex-shrink-0"
         style={{ backgroundColor: team.color }}
@@ -22,9 +22,9 @@ export default function TeamCard({ team, onEdit, onDelete }: Props) {
       <div className="flex-1 min-w-0">
         <p className="font-semibold truncate">
           {team.name}
-          {team.abbreviation && <span className="text-xs text-muted-foreground ml-2">({team.abbreviation})</span>}
+          {team.abbreviation && <span className="text-xs text-mute ml-2">({team.abbreviation})</span>}
         </p>
-        {team.contact && <p className="text-sm text-muted-foreground truncate">{team.contact}</p>}
+        {team.contact && <p className="text-sm text-mute truncate">{team.contact}</p>}
       </div>
       <div className="flex gap-2">
         <Button size="sm" variant="ghost" onClick={onEdit}>Bearbeiten</Button>

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, beforeAll } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
+import { MemoryRouter } from 'react-router-dom'
 import GroupOverviewPage from './GroupOverviewPage'
 import { registerPdfFontsForTests } from '@/test-utils/pdf-fonts'
 
@@ -43,15 +44,15 @@ beforeEach(() => {
 
 describe('GroupOverviewPage', () => {
   it('shows a message when no schedule exists yet', () => {
-    render(<GroupOverviewPage />)
+    render(<MemoryRouter><GroupOverviewPage /></MemoryRouter>)
     expect(screen.getByText(/bitte zuerst einen zeitplan generieren/i)).toBeInTheDocument()
   })
 
   it('shows a tab per group and only renders the active group\'s table', () => {
     setupMultiGroupTournament()
     render(<GroupOverviewPage />)
-    expect(screen.getByRole('button', { name: 'Gruppe A' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Gruppe B' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Gruppe A' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Gruppe B' })).toBeInTheDocument()
     // Only one group's table/schedule is visible at a time.
     expect(screen.getAllByRole('table')).toHaveLength(1)
   })
@@ -70,7 +71,7 @@ describe('GroupOverviewPage', () => {
   it('switches to another group\'s table and schedule when its tab is clicked', () => {
     setupMultiGroupTournament()
     render(<GroupOverviewPage />)
-    fireEvent.click(screen.getByRole('button', { name: 'Gruppe B' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Gruppe B' }))
 
     const teams = useTournamentStore.getState().tournament.teams
     const groupBTeamNames = teams.filter(t => t.groupId === 'B').map(t => t.name)

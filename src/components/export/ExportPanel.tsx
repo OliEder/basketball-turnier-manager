@@ -1,24 +1,21 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button, Banner } from '@bbv/dss-design-system/react'
+import { Button } from '@bbv/dss-design-system/react'
 import { downloadJson } from '@/lib/export/json-export'
 import { downloadHtmlZip } from '@/lib/export/html-export'
 import { downloadPdf } from '@/lib/export/pdf-export'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
 
 export default function ExportPanel() {
   const { tournament, schedule } = useTournamentStore()
   const ready = !!schedule && schedule.games.length > 0
 
   if (!ready) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Zeitplan“).
-      </Banner>
-    )
+    return <ScheduleRequired page="Zeitplan" />
   }
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-mute">
         {schedule!.games.length} Spiele, Ende ca. {schedule!.estimatedEnd}
       </p>
       <div className="flex flex-wrap gap-3">

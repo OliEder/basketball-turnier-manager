@@ -21,12 +21,12 @@ export default function BlackoutList({ disabled = false }: { disabled?: boolean 
     <div className="space-y-4">
       <h3 className="font-caption font-medium">Sperrzeiten</h3>
       {blackouts.length === 0 && (
-        <p className="text-sm text-muted-foreground">Keine Sperrzeiten definiert.</p>
+        <p className="text-sm text-mute">Keine Sperrzeiten definiert.</p>
       )}
       {blackouts.map((b, i) => (
-        <div key={i} className="flex items-center gap-3 p-3 border border-border rounded-md bg-tint">
+        <div key={i} className="flex items-center gap-3 p-3 border border-line rounded-md bg-hover">
           <span className="font-mono text-sm">{b.start}–{b.end}</span>
-          {b.reason && <span className="text-sm text-muted-foreground">{b.reason}</span>}
+          {b.reason && <span className="text-sm text-mute">{b.reason}</span>}
           <Button size="sm" variant="danger" className="ml-auto" onClick={() => remove(i)} disabled={disabled}>Entfernen</Button>
         </div>
       ))}

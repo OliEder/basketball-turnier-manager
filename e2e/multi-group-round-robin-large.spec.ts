@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
+import { goTo } from './helpers'
 
 // 64 teams via the manual UI ("Team hinzufügen" dialog, one click per team) would take
 // well over a minute and would mostly exercise dialog-open/close overhead rather than the
@@ -83,9 +84,9 @@ test('imports a 64-team, 16-group tournament and generates a correct schedule', 
     const gameCount = Number(gamesText!.match(/(\d+) Spiele/)![1])
     expect(gameCount).toBeGreaterThanOrEqual(96)
 
-    await page.getByRole('link', { name: 'Gruppentabellen' }).click()
-    // Groups are shown one at a time via tabs; there is one tab button per group.
-    await expect(page.getByRole('button', { name: /^Gruppe [A-P]$/ })).toHaveCount(groupCount)
+    await goTo(page, 'Gruppentabellen')
+    // Groups are shown one at a time via tabs; there is one tab per group.
+    await expect(page.getByRole('tab', { name: /^Gruppe [A-P]$/ })).toHaveCount(groupCount)
     await expect(page.getByRole('table')).toHaveCount(1)
 
     // Spot-check a handful of groups across the range (first, middle, last) rather than all 16,
@@ -94,7 +95,7 @@ test('imports a 64-team, 16-group tournament and generates a correct schedule', 
     for (const letter of ['A', 'H', 'P']) {
       // exact: true avoids Playwright's fuzzy substring match also hitting the "Diese Gruppe als
       // PDF herunterladen" button -- "gruppe als" contains "gruppe a" as a plain substring.
-      await page.getByRole('button', { name: `Gruppe ${letter}`, exact: true }).click()
+      await page.getByRole('tab', { name: `Gruppe ${letter}`, exact: true }).click()
       await expect(page.getByRole('heading', { name: `Gruppe ${letter}` })).toBeVisible()
       // Every group table should list exactly its own 4 teams (header row + 4 team rows = 5).
       await expect(page.getByRole('table').getByRole('row')).toHaveCount(5)

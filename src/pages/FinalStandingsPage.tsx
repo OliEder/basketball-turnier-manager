@@ -1,17 +1,20 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Banner } from '@bbv/dss-design-system/react'
+import { EmptyState, Table, type TableColumn } from '@bbv/dss-design-system/react'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalStandings, computeEndrunde1Standings } from '@/lib/final-standings'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
+
+const COLUMNS: TableColumn[] = [
+  { key: 'place', label: 'Platz', width: '3rem' },
+  { key: 'team', label: 'Team' },
+  { key: 'status', label: 'Status' },
+]
 
 export default function FinalStandingsPage() {
   const { tournament, schedule } = useTournamentStore()
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const teamMap = new Map(tournament.teams.map(t => [t.id, t]))
@@ -20,31 +23,21 @@ export default function FinalStandingsPage() {
     : computeFinalStandings(tournament.teams, schedule.games)
 
   if (standings.length === 0) {
-    return (
-      <Banner>
-        Noch keine Endrunden-Ergebnisse vorhanden.
-      </Banner>
-    )
+    return <EmptyState title="Noch keine Endrunden-Ergebnisse vorhanden." />
   }
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl text-brand-primary">Endstand</h1>
-      <table className="w-full border-collapse">
-        <tbody>
-          {standings.map(s => (
-            <tr key={s.teamId} className="border-b border-border last:border-0">
-              <td className="py-1 pr-2 font-medium w-12">{s.place}.</td>
-              <td className="py-1 pr-2">
-                {teamMap.get(s.teamId) && <TeamNameDisplay team={teamMap.get(s.teamId)!} />}
-              </td>
-              <td className="py-1 pr-2 text-xs text-muted-foreground">
-                {s.pending ? 'ausstehend' : ''}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h1 className="text-2xl text-fg">Endstand</h1>
+      <Table density="compact" caption="Endstand" columns={COLUMNS}>
+        {standings.map(s => (
+          <tr key={s.teamId}>
+            <td>{s.place}.</td>
+            <td>{teamMap.get(s.teamId) && <TeamNameDisplay team={teamMap.get(s.teamId)!} />}</td>
+            <td className="text-xs text-mute">{s.pending ? 'ausstehend' : ''}</td>
+          </tr>
+        ))}
+      </Table>
     </div>
   )
 }

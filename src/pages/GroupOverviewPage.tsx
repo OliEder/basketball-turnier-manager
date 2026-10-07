@@ -2,9 +2,18 @@ import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { computeGroupStandings } from '@/lib/group-standings'
 import { downloadGroupOverviewPdf } from '@/lib/export/group-overview-pdf'
-import { Banner, Button } from '@bbv/dss-design-system/react'
+import { Button, Table, Tabs, type TableColumn } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
+
+const STANDINGS_COLUMNS: TableColumn[] = [
+  { key: 'place', label: '#', width: '3rem' },
+  { key: 'team', label: 'Team' },
+  { key: 'points', label: 'Pkt', align: 'right' },
+  { key: 'diff', label: 'Diff', align: 'right' },
+  { key: 'record', label: 'S-U-N', align: 'right' },
+]
 
 export default function GroupOverviewPage() {
   const { tournament, schedule } = useTournamentStore()
@@ -12,11 +21,7 @@ export default function GroupOverviewPage() {
   const [activeGroupId, setActiveGroupId] = useState(groupIds[0] ?? 'A')
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const currentGroupId = groupIds.includes(activeGroupId) ? activeGroupId : (groupIds[0] ?? 'A')
@@ -40,18 +45,14 @@ export default function GroupOverviewPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex gap-1 flex-wrap">
-          {groupIds.map(groupId => (
-            <Button
-              key={groupId}
-              variant={groupId === currentGroupId ? undefined : 'ghost'}
-              size="sm"
-              onClick={() => setActiveGroupId(groupId)}
-            >
-              Gruppe {groupId}
-            </Button>
-          ))}
-        </div>
+        <Tabs
+          variant="pills"
+          size="sm"
+          ariaLabel="Gruppen"
+          items={groupIds.map(id => ({ id, label: `Gruppe ${id}` }))}
+          value={currentGroupId}
+          onValueChange={setActiveGroupId}
+        />
         <div className="flex gap-2">
           <Button variant="ghost" size="sm" onClick={handleDownloadCurrentGroupPdf}>Diese Gruppe als PDF herunterladen</Button>
           <Button variant="ghost" size="sm" onClick={handleDownloadAllGroupsPdf}>Alle Gruppen als PDF herunterladen</Button>
@@ -60,38 +61,25 @@ export default function GroupOverviewPage() {
 
       <div>
         <h2 className="font-display text-lg uppercase mb-2">Gruppe {currentGroupId}</h2>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="text-left text-sm text-muted-foreground border-b border-border">
-              <th className="py-1 pr-2">#</th>
-              <th className="py-1 pr-2">Team</th>
-              <th className="py-1 pr-2">Pkt</th>
-              <th className="py-1 pr-2">Diff</th>
-              <th className="py-1 pr-2">S-U-N</th>
+        <Table density="compact" caption={`Tabelle Gruppe ${currentGroupId}`} columns={STANDINGS_COLUMNS}>
+          {standings.map((s, i) => (
+            <tr key={s.teamId}>
+              <td>{i + 1}</td>
+              <td>{teamMap.get(s.teamId) && <TeamNameDisplay team={teamMap.get(s.teamId)!} />}</td>
+              <td className="num lead">{s.points}</td>
+              <td className="num">{s.pointsDiff > 0 ? '+' : ''}{s.pointsDiff}</td>
+              <td className="num">{s.wins}-{s.draws}-{s.losses}</td>
             </tr>
-          </thead>
-          <tbody>
-            {standings.map((s, i) => (
-              <tr key={s.teamId} className="border-b border-border last:border-0">
-                <td className="py-1 pr-2">{i + 1}</td>
-                <td className="py-1 pr-2 font-medium">
-                  {teamMap.get(s.teamId) && <TeamNameDisplay team={teamMap.get(s.teamId)!} />}
-                </td>
-                <td className="py-1 pr-2">{s.points}</td>
-                <td className="py-1 pr-2">{s.pointsDiff > 0 ? '+' : ''}{s.pointsDiff}</td>
-                <td className="py-1 pr-2">{s.wins}-{s.draws}-{s.losses}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </Table>
       </div>
 
       <div>
         <h2 className="font-display text-lg uppercase mb-2">Zeitplan</h2>
         {rounds.map(round => (
           <div key={round} className="mb-4">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-1">Runde {round}</h3>
-            <div className="border border-border rounded-md p-4 bg-card">
+            <h3 className="text-sm font-semibold text-mute mb-1">Runde {round}</h3>
+            <div className="border border-line rounded-md p-4 bg-surface">
               {groupGames
                 .filter(g => g.round === round && g.field > 0)
                 .map(game => <GameRow key={game.id} game={game} showResult />)}

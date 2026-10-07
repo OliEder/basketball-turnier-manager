@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { addTeam, selectMode, setupSwissTournament } from './helpers'
+import { addTeam, selectMode, setupSwissTournament, goTo } from './helpers'
 
 async function expectNoSeriousViolations(page: Page) {
   // Wait for web fonts to finish loading/settling before measuring color contrast.
@@ -58,7 +58,7 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
 
   test('swiss overview page', async ({ page }) => {
     await setupSwissTournament(page, ['Team A', 'Team B', 'Team C', 'Team D'])
-    await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+    await goTo(page, 'Turnierübersicht')
     await expect(page.getByRole('table')).toBeVisible()
     await expectNoSeriousViolations(page)
   })
@@ -129,7 +129,7 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     for (let i = 1; i <= 8; i++) {
       await addTeam(page, `Team ${i}`)
     }
-    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await goTo(page, 'Konfiguration')
     await selectMode(page, 'Gruppenphase + Endrunde')
     await page.getByLabel('Anzahl Gruppen').fill('2')
     for (let i = 5; i <= 8; i++) {
@@ -139,7 +139,7 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
     await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-    await page.getByRole('link', { name: 'Endrunde: Ergebnisse' }).click()
+    await goTo(page, 'Endrunde: Ergebnisse')
     await expect(page.getByLabel('Status')).toBeVisible()
     await expectNoSeriousViolations(page)
   })
@@ -151,7 +151,7 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     for (let i = 1; i <= 8; i++) {
       await addTeam(page, `Team ${i}`)
     }
-    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await goTo(page, 'Konfiguration')
     await selectMode(page, 'Gruppenphase + Endrunde')
     await page.getByLabel('Anzahl Gruppen').fill('2')
     for (let i = 5; i <= 8; i++) {
@@ -161,7 +161,7 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
     await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-    await page.getByRole('link', { name: 'Endrunde: K.-o.-Ergebnisse' }).click()
+    await goTo(page, 'Endrunde: K.-o.-Ergebnisse')
     await expect(page.getByRole('button', { name: /Rangstufe 1/ })).toBeVisible()
     await expectNoSeriousViolations(page)
   })
@@ -175,7 +175,7 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     for (let i = 1; i <= 8; i++) {
       await addTeam(page, `Team ${i}`)
     }
-    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await goTo(page, 'Konfiguration')
     await selectMode(page, 'Gruppenphase + Endrunde')
     await page.getByLabel('Anzahl Gruppen').fill('2')
     for (let i = 5; i <= 8; i++) {
@@ -186,15 +186,44 @@ test.describe('WCAG 2.1 AA — critical pages', () => {
     await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
     // 2 groups of 4 -> 6 games per group (single round-robin) -> 12 group games total.
-    await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+    await goTo(page, 'Ergebnisse erfassen')
     for (let i = 0; i < 12; i++) {
       await page.getByLabel(/^Ergebnis Heim, Spiel/).first().fill('20')
       await page.getByLabel(/^Ergebnis Auswärts, Spiel/).first().fill('10')
       await page.getByRole('button', { name: 'Speichern' }).first().click()
     }
 
-    await page.getByRole('link', { name: 'Endstand' }).click()
+    await goTo(page, 'Endstand')
     await expect(page.getByText('1.', { exact: true })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('navigation with a group dropdown open', async ({ page }) => {
+    await page.goto('/teams')
+    await page.getByRole('navigation', { name: 'Hauptnavigation' }).getByRole('button', { name: 'Vorbereiten', exact: true }).click()
+    await expect(page.getByRole('link', { name: 'Konfiguration', exact: true })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('mobile navigation menu open', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 })
+    await page.goto('/teams')
+    const nav = page.getByRole('navigation', { name: 'Hauptnavigation' })
+    await nav.getByRole('button', { name: 'Menü' }).click()
+    await nav.getByRole('button', { name: 'Hilfe', exact: true }).click()
+    await expect(nav.getByRole('link', { name: 'Demo-Turniere', exact: true })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('demo tournaments page', async ({ page }) => {
+    await page.goto('/demos')
+    await expect(page.getByRole('heading', { name: 'Demo-Turniere', level: 1 })).toBeVisible()
+    await expectNoSeriousViolations(page)
+  })
+
+  test('teams page empty state with demo link', async ({ page }) => {
+    await page.goto('/teams')
+    await expect(page.getByText('Noch keine Teams')).toBeVisible()
     await expectNoSeriousViolations(page)
   })
 })

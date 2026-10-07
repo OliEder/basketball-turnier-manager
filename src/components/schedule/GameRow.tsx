@@ -24,9 +24,9 @@ export default function GameRow({ game, showResult = false }: Props) {
   )
 
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-border last:border-0">
-      <span className="text-sm text-muted-foreground w-6">#{game.gameNumber}</span>
-      <span className="text-sm font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
+    <div className="flex items-center gap-4 px-4 py-3 border-b border-line last:border-0">
+      <span className="text-sm text-mute w-6">#{game.gameNumber}</span>
+      <span className="dss-chip dss-chip--mono">F{game.field}</span>
       {showResult && finalScore ? (
         <span
           className="text-sm font-mono w-28 text-center"
@@ -47,12 +47,12 @@ export default function GameRow({ game, showResult = false }: Props) {
             className="!font-mono"
             aria-label={`Startzeit Spiel ${game.gameNumber}`}
           />
-          <span className="text-sm text-muted-foreground">–{game.scheduledEnd}</span>
+          <span className="text-sm text-mute">–{game.scheduledEnd}</span>
         </>
       )}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {game.homeTeamId ? (home ? <TeamNameDisplay team={home} /> : <span className="font-medium">?</span>) : <span className="font-medium">{game.homeLabel ?? '?'}</span>}
-        <span className="text-muted-foreground text-sm shrink-0">vs</span>
+        <span className="text-mute text-sm shrink-0">vs</span>
         {game.awayTeamId ? (away ? <TeamNameDisplay team={away} /> : <span className="font-medium">?</span>) : <span className="font-medium">{game.awayLabel ?? '?'}</span>}
       </div>
       {hasBlackoutConflict && <ConflictBadge message="Sperrzeit!" />}

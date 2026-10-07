@@ -11,7 +11,7 @@ function renderInline(tokens: Tokens.Generic[]): ReactNode[] {
         return <em key={i}>{renderInline((token as Tokens.Em).tokens)}</em>
       case 'link': {
         const link = token as Tokens.Link
-        return <a key={i} href={link.href} className="text-brand-primary underline">{renderInline(link.tokens)}</a>
+        return <a key={i} href={link.href} className="text-fg underline">{renderInline(link.tokens)}</a>
       }
       case 'image':
         return renderImageToken(token as Tokens.Image, i)
@@ -49,8 +49,8 @@ function headingId(token: HeadingWithId): string {
 
 function renderHeadingToken(token: HeadingWithId, key: number): ReactNode {
   const className = token.depth === 2
-    ? 'font-display text-xl uppercase text-brand-primary'
-    : 'font-display text-base uppercase text-brand-primary-light'
+    ? 'font-display text-xl uppercase text-fg'
+    : 'font-display text-base uppercase text-fg-soft'
   const id = headingId(token)
   return token.depth === 2
     ? <h2 key={key} id={id} className={className}>{token.text}</h2>
@@ -73,15 +73,15 @@ function renderImageToken(token: Tokens.Image, key: number): ReactNode {
       key={key}
       src={`${import.meta.env.BASE_URL}anleitung/${token.href}`}
       alt={token.text}
-      className="rounded-md border border-border shadow-sm max-w-full"
+      className="rounded-md border border-line shadow-sm max-w-full"
     />
   )
 }
 
 function renderCalloutToken(token: CalloutToken, key: number): ReactNode {
   return (
-    <div key={key} className="rounded-md border border-border bg-tint p-4 text-sm">
-      <p className="font-semibold text-brand-primary mb-1">{token.title}</p>
+    <div key={key} className="rounded-md border border-line bg-hover p-4 text-sm">
+      <p className="font-semibold text-fg mb-1">{token.title}</p>
       <div>{renderManualMarkdownToJsx(token.tokens as ManualToken[])}</div>
     </div>
   )

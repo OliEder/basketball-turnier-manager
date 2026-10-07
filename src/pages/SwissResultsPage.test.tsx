@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { useTournamentStore } from '@/store/tournament-store'
 import { clearAll } from '@/lib/storage'
 import { getTeamAbbreviation } from '@/lib/utils'
+import { MemoryRouter } from 'react-router-dom'
 import SwissResultsPage from './SwissResultsPage'
 
 function setupSwissTournament(teamCount: number, swissRounds: number) {
@@ -39,7 +40,7 @@ beforeEach(() => {
 
 describe('SwissResultsPage', () => {
   it('shows a message when no schedule exists yet', () => {
-    render(<SwissResultsPage />)
+    render(<MemoryRouter><SwissResultsPage /></MemoryRouter>)
     expect(screen.getByText(/bitte zuerst einen zeitplan generieren/i)).toBeInTheDocument()
   })
 
@@ -234,7 +235,7 @@ describe('SwissResultsPage', () => {
     }
     fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
 
-    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /^runde 1$/i }))
 
     expect(screen.getByText(/bereits abgeschlossene runde/i)).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /korrigieren/i }).length).toBeGreaterThan(0)
@@ -250,7 +251,7 @@ describe('SwissResultsPage', () => {
       fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
     }
     fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
-    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /^runde 1$/i }))
     expect(screen.getByText(/bereits abgeschlossene runde/i)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /zur aktuellen runde/i }))
@@ -268,7 +269,7 @@ describe('SwissResultsPage', () => {
       fireEvent.change(screen.getByLabelText(`Ergebnis Auswärts, Spiel ${g.gameNumber}`), { target: { value: '10' } })
     }
     fireEvent.click(screen.getByRole('button', { name: /nächste runde auslosen/i }))
-    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /^runde 1$/i }))
 
     fireEvent.click(screen.getAllByRole('button', { name: /korrigieren/i })[0])
     const homeInput = screen.getByLabelText(`Korrigiertes Ergebnis Heim, Spiel ${round1Games[0].gameNumber}`)
@@ -321,7 +322,7 @@ describe('SwissResultsPage', () => {
 
     expect(screen.queryByRole('button', { name: `${teamAbbreviation} zurückziehen` })).not.toBeInTheDocument()
     const badge = screen.getByText(`${teamAbbreviation} zurückgezogen`)
-    expect(badge).toHaveClass('bg-destructive')
+    expect(badge).toHaveClass('dss-chip--err')
   })
 
   it('keeps the "Turnier abschließen" button visible and clickable after typing the last score of the final round, and only shows "Turnier abgeschlossen" once those scores are actually saved', () => {
@@ -376,7 +377,7 @@ describe('SwissResultsPage', () => {
     const teamAbbreviation = getTeamAbbreviation(teams.find(t => t.id === round2Game.homeTeamId)!)
     fireEvent.click(screen.getByRole('button', { name: `${teamAbbreviation} zurückziehen` }))
 
-    fireEvent.click(screen.getByRole('button', { name: /^runde 1$/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /^runde 1$/i }))
 
     expect(screen.queryByText(`${teamAbbreviation} zurückgezogen`)).not.toBeInTheDocument()
     const round1Game = useTournamentStore.getState().schedule!.games.find(

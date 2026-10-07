@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { addTeam, selectMode } from './helpers'
+import { addTeam, selectMode, goTo } from './helpers'
 
 // End-to-end coverage of the critical Endrunde 3 process: configuration, group phase, automatic
 // qualification into the semifinal-final-third-place bracket, and full result entry through to a
@@ -16,7 +16,7 @@ test('organizer plays a full Endrunde 3 tournament: group phase -> semifinals ->
     await addTeam(page, `Team ${i}`)
   }
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   await page.getByLabel('Anzahl Gruppen').fill('4')
 
@@ -39,7 +39,7 @@ test('organizer plays a full Endrunde 3 tournament: group phase -> semifinals ->
 
   // Play every group-stage game as a 20:10 home win, so "Team 1" (home in every one of its
   // games under this setup) wins its group outright and the same holds for every other group.
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByLabel('Status')).toHaveValue('open')
 
   // Each group of 3 plays 3 games (round-robin) -> 12 games total across 4 groups.
@@ -54,7 +54,7 @@ test('organizer plays a full Endrunde 3 tournament: group phase -> semifinals ->
   await expect(page.getByText('Keine Spiele für die gewählten Filter.')).toBeVisible()
 
   // Semifinals should now be auto-resolved with real teams (each group's winner).
-  await page.getByRole('link', { name: 'Endrunde: KO-Ergebnisse' }).click()
+  await goTo(page, 'Endrunde: KO-Ergebnisse')
   await expect(page.getByLabel('Status')).toHaveValue('open')
   await expect(page.getByLabel(/^Ergebnis Heim, Spiel/).first()).toBeVisible()
 
@@ -91,7 +91,7 @@ test('correcting a semifinal result re-resolves the final with the new winner', 
     await addTeam(page, `Team ${i}`)
   }
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   await page.getByLabel('Anzahl Gruppen').fill('4')
   await page.getByLabel('Gruppe für Team 3').selectOption('B')
@@ -105,14 +105,14 @@ test('correcting a semifinal result re-resolves the final with the new winner', 
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
   // 4 groups of 2 -> 1 game per group -> 4 group games total.
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   for (let i = 0; i < 4; i++) {
     await page.getByLabel(/^Ergebnis Heim, Spiel/).first().fill('20')
     await page.getByLabel(/^Ergebnis Auswärts, Spiel/).first().fill('10')
     await page.getByRole('button', { name: 'Speichern' }).first().click()
   }
 
-  await page.getByRole('link', { name: 'Endrunde: KO-Ergebnisse' }).click()
+  await goTo(page, 'Endrunde: KO-Ergebnisse')
   await page.getByLabel(/^Ergebnis Heim, Spiel/).first().fill('20')
   await page.getByLabel(/^Ergebnis Auswärts, Spiel/).first().fill('10')
   await page.getByRole('button', { name: 'Speichern' }).first().click()

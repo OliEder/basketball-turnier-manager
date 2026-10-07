@@ -12,6 +12,9 @@
 
 ## Erkenntnisse aus der Plan-Recherche
 
+- **Neue Navigation (Teil 3b, nachgezogen):** Die App hat statt der alten Linkleiste jetzt TopBar + AppNav (gruppierte Dropdowns, mobil ein Menü). Die Screenshots zeigen daher die neue Navigation. Hauptnavigationseinträge werden im Skript über `goTo(page, '…')` aus `e2e/helpers` angesteuert (öffnet bei Bedarf die Gruppe); Runden- und Gruppenreiter haben die Rolle `tab` statt `button`.
+- **Offene Frage (in 4b klären):** Soll ein Screenshot der neuen Seite „Demo-Turniere“ (`/demos`) ergänzt werden (und ggf. ein Hinweis im Anleitungstext)? Entscheidung steht aus; `manual.md` erwähnt bisher die Demo-Downloads.
+
 - Die Originale wurden in festen Viewports aufgenommen: 01–23: 694×833 (Bild 03: 694×885), 24: 776×501, 25: 900×560, 26: 1100×700, 27: 900×700, 28–30: 900×520. Keine Vollseiten-Bilder.
 - **Bild 25 ist in `manual.md` nicht referenziert** (Waise). Der Plan erzeugt es trotzdem neu (kein Altbranding im Repo) und markiert es in der Tabelle mit `referenced: false`.
 - Schweizer Szenario der Originale: 8 Teams (TSV Nord, SG Ost 2, BC Mitte, TuS West, Adler Süd, Falken City [Kürzel FCY], Panther Rheinau, Hornets Talstadt), „Talstadt Einstufungsturnier 2026“, 3 Felder, 3 Runden, in Runde 2 ist TSV zurückgezogen.
@@ -249,6 +252,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { shotByFile } from './manual-shots'
+import { goTo } from '../e2e/helpers'
 
 const OUT_DIR = join(process.cwd(), 'public/anleitung')
 
@@ -393,7 +397,7 @@ test('Schweizer Einstufungsturnier (Bilder 01–23)', async ({ page }) => {
   })
 
   await test.step('Konfiguration (05–09)', async () => {
-    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await goTo(page, 'Konfiguration')
     await page.getByLabel('Turniername').fill('Talstadt Einstufungsturnier 2026')
     await scrollToTop(page)
     await shoot(page, '05-konfiguration-allgemein.png')
@@ -417,7 +421,7 @@ test('Schweizer Einstufungsturnier (Bilder 01–23)', async ({ page }) => {
   })
 
   await test.step('Runde 1 (10–12) und Runde 2 (13)', async () => {
-    await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+    await goTo(page, 'Ergebnisse erfassen')
     await expect(page.getByText(/Runde 1 von 3/)).toBeVisible()
     await scrollToTop(page)
     await shoot(page, '10-ergebnisse-runde1-leer.png')
@@ -439,7 +443,7 @@ test('Schweizer Einstufungsturnier (Bilder 01–23)', async ({ page }) => {
   // Reihenfolge der Aufnahmen: Die Korrektur in Runde 1 geht nur, solange Runde 2 noch kein Ergebnis
   // hat; ein Rückzug annulliert ein Spiel mit 0:0. Deshalb zuerst 15–17, danach 14.
   await test.step('Vergangene Runde und Korrektur (15–17)', async () => {
-    await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
+    await page.getByRole('tab', { name: 'Runde 1', exact: true }).click()
     await expect(page.getByText(/bereits abgeschlossene Runde/)).toBeVisible()
     await scrollToTop(page)
     await shoot(page, '15-runde-auswaehler-vergangene-runde.png')
@@ -467,7 +471,7 @@ test('Schweizer Einstufungsturnier (Bilder 01–23)', async ({ page }) => {
   })
 
   await test.step('Turnierübersicht (18–19)', async () => {
-    await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+    await goTo(page, 'Turnierübersicht')
     await expect(page.getByRole('heading', { name: 'Tabelle', exact: true })).toBeVisible()
     await scrollToTop(page)
     await shoot(page, '18-turnieruebersicht-tabelle.png')
@@ -477,7 +481,7 @@ test('Schweizer Einstufungsturnier (Bilder 01–23)', async ({ page }) => {
   })
 
   await test.step('Änderungsschutz (20–21)', async () => {
-    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await goTo(page, 'Konfiguration')
     await expect(page.getByText(/Turnier läuft bereits/).first()).toBeVisible()
     await scrollToTop(page)
     await shoot(page, '20-konfiguration-gesperrt.png')
@@ -489,11 +493,11 @@ test('Schweizer Einstufungsturnier (Bilder 01–23)', async ({ page }) => {
   })
 
   await test.step('Export und Import (22–23)', async () => {
-    await page.getByRole('link', { name: 'Export' }).click()
+    await goTo(page, 'Export')
     await expect(page.getByRole('button', { name: 'PDF herunterladen' })).toBeVisible()
     await shoot(page, '22-export-seite.png')
 
-    await page.getByRole('link', { name: 'Konfiguration' }).click()
+    await goTo(page, 'Konfiguration')
     await scrollToHeading(page, 'Turnier importieren')
     await shoot(page, '23-json-import-bereich.png')
   })
@@ -560,11 +564,11 @@ test('Gruppenphase mit 2 Gruppen (Bilder 24, 25, 28, 29, 30)', async ({ page }) 
   await shoot(page, '28-gruppentabellen-tabs-drucken.png')
   await shoot(page, '25-gruppentabellen-uebersicht.png')
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await scrollToHeading(page, 'Gruppen')
   await shoot(page, '24-konfiguration-gruppen.png')
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByLabel(/^Ergebnis Heim, Spiel/).first()).toBeVisible()
   await scrollToTop(page)
   await shoot(page, '29-ergebnisse-erfassen-gruppenphase.png')
@@ -581,7 +585,7 @@ test('Großturnier mit 64 Teams (Bilder 26, 27)', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Gruppe A', exact: true })).toBeVisible()
   await shoot(page, '26-gruppentabellen-64-teams.png')
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await scrollToHeading(page, 'Gruppen')
   await shoot(page, '27-konfiguration-gruppen-64-teams.png')
 })

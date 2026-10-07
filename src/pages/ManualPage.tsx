@@ -39,19 +39,19 @@ const TOC_ITEMS = [
 
 function TableOfContents() {
   return (
-    <nav aria-label="Inhalt" className="rounded-md border border-border bg-tint p-4 text-sm">
-      <p className="font-semibold text-brand-primary mb-2">Inhalt</p>
+    <nav aria-label="Inhalt" className="rounded-md border border-line bg-hover p-4 text-sm">
+      <p className="font-semibold text-fg mb-2">Inhalt</p>
       <ul className="space-y-1">
         {TOC_ITEMS.map(item => (
           <li key={item.id}>
-            <a href={`#${item.id}`} className="text-brand-primary hover:underline">
+            <a href={`#${item.id}`} className="text-fg hover:underline">
               {item.title}
             </a>
             {item.children && (
               <ul className="mt-1 ml-4 space-y-1">
                 {item.children.map(child => (
                   <li key={child.id}>
-                    <a href={`#${child.id}`} className="text-brand-primary-light hover:underline">
+                    <a href={`#${child.id}`} className="text-fg-soft hover:underline">
                       {child.title}
                     </a>
                   </li>
@@ -69,7 +69,7 @@ export default function ManualPage() {
   return (
     <div id="top" className="space-y-10 max-w-3xl">
       <div className="flex items-start justify-between gap-4">
-        <h1 className="font-display text-2xl uppercase text-brand-primary">
+        <h1 className="font-display text-2xl uppercase text-fg">
           Nutzeranleitung: Basketball Turnier-Manager
         </h1>
         <Button onClick={() => void downloadManualPdf()} className="shrink-0">
@@ -80,7 +80,7 @@ export default function ManualPage() {
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-6 z-40 rounded-full bg-brand-primary text-white shadow-lg px-4 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-brand-primary-light transition-colors"
+        className="fixed bottom-6 right-6 z-40 rounded-full bg-ink-800 text-white shadow-lg px-4 py-3 text-sm font-semibold uppercase tracking-wide hover:bg-ink-700 transition-colors"
         aria-label="Nach oben"
       >
         ↑ Nach oben

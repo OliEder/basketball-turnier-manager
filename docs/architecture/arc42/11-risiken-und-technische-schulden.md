@@ -97,7 +97,7 @@ gefunden) werden dennoch nirgends automatisiert geprüft.
 Seiten-/Zustandskombinationen (Kapitel 8.10, 10.2 QS-4); `BracketResultsPage`, `FinalsResultsPage`,
 `FinalStandingsPage` und `ExportPage` fehlten. Ergänzt um vier weitere Tests (Export-Seite,
 Endrunde-4-Ergebnisseite, Endrunde-1-Bracket-Ergebnisseite mit Rangstufen-Tabs, kombinierte
-Endstand-Seite) — jetzt 12 kuratierte Kombinationen, alle vier vormals fehlenden Seiten
+Endstand-Seite) — damals 12 kuratierte Kombinationen (inzwischen sechzehn, siehe Kapitel 8.10), alle vier vormals fehlenden Seiten
 abgedeckt, keine ernsten WCAG-Verstöße gefunden. Weiterhin **kuratiert, nicht erschöpfend** —
 jede neue Seite/jeder neue signifikante UI-Zustand sollte hier ergänzt werden (siehe `AGENTS.md`).
 
@@ -179,15 +179,17 @@ Idee (siehe Memory `react_pdf_fork_idea`), nicht Teil dieses Features.
 
 Nach Teil 1 der DSS-Migration (Fundament + Basis-Komponenten) bleiben bewusst offen:
 
-- **Teil 3:** Übergangsschicht entfernen — `brand.*`, `muted`, `card`, `border`, `border-ui`, `secondary`, `tint` in
-  `tailwind.config.ts` und die temporäre `:where(...)`-Regel in `src/index.css`; Seiten auf DSS-Komponenten
-  (Table, Stepper, TopBar, EmptyState, Skeleton, MatchCard …) und rohe `<input>`/`<select>` auf `TextInput`/`Select`
-  umstellen. Checkliste: `grep -rn "brand-\|text-muted-foreground\|border-border\|bg-tint" src` muss leer sein.
-  **Erreichter Stand:** `src/components/ui/` ist gelöscht, `Select`/`Modal`/`Banner`/`TextInput`/`Button` stammen aus
-  DSS; verbleibend sind `Table`-ähnliche Eigenbauten, `TeamCard` (nutzt noch kein DSS-`Card`) und rohe
-  `<input>`/`<select>` (13 Stellen, `grep -rn "<input\|<select" src --include='*.tsx' | grep -v test`).
-- **Teil 4 (nur noch Anleitungs-Screenshots):** die `/anleitung`-Screenshots (zeigen noch das Fibalon-Branding)
-  neu erstellen. Die PDF-/HTML-Exporte und die Standard-Teamfarbe sind umgestellt (siehe 8.14, ADR-12).
+- ~~**Teil 3:** Übergangsschicht entfernen~~ **Erledigt 2026-10-06 (Teil 3b):** Die Tailwind-Alt-Namen und die
+  `:where(...)`-Regel sind entfernt (semantische Klassen, siehe 8.13; Guard-Test `src/lib/legacy-classes.test.ts`).
+- ~~**Rohe `<input>`/`<select>`** auf `TextInput`/`Select`/`Checkbox` umstellen~~ **Erledigt 2026-10-06 (Teil 3b).**
+- ~~**Teil-3-Komponenten** (Table, Tabs, Stepper, TopBar/AppNav, EmptyState) einsetzen~~ **Erledigt 2026-10-06
+  (Teil 3b)**, Navigation siehe ADR-13.
+- **DSS-Komponenten 0.9.0 (offen):** BottomNav, Breadcrumbs, MatchCard, PlayerCard, PlayByPlay, Skeleton.
+- **Dark-Modus (offen):** vorerst fest `data-theme="light"`.
+- **Bekannte Minor-Punkte aus dem DSS-0.8.0-Review (offen):** Das Navigations-Dropdown schließt nicht bei
+  Fokusverlust; IDs mit Sonderzeichen werden nicht behandelt.
+- **Teil 4b (offen):** Anleitungs-Screenshots und -Text; ggf. Screenshot der Seite „Demo-Turniere“ (Entscheidung offen).
+  Die `/anleitung`-Screenshots zeigen noch das Fibalon-Branding und die alte Navigation und müssen neu erstellt werden. Die PDF-/HTML-Exporte und die Standard-Teamfarbe sind umgestellt (siehe 8.14, ADR-12).
 - **Fokusring-Kontrast:** Der DSS-Fokusring (`--ring-color`, helles Sky) hat auf weißem Grund vermutlich < 3:1
   Kontrast (Designfrage im DSS-Repo; axe prüft das nicht).
 - **Hex-Farbfeld in `TeamForm`** hat keinen zugänglichen Namen (vorbestehend).

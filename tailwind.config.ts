@@ -2,10 +2,7 @@ import type { Config } from 'tailwindcss'
 import dssPreset from '@bbv/dss-design-system/tailwind'
 
 /**
- * DSS-Preset (ink-*, amber-*, sky-*, neutral-*) plus eine ÜBERGANGSSCHICHT: die Alt-Namen
- * (brand.*, muted, card, border, secondary, tint …) zeigen auf DSS-Variablen, damit Seiten, die noch
- * nicht migriert sind, weiterlaufen. Die Schicht wird in Teil 3 der DSS-Migration gelöscht, sobald
- * keine Datei mehr `brand-*`, `text-muted-foreground`, `border-border` usw. verwendet.
+ * DSS-Preset plus semantische Klassen auf den `--dss-*`-Aliasen (ADR-11/13).
  * Hinweis: Die Preset-Farben sind OKLCH-Strings — Alpha-Modifier wie `bg-ink-900/50` funktionieren nicht.
  */
 export default {
@@ -14,32 +11,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          primary: 'var(--ink-800)',
-          'primary-dark': 'var(--ink-900)',
-          'primary-light': 'var(--ink-700)',
-          accent: 'var(--amber-400)',
-          'accent-text': 'var(--dss-accent-text)',
-        },
-        background: 'var(--page-bg)',
-        foreground: 'var(--dss-fg)',
-        muted: {
-          DEFAULT: 'var(--dss-surface-2)',
-          foreground: 'var(--dss-mute)',
-        },
-        card: 'var(--dss-surface)',
-        border: 'var(--dss-line)',
-        'border-ui': 'var(--n-500)',
-        secondary: {
-          DEFAULT: 'var(--dss-surface-2)',
-          hover: 'var(--dss-line)',
-          border: 'var(--dss-line-strong)',
-        },
-        destructive: {
-          DEFAULT: 'var(--err-button)',
-          foreground: '#ffffff',
-        },
-        tint: 'var(--dss-hover-bg)',
+        // Semantische Klassen auf den DSS-Aliasen (dark-sicher): text-fg, bg-surface, border-line …
+        fg: 'var(--dss-fg)',
+        'fg-soft': 'var(--dss-fg-soft)',
+        mute: 'var(--dss-mute)',
+        line: 'var(--dss-line)',
+        'line-strong': 'var(--dss-line-strong)',
+        surface: 'var(--dss-surface)',
+        'surface-2': 'var(--dss-surface-2)',
+        hover: 'var(--dss-hover-bg)',
+        page: 'var(--page-bg)',
+        err: 'var(--err-button)',
       },
       fontFamily: {
         display: ['var(--font-display)'],

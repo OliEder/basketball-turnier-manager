@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { setupSwissTournament } from './helpers'
+import { setupSwissTournament, goTo } from './helpers'
 
 test('withdrawing a team mid-tournament does not permanently block round progress', async ({ page }) => {
   await setupSwissTournament(page, ['Team A', 'Team B', 'Team C', 'Team D'])
@@ -20,7 +20,7 @@ test('withdrawing a team mid-tournament does not permanently block round progres
   // Eingabefeld. Zeile über die feste Spielzeilen-Klasse ermitteln (eine pro Spiel der
   // Runde), dann eines der beiden "zurückziehen"-Buttons in dieser Zeile anklicken (welches
   // der beiden Teams betroffen ist, ist für diesen Test irrelevant).
-  const gameRows = page.locator('div.py-2.border-b')
+  const gameRows = page.locator('div.py-3.border-b')
   await expect(gameRows).toHaveCount(2)
   const remainingRow = gameRows.last()
   const withdrawButtons = remainingRow.getByRole('button', { name: /zurückziehen$/ })
@@ -137,12 +137,12 @@ test('withdrawal that makes the active team count odd reshapes a not-yet-drawn f
   // (siehe reshapeFutureSwissRounds / generateSwissSchedule); Freilos-Slots (field === 0)
   // werden von SwissOverviewPage bewusst herausgefiltert (g.field > 0), sind dort also
   // nicht sichtbar — nur die Anzahl echter Spiel-Slots lässt sich hier prüfen.
-  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await goTo(page, 'Turnierübersicht')
   await expect(page.getByRole('heading', { name: 'Runde 3', exact: true })).toBeVisible()
   const round3PlaceholdersBefore = page.getByText(/^Runde 3 – Spiel \d+ \(Heim\)$/)
   await expect(round3PlaceholdersBefore).toHaveCount(3)
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(/Runde 2 von 4/)).toBeVisible()
 
   // In Runde 2 ein noch offenes Spiel finden (gleiches Muster wie im ersten Test dieser
@@ -160,7 +160,7 @@ test('withdrawal that makes the active team count odd reshapes a not-yet-drawn f
   await withdrawButtons.first().click()
 
   // Runde 1 (bereits abgeschlossen) darf vom Rückzug nicht berührt worden sein.
-  await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
+  await page.getByRole('tab', { name: 'Runde 1', exact: true }).click()
   await expect(page.getByText(/bereits abgeschlossene Runde/)).toBeVisible()
   await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(0)
   await page.getByRole('button', { name: 'Zur aktuellen Runde' }).click()
@@ -169,14 +169,14 @@ test('withdrawal that makes the active team count odd reshapes a not-yet-drawn f
   // Nach dem Rückzug: Runde 3 hat jetzt nur noch floor(5/2) = 2 echte Spiel-Slots statt 3,
   // der überzählige Slot wurde laut reshapeFutureSwissRounds in einen Freilos-Slot
   // umgewandelt (5 aktive Teams sind ungerade -> needsBye = true).
-  await page.getByRole('link', { name: 'Turnierübersicht' }).click()
+  await goTo(page, 'Turnierübersicht')
   await expect(page.getByRole('heading', { name: 'Runde 3', exact: true })).toBeVisible()
   const round3PlaceholdersAfter = page.getByText(/^Runde 3 – Spiel \d+ \(Heim\)$/)
   await expect(round3PlaceholdersAfter).toHaveCount(2)
 
   // Restliche offene Spiele der Runde 2 auswerten und Runde 3 tatsächlich auslosen, um das
   // Freilos dort real zu sehen (nicht nur die Slot-Anzahl in der Übersicht).
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(/Runde 2 von 4/)).toBeVisible()
   const remainingHomeInputs = page.getByLabel(/^Ergebnis Heim, Spiel/)
   const remainingCount = await remainingHomeInputs.count()

@@ -2,21 +2,30 @@ import { getCurrentSwissRound, isRoundFullyEvaluated, useTournamentStore } from 
 import { computeStandings } from '@/lib/standings'
 import { downloadSwissOverviewPdf } from '@/lib/export/swiss-overview-pdf'
 import { computeRoundPageBreaks } from '@/lib/print-pagination'
-import { Banner, Button } from '@bbv/dss-design-system/react'
+import { Button, Table, type TableColumn } from '@bbv/dss-design-system/react'
 import GameRow from '@/components/schedule/GameRow'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
+import { ScheduleRequired } from '@/components/shared/ScheduleRequired'
+
+const STANDINGS_COLUMNS: TableColumn[] = [
+  { key: 'place', label: '#', width: '3rem' },
+  { key: 'team', label: 'Team' },
+  { key: 'points', label: 'Pkt', align: 'right' },
+  { key: 'buchholz', label: 'Buchholz', align: 'right' },
+  { key: 'diff', label: 'Diff', align: 'right' },
+]
 
 function TableOfContents({ rounds }: { rounds: number[] }) {
   return (
-    <nav aria-label="Inhalt" className="rounded-md border border-border bg-tint p-4 text-sm">
-      <p className="font-semibold text-brand-primary mb-2">Inhalt</p>
+    <nav aria-label="Inhalt" className="rounded-md border border-line bg-hover p-4 text-sm">
+      <p className="font-semibold text-fg mb-2">Inhalt</p>
       <ul className="space-y-1">
         <li>
-          <a href="#tabelle" className="text-brand-primary hover:underline">Tabelle</a>
+          <a href="#tabelle" className="text-fg hover:underline">Tabelle</a>
         </li>
         {rounds.map(round => (
           <li key={round}>
-            <a href={`#runde-${round}`} className="text-brand-primary hover:underline">Runde {round}</a>
+            <a href={`#runde-${round}`} className="text-fg hover:underline">Runde {round}</a>
           </li>
         ))}
       </ul>
@@ -28,11 +37,7 @@ export default function SwissOverviewPage() {
   const { tournament, schedule } = useTournamentStore()
 
   if (!schedule) {
-    return (
-      <Banner>
-        Bitte zuerst einen Zeitplan generieren (Seite „Konfiguration“).
-      </Banner>
-    )
+    return <ScheduleRequired />
   }
 
   const currentRound = getCurrentSwissRound(schedule.games)
@@ -61,39 +66,28 @@ export default function SwissOverviewPage() {
 
       <div>
         <h2 id="tabelle" className="font-display text-lg uppercase mb-2">Tabelle</h2>
-        <p className="text-xs text-muted-foreground mb-2">
+        <p className="text-xs text-mute mb-2">
           Sortierung: 1. Punkte, 2. Buchholz-Zahl, 3. Korbdifferenz. Die Buchholz-Zahl ist die Summe der
           Punkte aller bisherigen Gegner (zeigt, wie stark die bisherigen Gegner abgeschnitten haben; bei
           einem Freilos zählen die eigenen Punkte, bei einem Gegner, der zurückgezogen wurde, zählt die
           Partie nicht mit).
         </p>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="text-left text-sm text-muted-foreground border-b border-border">
-              <th className="py-1 pr-2">#</th>
-              <th className="py-1 pr-2">Team</th>
-              <th className="py-1 pr-2">Pkt</th>
-              <th className="py-1 pr-2">Buchholz</th>
-              <th className="py-1 pr-2">Diff</th>
+        <Table density="compact" caption="Tabelle" columns={STANDINGS_COLUMNS}>
+          {standings.map((s, i) => (
+            <tr key={s.teamId}>
+              <td>{i + 1}</td>
+              <td>
+                <div className="flex items-center gap-1">
+                  <TeamNameDisplay team={teamMap.get(s.teamId)!} />
+                  {s.withdrawn && <span className="dss-chip dss-chip--err dss-chip--mono shrink-0">zurückgezogen</span>}
+                </div>
+              </td>
+              <td className="num lead">{s.points}</td>
+              <td className="num">{s.buchholz}</td>
+              <td className="num">{s.pointsDiff > 0 ? '+' : ''}{s.pointsDiff}</td>
             </tr>
-          </thead>
-          <tbody>
-            {standings.map((s, i) => (
-              <tr key={s.teamId} className="border-b border-border last:border-0">
-                <td className="py-1 pr-2">{i + 1}</td>
-                <td className="py-1 pr-2 font-medium max-w-0 w-full">
-                  <div className="flex items-center gap-1">
-                    <TeamNameDisplay team={teamMap.get(s.teamId)!} />
-                    {s.withdrawn && <span className="text-muted-foreground text-xs shrink-0">(zurückgezogen)</span>}
-                  </div>
-                </td>
-                <td className="py-1 pr-2">{s.points}</td>
-                <td className="py-1 pr-2">{s.buchholz}</td>
-                <td className="py-1 pr-2">{s.pointsDiff > 0 ? '+' : ''}{s.pointsDiff}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </Table>
       </div>
 
       <div className="print:break-before-page">
@@ -102,11 +96,11 @@ export default function SwissOverviewPage() {
           <div key={round} className="mb-4">
             <h3
               id={`runde-${round}`}
-              className={`text-sm font-semibold text-muted-foreground mb-1${roundPageBreaks.has(round) ? ' print:break-before-page' : ''}`}
+              className={`text-sm font-semibold text-mute mb-1${roundPageBreaks.has(round) ? ' print:break-before-page' : ''}`}
             >
               Runde {round}
             </h3>
-            <div className="border border-border rounded-md p-4 bg-card">
+            <div className="border border-line rounded-md p-4 bg-surface">
               {schedule.games
                 .filter(g => g.round === round && g.field > 0)
                 .map(game => <GameRow key={game.id} game={game} showResult />)}

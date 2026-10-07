@@ -33,7 +33,7 @@ export async function setupSwissTournament(page: Page, teamNames: string[], swis
     await addTeam(page, name)
   }
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Einstufungsturnier (Schweizer System)')
   if (swissRounds !== undefined) {
     await page.getByLabel('Anzahl Runden').fill(String(swissRounds))
@@ -42,6 +42,35 @@ export async function setupSwissTournament(page: Page, teamNames: string[], swis
   await page.getByRole('button', { name: 'Zeitplan generieren' }).click()
   await expect(page.getByText(/Spiele · Ende ca\./)).toBeVisible()
 
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   await expect(page.getByText(/Runde 1 von/)).toBeVisible()
+}
+
+// Gruppe, in der ein Navigationseintrag der Hauptnavigation liegt (null = direkter Link in der Leiste).
+const NAV_GROUP: Record<string, string | null> = {
+  Teams: 'Vorbereiten',
+  Konfiguration: 'Vorbereiten',
+  'Ergebnisse erfassen': 'Spielen',
+  'Endrunde: Ergebnisse': 'Spielen',
+  'Endrunde: KO-Ergebnisse': 'Spielen',
+  'Endrunde: K.-o.-Ergebnisse': 'Spielen',
+  Zeitplan: 'Ansehen',
+  Turnierübersicht: 'Ansehen',
+  Gruppentabellen: 'Ansehen',
+  Endstand: 'Ansehen',
+  Export: null,
+  Anleitung: 'Hilfe',
+  'Demo-Turniere': 'Hilfe',
+}
+
+/** Navigiert über die Hauptnavigation: öffnet bei Bedarf die Gruppe und klickt den Link. */
+export async function goTo(page: Page, label: string) {
+  if (!(label in NAV_GROUP)) throw new Error(`goTo: unbekannter Navigationseintrag „${label}“`)
+  const nav = page.getByRole('navigation', { name: 'Hauptnavigation' })
+  const group = NAV_GROUP[label]
+  if (group) {
+    const trigger = nav.getByRole('button', { name: group, exact: true })
+    if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click()
+  }
+  await nav.getByRole('link', { name: label, exact: true }).click()
 }

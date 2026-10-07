@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { addTeam, selectMode } from './helpers'
+import { addTeam, selectMode, goTo } from './helpers'
 
 // End-to-end coverage of the critical Endrunde 1 process: configuration with 8 groups (2 rank
 // tiers, each an 8-team-wide... no, an 8-GROUP-wide bracket of size 8), group phase, automatic
@@ -20,7 +20,7 @@ test('organizer plays a full Endrunde 1 tournament with two parallel rank-tier b
     await addTeam(page, `Team ${i}`)
   }
 
-  await page.getByRole('link', { name: 'Konfiguration' }).click()
+  await goTo(page, 'Konfiguration')
   await selectMode(page, 'Gruppenphase + Endrunde')
   await page.getByLabel('Anzahl Gruppen').fill('8')
 
@@ -40,7 +40,7 @@ test('organizer plays a full Endrunde 1 tournament with two parallel rank-tier b
 
   // Each group of 2 plays 1 game -> 8 group games total. Home team wins every game, so
   // "Team <odd>" (the first team added to each group, listed as home) wins every group.
-  await page.getByRole('link', { name: 'Ergebnisse erfassen' }).click()
+  await goTo(page, 'Ergebnisse erfassen')
   for (let i = 0; i < 8; i++) {
     await page.getByLabel(/^Ergebnis Heim, Spiel/).first().fill('20')
     await page.getByLabel(/^Ergebnis Auswärts, Spiel/).first().fill('10')
@@ -49,7 +49,7 @@ test('organizer plays a full Endrunde 1 tournament with two parallel rank-tier b
   await expect(page.getByText('Keine Spiele für die gewählten Filter.')).toBeVisible()
 
   // Both rank-tier brackets' quarterfinals should now be auto-resolved with real teams.
-  await page.getByRole('link', { name: 'Endrunde: K.-o.-Ergebnisse' }).click()
+  await goTo(page, 'Endrunde: K.-o.-Ergebnisse')
   await expect(page.getByRole('button', { name: /Rangstufe 1/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Rangstufe 2/ })).toBeVisible()
 
@@ -84,7 +84,7 @@ test('organizer plays a full Endrunde 1 tournament with two parallel rank-tier b
   // are not placed further (per computeEndrunde1Standings / the Endrunde-1 design spec). With
   // an 8-team bracket per tier, rank tier 1 (placementFrom 1) yields places 1-4 and rank tier 2
   // (placementFrom 9) yields places 9-12; places 5-8 and 13-16 are never assigned.
-  await page.getByRole('link', { name: 'Endstand' }).click()
+  await goTo(page, 'Endstand')
   await expect(page.getByText('1.', { exact: true })).toBeVisible()
   await expect(page.getByText('4.', { exact: true })).toBeVisible()
   await expect(page.getByText('9.', { exact: true })).toBeVisible()

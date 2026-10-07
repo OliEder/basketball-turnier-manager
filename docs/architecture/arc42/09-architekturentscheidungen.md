@@ -194,3 +194,21 @@ TypeScript-Strict-Mode plus Testabdeckung, aber diese Annahme ist NICHT im Code 
   Latin-Subsets (z. B. →) werden im Anleitungs-PDF ersetzt.
 - **Beleg**: `docs/superpowers/specs/2026-10-06-dss-migration-teil4-design.md`,
   `docs/superpowers/plans/2026-10-06-dss-migration-teil4a-pdf-html.md`.
+
+### ADR-13: Navigationsarchitektur (gruppierte AppNav, flache URLs, basePath)
+
+- **Kontext**: Die alte Linkleiste zeigte alle Seiten nebeneinander und wuchs mit jeder Seite. Zugleich sind
+  Mehrturnier- und Live-Ansichten (siehe 11.11, 11.12) als Vision vorgemerkt und werden die URL-Struktur berühren.
+  DSS 0.8.0 liefert `TopBar` und `AppNav` (Liste mit Drill-down).
+- **Geprüfte Alternativen**: Unterstrichene Leiste ohne Gruppen (einfach, skaliert nicht und bleibt auf dem Handy
+  unübersichtlich); Seitenleiste (braucht dauerhaft Breite, die Druck-/Hallenansichten nicht haben).
+- **Entscheidung**: Die Navigation besteht aus `TopBar` + `AppNav`, gruppiert nach Zweck (Gruppen Vorbereiten,
+  Spielen, Ansehen und Hilfe, dazu der direkte Link Export). Das Modell ist rein und getestet: `buildNavigation` (`src/lib/navigation.ts`) liefert die
+  Gruppen samt gesperrten Einträgen (je nach Modus/Zustand) und nimmt einen `basePath` entgegen. Die URLs bleiben
+  vorerst flach (`/teams`, `/config`, `/demos` ...); eine spätere Struktur `/turniere/:id/...` wird über `basePath`
+  möglich, ohne das Modell umzuschreiben.
+- **Konsequenz**: E2E-Tests navigieren über den Helfer `goTo(page, label)`, der bei Bedarf die Gruppe öffnet; neue
+  Seiten müssen im Navigationsmodell und im Helfer (`NAV_GROUP`) gepflegt werden. Die Seite „Demo-Turniere“ liegt in
+  der Gruppe „Hilfe“. Die Dropdown-Zustände der Navigation sind eigene A11y-Testfälle (siehe 8.10).
+- **Beleg**: `docs/superpowers/specs/2026-10-06-dss-migration-teil3-design.md`;
+  `docs/superpowers/plans/2026-10-06-dss-migration-teil3b-app.md`.
