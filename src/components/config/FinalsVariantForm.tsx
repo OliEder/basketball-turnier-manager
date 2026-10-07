@@ -1,5 +1,5 @@
 import { useTournamentStore } from '@/store/tournament-store'
-import { Banner } from '@bbv/dss-design-system/react'
+import { Banner, Select } from '@bbv/dss-design-system/react'
 
 export default function FinalsVariantForm({ disabled = false }: { disabled?: boolean }) {
   const { tournament, setFinalsVariant, setDropoutHandling } = useTournamentStore()
@@ -28,24 +28,18 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
   return (
     <div className="space-y-4 max-w-md">
       <div className="space-y-1">
-        <label htmlFor="finals-variant" className="dss-field-label">Endrunden-Variante</label>
-        <select
+        <Select
           id="finals-variant"
-          className="border border-border rounded-sm px-2 py-1 text-sm w-full"
+          label="Endrunden-Variante"
           value={tournament.finalsVariant ?? 'endrunde-4'}
           onChange={e => setFinalsVariant(e.target.value as 'endrunde-1' | 'endrunde-3' | 'endrunde-4')}
           disabled={disabled}
-        >
-          <option value="endrunde-4">
-            Endrunde 4 — Platzierungsgruppen (jeder gegen jeden je Rangstufe)
-          </option>
-          <option value="endrunde-3" disabled={!canUseEndrunde3}>
-            Endrunde 3 — Halbfinale, Finale, Spiel um Platz 3 (nur Gruppenerste)
-          </option>
-          <option value="endrunde-1" disabled={!canUseEndrunde1}>
-            Endrunde 1 — K.-o.-Runden je Rangstufe (alle Gruppenersten, -zweiten, ...)
-          </option>
-        </select>
+          options={[
+            { value: 'endrunde-4', label: 'Endrunde 4 — Platzierungsgruppen (jeder gegen jeden je Rangstufe)' },
+            { value: 'endrunde-3', label: 'Endrunde 3 — Halbfinale, Finale, Spiel um Platz 3 (nur Gruppenerste)', disabled: !canUseEndrunde3 },
+            { value: 'endrunde-1', label: 'Endrunde 1 — K.-o.-Runden je Rangstufe (alle Gruppenersten, -zweiten, ...)', disabled: !canUseEndrunde1 },
+          ]}
+        />
         {!canUseEndrunde3 && (
           <p className="text-xs text-muted-foreground">
             Endrunde 3 benötigt genau 4 Gruppen (aktuell: {groupCount}).
@@ -75,17 +69,17 @@ export default function FinalsVariantForm({ disabled = false }: { disabled?: boo
       )}
 
       <div className="space-y-1">
-        <label htmlFor="dropout-handling" className="dss-field-label">Bei Rückzug in der Endrunde</label>
-        <select
+        <Select
           id="dropout-handling"
-          className="border border-border rounded-sm px-2 py-1 text-sm w-full"
+          label="Bei Rückzug in der Endrunde"
           value={tournament.dropoutHandling ?? 'next-best-fills-in'}
           onChange={e => setDropoutHandling(e.target.value as 'walkover' | 'next-best-fills-in')}
           disabled={true}
-        >
-          <option value="next-best-fills-in">Nächster Nachrücker rückt nach</option>
-          <option value="walkover">Gegner rückt kampflos vor (Walkover)</option>
-        </select>
+          options={[
+            { value: 'next-best-fills-in', label: 'Nächster Nachrücker rückt nach' },
+            { value: 'walkover', label: 'Gegner rückt kampflos vor (Walkover)' },
+          ]}
+        />
         <p className="text-xs text-muted-foreground">
           Ein Rückzug in der Endrunde wird aktuell immer als Walkover gewertet — Nachrücker-Logik
           ist noch nicht implementiert.

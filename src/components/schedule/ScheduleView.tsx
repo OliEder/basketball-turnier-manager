@@ -23,7 +23,7 @@ export default function ScheduleView() {
       )}
 
       {schedule.games.length > 0 && (
-        <div className="border border-border rounded-md p-4 bg-card">
+        <div className="dss-rows">
           {schedule.games.map(game => (
             <GameRow key={game.id} game={game} />
           ))}

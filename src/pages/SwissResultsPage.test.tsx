@@ -322,7 +322,7 @@ describe('SwissResultsPage', () => {
 
     expect(screen.queryByRole('button', { name: `${teamAbbreviation} zurückziehen` })).not.toBeInTheDocument()
     const badge = screen.getByText(`${teamAbbreviation} zurückgezogen`)
-    expect(badge).toHaveClass('bg-destructive')
+    expect(badge).toHaveClass('dss-chip--err')
   })
 
   it('keeps the "Turnier abschließen" button visible and clickable after typing the last score of the final round, and only shows "Turnier abgeschlossen" once those scores are actually saved', () => {

@@ -24,9 +24,9 @@ export default function GameRow({ game, showResult = false }: Props) {
   )
 
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-border last:border-0">
+    <div className="flex items-center gap-4 px-4 py-3 border-b border-border last:border-0">
       <span className="text-sm text-muted-foreground w-6">#{game.gameNumber}</span>
-      <span className="text-sm font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
+      <span className="dss-chip dss-chip--mono">F{game.field}</span>
       {showResult && finalScore ? (
         <span
           className="text-sm font-mono w-28 text-center"

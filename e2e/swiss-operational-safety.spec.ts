@@ -20,7 +20,7 @@ test('withdrawing a team mid-tournament does not permanently block round progres
   // Eingabefeld. Zeile über die feste Spielzeilen-Klasse ermitteln (eine pro Spiel der
   // Runde), dann eines der beiden "zurückziehen"-Buttons in dieser Zeile anklicken (welches
   // der beiden Teams betroffen ist, ist für diesen Test irrelevant).
-  const gameRows = page.locator('div.py-2.border-b')
+  const gameRows = page.locator('div.py-3.border-b')
   await expect(gameRows).toHaveCount(2)
   const remainingRow = gameRows.last()
   const withdrawButtons = remainingRow.getByRole('button', { name: /zurückziehen$/ })

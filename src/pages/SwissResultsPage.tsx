@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore, getCurrentSwissRound } from '@/store/tournament-store'
 import { PairingConflictError } from '@/lib/swiss-pairing'
-import { Button, Banner, Stepper, Tabs, TextInput } from '@bbv/dss-design-system/react'
+import { Button, Banner, Select, Stepper, Tabs, TextInput } from '@bbv/dss-design-system/react'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import type { Game } from '@/types'
@@ -139,11 +139,11 @@ export default function SwissResultsPage() {
         </Banner>
       )}
 
-      <div className="border border-border rounded-md p-4 bg-card space-y-3">
+      <div className="dss-rows">
         {roundGames.map(game => {
           if (game.byeTeamId) {
             return (
-              <div key={game.id} className="text-sm text-muted-foreground">
+              <div key={game.id} className="px-4 py-3 text-sm text-muted-foreground border-b border-border last:border-0">
                 Freilos: {teamMap.get(game.byeTeamId)?.name ?? '?'}
               </div>
             )
@@ -155,14 +155,14 @@ export default function SwissResultsPage() {
           const hasResult = game.periodScores.length > 0
           const canWithdraw = game.homeTeamId && game.awayTeamId
           return (
-            <div key={game.id} className="py-2 border-b border-border last:border-0">
-              <span className="text-xs font-mono text-muted-foreground">F{game.field}</span>
+            <div key={game.id} className="px-4 py-3 border-b border-border last:border-0">
+              <span className="dss-chip dss-chip--mono">F{game.field}</span>
               <div
                 className="grid items-center gap-2"
                 style={{ gridTemplateColumns: '140px 1fr 42px 16px 42px 1fr 140px auto auto' }}
               >
                 {homeTeam?.withdrawnAfterRound !== undefined && game.cancelledReason === 'withdrawal' ? (
-                  <span className="text-xs font-semibold uppercase tracking-wide rounded-sm bg-destructive text-destructive-foreground w-full min-w-0 truncate px-3 py-1.5 text-center">
+                  <span className="dss-chip dss-chip--err dss-chip--mono w-full min-w-0 justify-center overflow-hidden whitespace-nowrap">
                     {home} zurückgezogen
                   </span>
                 ) : canWithdraw ? (
@@ -232,7 +232,7 @@ export default function SwissResultsPage() {
                 </div>
 
                 {awayTeam?.withdrawnAfterRound !== undefined && game.cancelledReason === 'withdrawal' ? (
-                  <span className="text-xs font-semibold uppercase tracking-wide rounded-sm bg-destructive text-destructive-foreground w-full min-w-0 truncate px-3 py-1.5 text-center">
+                  <span className="dss-chip dss-chip--err dss-chip--mono w-full min-w-0 justify-center overflow-hidden whitespace-nowrap">
                     {away} zurückgezogen
                   </span>
                 ) : canWithdraw ? (
@@ -301,17 +301,16 @@ export default function SwissResultsPage() {
           {activeTeams.map(team => (
             <div key={team.id} className="flex items-center gap-3">
               <span className="w-32 text-sm">{team.name}</span>
-              <select
+              <Select
                 aria-label={`Gegner für ${team.name}`}
-                className="border border-border rounded-sm px-2 py-1 text-sm"
+                density="compact"
                 value={manualAssignments[team.id] ?? ''}
                 onChange={e => handleManualPair(team.id, e.target.value)}
-              >
-                <option value="">– Gegner wählen –</option>
-                {activeTeams.filter(t => t.id !== team.id).map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
+                options={[
+                  { value: '', label: '– Gegner wählen –' },
+                  ...activeTeams.filter(t => t.id !== team.id).map(t => ({ value: t.id, label: t.name })),
+                ]}
+              />
             </div>
           ))}
           <Button onClick={handleManualSubmit}>Paarungen übernehmen</Button>

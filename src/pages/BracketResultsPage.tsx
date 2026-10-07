@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTournamentStore } from '@/store/tournament-store'
-import { Button, TextInput, EmptyState } from '@bbv/dss-design-system/react'
+import { Button, TextInput, EmptyState, Select } from '@bbv/dss-design-system/react'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import { computeFinalScore } from '@/lib/standings'
 import type { Game } from '@/types'
@@ -98,26 +98,25 @@ export default function BracketResultsPage() {
       </div>
 
       <div className="flex gap-4 flex-wrap items-end">
-        <div className="space-y-1">
-          <label htmlFor="status-filter" className="dss-field-label">Status</label>
-          <select
-            id="status-filter"
-            className="border border-border rounded-sm px-2 py-1 text-sm"
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value as StatusFilter)}
-          >
-            <option value="open">Offen</option>
-            <option value="played">Erfasst</option>
-            <option value="all">Alle</option>
-          </select>
-        </div>
+        <Select
+          id="status-filter"
+          label="Status"
+          density="compact"
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value as StatusFilter)}
+          options={[
+            { value: 'open', label: 'Offen' },
+            { value: 'played', label: 'Erfasst' },
+            { value: 'all', label: 'Alle' },
+          ]}
+        />
       </div>
 
       {filteredGames.length === 0 && (
         <EmptyState title="Keine Spiele für die gewählten Filter." />
       )}
 
-      <div className="border border-border rounded-md p-4 bg-card space-y-3">
+      <div className="dss-rows">
         {filteredGames.map(game => {
           const homeTeam = game.homeTeamId ? teamMap.get(game.homeTeamId) : undefined
           const awayTeam = game.awayTeamId ? teamMap.get(game.awayTeamId) : undefined
@@ -127,10 +126,10 @@ export default function BracketResultsPage() {
           const finalScore = hasResult ? computeFinalScore(game) : null
 
           return (
-            <div key={game.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
+            <div key={game.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
               <span className="text-xs font-mono text-muted-foreground w-16">{game.scheduledStart}</span>
-              <span className="text-xs font-mono w-8 text-center bg-tint rounded-sm px-1">F{game.field}</span>
-              <span className="text-xs font-mono text-center bg-tint rounded-sm px-1">
+              <span className="dss-chip dss-chip--mono">F{game.field}</span>
+              <span className="dss-chip dss-chip--mono">
                 {STAGE_LABELS[game.stage] ?? game.stage}
               </span>
               <div className="flex-1 min-w-0 flex items-center gap-2">
