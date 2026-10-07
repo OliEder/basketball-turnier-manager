@@ -33,7 +33,9 @@ beforeEach(() => {
   vi.restoreAllMocks()
 })
 
-const loadButton = (title: string) => screen.getByRole('button', { name: new RegExp(`${title.replace(/[()]/g, '\\$&')}.*laden`) })
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+const loadButton = (title: string) => screen.getByRole('button', { name: new RegExp(`${escapeRegExp(title)}.*laden`) })
 
 describe('DemosPage', () => {
   it('listet alle Demo-Turniere mit Beschreibung', () => {
