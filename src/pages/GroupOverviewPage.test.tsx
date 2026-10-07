@@ -51,8 +51,8 @@ describe('GroupOverviewPage', () => {
   it('shows a tab per group and only renders the active group\'s table', () => {
     setupMultiGroupTournament()
     render(<GroupOverviewPage />)
-    expect(screen.getByRole('button', { name: 'Gruppe A' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Gruppe B' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Gruppe A' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Gruppe B' })).toBeInTheDocument()
     // Only one group's table/schedule is visible at a time.
     expect(screen.getAllByRole('table')).toHaveLength(1)
   })
@@ -71,7 +71,7 @@ describe('GroupOverviewPage', () => {
   it('switches to another group\'s table and schedule when its tab is clicked', () => {
     setupMultiGroupTournament()
     render(<GroupOverviewPage />)
-    fireEvent.click(screen.getByRole('button', { name: 'Gruppe B' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Gruppe B' }))
 
     const teams = useTournamentStore.getState().tournament.teams
     const groupBTeamNames = teams.filter(t => t.groupId === 'B').map(t => t.name)

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTournamentStore, getCurrentSwissRound } from '@/store/tournament-store'
 import { PairingConflictError } from '@/lib/swiss-pairing'
-import { Button, Banner, TextInput } from '@bbv/dss-design-system/react'
+import { Button, Banner, Stepper, Tabs, TextInput } from '@bbv/dss-design-system/react'
 import { getTeamAbbreviation } from '@/lib/utils'
 import { TeamNameDisplay } from '@/components/teams/TeamNameDisplay'
 import type { Game } from '@/types'
@@ -105,18 +105,24 @@ export default function SwissResultsPage() {
         Runde {displayRound} von {totalRounds}
       </h2>
 
-      <div className="flex gap-1 flex-wrap">
-        {Array.from({ length: displayRound }, (_, i) => i + 1).map(r => (
-          <Button
-            key={r}
-            variant={r === currentViewedRound ? undefined : 'ghost'}
-            size="sm"
-            onClick={() => setViewedRound(r)}
-          >
-            Runde {r}
-          </Button>
-        ))}
-      </div>
+      <Stepper
+        variant="compact"
+        ariaLabel="Turnierfortschritt"
+        steps={Array.from({ length: totalRounds }, (_, i) => ({
+          id: `r${i + 1}`,
+          label: `Runde ${i + 1}`,
+          state: i + 1 < displayRound ? ('done' as const) : i + 1 === displayRound ? ('current' as const) : ('pending' as const),
+        }))}
+      />
+
+      <Tabs
+        variant="pills"
+        size="sm"
+        ariaLabel="Runden"
+        items={Array.from({ length: displayRound }, (_, i) => ({ id: String(i + 1), label: `Runde ${i + 1}` }))}
+        value={String(currentViewedRound)}
+        onValueChange={id => setViewedRound(Number(id))}
+      />
 
       {isViewingPastRound && (
         <Banner>

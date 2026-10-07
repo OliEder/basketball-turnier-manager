@@ -42,7 +42,7 @@ test('organizer sets up a multi-group round-robin tournament and sees per-group 
   await expect(page.getByText(/Runde 3/)).toBeVisible()
 
   // Switch to group B via its tab and confirm its table replaces group A's.
-  await page.getByRole('button', { name: 'Gruppe B' }).click()
+  await page.getByRole('tab', { name: 'Gruppe B' }).click()
   await expect(page.getByRole('heading', { name: 'Gruppe B' })).toBeVisible()
   await expect(page.getByRole('table')).toHaveCount(1)
 })

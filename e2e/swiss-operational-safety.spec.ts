@@ -160,7 +160,7 @@ test('withdrawal that makes the active team count odd reshapes a not-yet-drawn f
   await withdrawButtons.first().click()
 
   // Runde 1 (bereits abgeschlossen) darf vom Rückzug nicht berührt worden sein.
-  await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
+  await page.getByRole('tab', { name: 'Runde 1', exact: true }).click()
   await expect(page.getByText(/bereits abgeschlossene Runde/)).toBeVisible()
   await expect(page.getByLabel(/^Ergebnis Heim, Spiel/)).toHaveCount(0)
   await page.getByRole('button', { name: 'Zur aktuellen Runde' }).click()

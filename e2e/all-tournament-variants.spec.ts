@@ -96,7 +96,7 @@ test('Variante 3: Gruppenphase + Endrunde, mehrere Gruppen', async ({ page }) =>
   await expect(page.getByRole('table')).toHaveCount(1)
 
   // Switch to group B via its tab and confirm its table replaces group A's.
-  await page.getByRole('button', { name: 'Gruppe B' }).click()
+  await page.getByRole('tab', { name: 'Gruppe B' }).click()
   await expect(page.getByRole('heading', { name: 'Gruppe B' })).toBeVisible()
   await expect(page.getByRole('table')).toHaveCount(1)
 

@@ -125,7 +125,7 @@ test('lets the organizer navigate back to a completed round and correct a result
   await expect(page.getByText(/bereits abgeschlossene Runde/)).not.toBeVisible()
   await expect(page.getByRole('button', { name: 'Turnier abschließen' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Runde 1', exact: true }).click()
+  await page.getByRole('tab', { name: 'Runde 1', exact: true }).click()
 
   await expect(page.getByText(/bereits abgeschlossene Runde/)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Turnier abschließen' })).not.toBeVisible()
